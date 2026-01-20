@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-
+import Logo from '../app/logo.png'
 export default function Navbar() {
     return (
         <header className="nav-header">
@@ -9,7 +9,7 @@ export default function Navbar() {
                 <div style={{
                     width: 32,
                     height: 32,
-                    background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
+                    background: 'linear-gradient(135deg, #fff 0%, #fff 100%)',
                     borderRadius: 8,
                     display: 'flex',
                     alignItems: 'center',
@@ -17,7 +17,7 @@ export default function Navbar() {
                     color: 'white',
                     fontSize: 16
                 }}>
-                    🌬️
+                    <img src={Logo.src} alt="AirSafe Move logo" />
                 </div>
                 <span>AirSafe Move</span>
             </Link>
