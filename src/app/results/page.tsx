@@ -80,6 +80,22 @@ export default function ResultsPage() {
     return (
         <div className="bg-gradient-main" style={{ minHeight: '100vh' }}>
             {/* Header */}
+            <style jsx global>{`
+                @media print {
+                    .print-hidden {
+                        display: none !important;
+                    }
+                    /* Optional: Remove background colors/shadows to save ink and look cleaner */
+                    .bg-gradient-main {
+                        background: white !important;
+                    }
+                    .results-container {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        max-width: 100% !important;
+                    }
+                }
+            `}</style>
             <header className="nav-header">
                 <Link href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
                     <div style={{
@@ -212,7 +228,7 @@ export default function ResultsPage() {
 
                                 {/* City Info */}
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 600, color: '#1E293B', fontSize: 18 }}>
+                                     <div style={{ fontWeight: 600, color: '#1E293B', fontSize: 18 }}>
                                         {rec.city_name}
                                         {index === 0 && (
                                             <span style={{
@@ -227,7 +243,7 @@ export default function ResultsPage() {
                                                 AI RECOMMENDED
                                             </span>
                                         )}
-                                    </div>
+                                    </div> 
                                     <div style={{ color: '#64748B', fontSize: 14 }}>
                                         {rec.state} • {getAqiCategory(rec.target_aqi)}
                                     </div>
@@ -363,7 +379,7 @@ export default function ResultsPage() {
                 </div>
 
                 {/* Actions */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+                <div className= "print-hidden" style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
                     <button
                         className="btn-primary"
                         onClick={() => window.print()}

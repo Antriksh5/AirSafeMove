@@ -2,49 +2,88 @@
 
 import Link from 'next/link';
 
+// Define common gradient styles to reuse
+const textGradientStyle = {
+    background: 'linear-gradient(90deg, #0EA5E9 0%, #10B981 100%)', // Sky blue to Emerald green
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    color: 'transparent', // Fallback
+};
+
+const bgGradientStyle = {
+    background: 'linear-gradient(90deg, #0EA5E9 0%, #10B981 100%)',
+    color: 'white',
+};
+
 export default function Hero() {
     return (
-        <section className="hero-section bg-gradient-main">
+        // UPDATED: Enhanced background gradient for more depth and freshness
+        <section className="hero-section" style={{
+            background: 'linear-gradient(180deg, #F0F9FF 0%, #ECFDF5 60%, #FFFFFF 100%)',
+            padding: '80px 20px' // Ensure some padding around the grid
+        }}>
             <div style={{
                 maxWidth: 1200,
                 margin: '0 auto',
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gap: 60,
+                gap: 80, // Increased gap slightly for better breathing room
                 alignItems: 'center'
             }}>
                 {/* Left Content */}
                 <div>
-                    <div className="badge badge-teal" style={{ marginBottom: 20 }}>
-                        <span style={{ fontSize: 12 }}>○</span>
+                    <div className="badge badge-teal" style={{ marginBottom: 24, backgroundColor: '#E0F2FE', color: '#0284C7', border: '1px solid #BAE6FD' }}>
+                        <span style={{ fontSize: 12, marginRight: 6 }}>●</span>
                         AI-Powered Migration Advisor
                     </div>
 
                     <h1 style={{
-                        fontSize: 48,
+                        fontSize: 56, // Slightly larger
                         fontWeight: 700,
-                        lineHeight: 1.2,
-                        marginBottom: 20,
-                        color: '#1E293B'
+                        lineHeight: 1.1,
+                        marginBottom: 24,
+                        color: '#1E293B',
+                        letterSpacing: '-0.02em'
                     }}>
                         Migrate to{' '}
-                        <span style={{ color: '#14B8A6' }}>Cleaner Air</span>
+                        <br />
+                        {/* UPDATED: Added vibrant gradient text */}
+                        <span style={{
+                            ...textGradientStyle,
+                            fontWeight: 700
+                        }}>
+                            Cleaner Air
+                        </span>
                         <br />
                         Live Healthier
                     </h1>
 
                     <p style={{
-                        fontSize: 16,
-                        color: '#64748B',
-                        marginBottom: 32,
-                        lineHeight: 1.6
+                        fontSize: 18,
+                        color: '#475569', // Slightly darker for better contrast
+                        marginBottom: 40,
+                        lineHeight: 1.7,
+                        maxWidth: '540px'
                     }}>
                         Make data-driven relocation decisions with AI. Find cities with
                         better air quality, affordable living, and career opportunities tailored
                         to your profile.
                     </p>
 
-                    <Link href="/wizard" className="btn-primary" style={{ fontSize: 16 }}>
+                    {/* UPDATED: Gradient Button */}
+                    <Link href="/wizard" className="btn-primary" style={{
+                        ...bgGradientStyle,
+                        fontSize: 18,
+                        fontWeight: 600,
+                        padding: '16px 32px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        border: 'none',
+                        boxShadow: '0 10px 15px -3px rgba(14, 165, 233, 0.3)' // Add a colored shadow glow
+                    }}>
                         Find Your City
                         <span>→</span>
                     </Link>
@@ -52,52 +91,68 @@ export default function Hero() {
                     {/* Stats */}
                     <div style={{
                         display: 'flex',
-                        gap: 40,
-                        marginTop: 48,
+                        gap: 48,
+                        marginTop: 56,
                         paddingTop: 32,
                         borderTop: '1px solid #E2E8F0'
                     }}>
                         <div className="stat-box" style={{ textAlign: 'left', padding: 0 }}>
-                            <div className="stat-value">25+</div>
-                            <div className="stat-label">Cities Analyzed</div>
+                            <div className="stat-value" style={{ fontSize: 36, fontWeight: 700, color: '#1E293B' }}>25+</div>
+                            <div className="stat-label" style={{ color: '#64748B', marginTop: 4 }}>Cities Analyzed</div>
                         </div>
                         <div className="stat-box" style={{ textAlign: 'left', padding: 0 }}>
-                            <div className="stat-value">5 Year</div>
-                            <div className="stat-label">AQI Data</div>
+                            <div className="stat-value" style={{ fontSize: 36, fontWeight: 700, color: '#1E293B' }}>5 Year</div>
+                            <div className="stat-label" style={{ color: '#64748B', marginTop: 4 }}>AQI Data</div>
                         </div>
                         <div className="stat-box" style={{ textAlign: 'left', padding: 0 }}>
-                            <div className="stat-value" style={{ color: '#14B8A6' }}>100%</div>
-                            <div className="stat-label">Free to Use</div>
+                            {/* UPDATED: Gradient text on the stat */}
+                            <div className="stat-value" style={{ ...textGradientStyle, fontSize: 36, fontWeight: 700 }}>100%</div>
+                            <div className="stat-label" style={{ color: '#64748B', marginTop: 4 }}>Free to Use</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Content - AQI Comparison Card */}
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <div className="aqi-comparison-card" style={{ maxWidth: 380, width: '100%' }}>
-                        {/* AI Recommended Badge */}
-                        <div style={{
-                            position: 'absolute',
-                            top: -10,
-                            right: 20,
-                            background: '#7C3AED',
-                            color: 'white',
-                            padding: '6px 12px',
-                            borderRadius: 6,
-                            fontSize: 12,
-                            fontWeight: 600
-                        }}>
-                            AI Recommended
-                        </div>
+                <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+                    {/* AI Recommended Badge - Moved outside relative to the grid container for easier positioning */}
+                    {/* UPDATED: Gradient background for the badge */}
+                    <div style={{
+                        ...bgGradientStyle,
+                        position: 'absolute',
+                        top: -20,
+                        right: 20,
+                        zIndex: 10,
+                        padding: '8px 16px',
+                        borderRadius: 50,
+                        fontSize: 14,
+                        fontWeight: 700,
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        ✨ AI Recommended
+                    </div>
+
+                    <div className="aqi-comparison-card" style={{
+                        maxWidth: 500,
+                        width: '100%',
+                        background: '#FFFFFF',
+                        borderRadius: '24px',
+                        padding: '32px',
+                        // UPDATED: Added a subtle colored shadow for pop
+                        boxShadow: '0 20px 25px -5px rgba(14, 184, 166, 0.1), 0 10px 10px -5px rgba(14, 184, 166, 0.04)',
+                        border: '1px solid #F0FDF4'
+                    }}>
 
                         {/* Delhi (Current) */}
-                        <div className="aqi-city-row">
-                            <div className="aqi-badge aqi-hazardous" style={{ borderRadius: 8 }}>
+                        <div className="aqi-city-row" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                            <div className="aqi-badge aqi-hazardous" style={{
+                                borderRadius: 12,
+                                background: '#FEF2F2', color: '#DC2626', padding: '12px', fontSize: 24, fontWeight: 700, minWidth: 80, textAlign: 'center'
+                            }}>
                                 285
                             </div>
                             <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, color: '#1E293B' }}>Delhi</div>
-                                <div style={{ fontSize: 13, color: '#64748B' }}>Current AQI - Hazardous</div>
+                                <div style={{ fontWeight: 700, fontSize: 20, color: '#1E293B' }}>Delhi</div>
+                                <div style={{ fontSize: 14, color: '#DC2626', fontWeight: 500 }}>Current AQI - Hazardous</div>
                             </div>
                         </div>
 
@@ -105,26 +160,31 @@ export default function Hero() {
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            padding: '8px 0',
+                            padding: '12px 0',
                             gap: 12
                         }}>
+                            {/* UPDATED: Vibrant gradient progress bar */}
                             <div style={{
                                 flex: 1,
-                                height: 4,
-                                background: 'linear-gradient(90deg, #14B8A6 0%, #10B981 100%)',
-                                borderRadius: 2
+                                height: 6,
+                                background: 'linear-gradient(90deg, #DC2626 0%, #F59E0B 50%, #10B981 100%)',
+                                borderRadius: 10
                             }} />
-                            <span style={{ color: '#14B8A6', fontSize: 20 }}>→</span>
+                            {/* UPDATED: Gradient arrow */}
+                            <span style={{ ...textGradientStyle, fontSize: 24 }}>→</span>
                         </div>
 
                         {/* Shimla (Target) */}
-                        <div className="aqi-city-row" style={{ borderBottom: 'none' }}>
-                            <div className="aqi-badge aqi-good" style={{ borderRadius: 8 }}>
+                        <div className="aqi-city-row" style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 20, paddingBottom: 24, borderBottom: '1px solid #F1F5F9' }}>
+                            <div className="aqi-badge aqi-good" style={{
+                                borderRadius: 12,
+                                background: '#ECFDF5', color: '#059669', padding: '12px', fontSize: 24, fontWeight: 700, minWidth: 80, textAlign: 'center'
+                            }}>
                                 48
                             </div>
                             <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, color: '#1E293B' }}>Shimla</div>
-                                <div style={{ fontSize: 13, color: '#64748B' }}>Target AQI - Good</div>
+                                <div style={{ fontWeight: 700, fontSize: 20, color: '#1E293B' }}>Shimla</div>
+                                <div style={{ fontSize: 14, color: '#059669', fontWeight: 500 }}>Target AQI - Good</div>
                             </div>
                         </div>
 
@@ -132,12 +192,18 @@ export default function Hero() {
                         <div className="improvement-badge" style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 8
+                            gap: 12,
+                            background: '#F0FDF4',
+                            padding: '16px',
+                            borderRadius: 16,
+                            marginTop: 24,
+                            border: '1px solid #DCFCE7'
                         }}>
-                            <span style={{ fontSize: 16 }}>○</span>
+                            <span style={{ fontSize: 20, color: '#10B981' }}>🎉</span>
                             <div>
-                                <div style={{ fontWeight: 600 }}>83% AQI Improvement</div>
-                                <div style={{ fontSize: 12, opacity: 0.8 }}>Significant health benefits expected</div>
+                                {/* UPDATED: Gradient text for improvement */}
+                                <div style={{ ...textGradientStyle, fontWeight: 700, fontSize: 18 }}>83% AQI Improvement</div>
+                                <div style={{ fontSize: 14, color: '#334155' }}>Significant health benefits expected</div>
                             </div>
                         </div>
 
@@ -145,27 +211,28 @@ export default function Hero() {
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 8,
+                            gap: 12,
                             marginTop: 16,
                             padding: '12px 16px',
                             background: '#F8FAFC',
-                            borderRadius: 8
+                            borderRadius: 12
                         }}>
                             <div style={{
-                                width: 32,
-                                height: 32,
-                                background: 'rgba(20, 184, 166, 0.1)',
+                                width: 36,
+                                height: 36,
+                                background: '#E0F2FE',
                                 borderRadius: '50%',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                color: '#14B8A6'
+                                color: '#0EA5E9',
+                                fontSize: 18
                             }}>
                                 📍
                             </div>
                             <div>
                                 <div style={{ fontWeight: 600, color: '#1E293B' }}>320 km</div>
-                                <div style={{ fontSize: 12, color: '#64748B' }}>Distance</div>
+                                <div style={{ fontSize: 13, color: '#64748B' }}>Distance</div>
                             </div>
                         </div>
                     </div>
