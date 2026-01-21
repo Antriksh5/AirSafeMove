@@ -4,8 +4,61 @@ Cities API Router - Provides city data and AQI information.
 
 from fastapi import APIRouter, HTTPException
 from typing import List, Dict, Any
+from pydantic import BaseModel
 
 from app.services.city_data import get_all_cities, get_city_by_name, get_city_names, get_professions
+from app.services.city_description import generate_city_description
+
+
+# Response models for city description
+class CrimeRate(BaseModel):
+    security_score: int
+    description: str
+
+
+class Education(BaseModel):
+    score: int
+    highlights: List[str]
+    description: str
+
+
+class Communities(BaseModel):
+    demographics: str
+    highlights: List[str]
+
+
+class Connectivity(BaseModel):
+    nearest_metro: str
+    distance_km: int
+    transport_options: str
+    description: str
+
+
+class Hospitals(BaseModel):
+    score: int
+    facilities: List[str]
+    description: str
+
+
+class Geography(BaseModel):
+    terrain: str
+    climate: str
+    elevation_m: int = 0
+    features: List[str]
+    description: str
+
+
+class CityDescriptionResponse(BaseModel):
+    city_name: str
+    state: str
+    generated: bool
+    crime_rate: CrimeRate
+    education: Education
+    communities: Communities
+    connectivity: Connectivity
+    hospitals: Hospitals
+    geography: Geography
+
 
 router = APIRouter()
 
@@ -39,6 +92,42 @@ async def list_city_names() -> List[str]:
 async def list_professions() -> List[str]:
     """Get list of all professions for dropdowns"""
     return get_professions()
+
+
+@router.get("/description/{city_name}")
+async def get_city_description(
+    city_name: str,
+    has_children: bool = False,
+    has_elderly: bool = False
+) -> CityDescriptionResponse:
+    """
+    Get comprehensive AI-generated description for a city.
+    
+    Includes:
+    - Crime rate and security score
+    - Education facilities
+    - Communities and demographics
+    - Connectivity to metro cities
+    - Hospital facilities
+    - Geographical features
+    
+    Parameters:
+    - city_name: Name of the city
+    - has_children: Whether the family has children (emphasizes education/safety)
+    - has_elderly: Whether the family has elderly members (emphasizes healthcare)
+    """
+    city = get_city_by_name(city_name)
+    if not city:
+        raise HTTPException(status_code=404, detail=f"City not found: {city_name}")
+    
+    description_data = generate_city_description(
+        city_name=city["city_name"],
+        state=city["state"],
+        has_children=has_children,
+        has_elderly=has_elderly
+    )
+    
+    return CityDescriptionResponse(**description_data)
 
 
 @router.get("/{city_name}")

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CityRecommendation } from '@/lib/api';
+import { CityRecommendation, CityDescription, fetchCityDescription } from '@/lib/api';
 
 interface ResultsData {
     recommendations: CityRecommendation[];
@@ -48,9 +48,62 @@ function getAqiCategory(aqi: number): string {
     return 'Hazardous';
 }
 
+function ScoreBar({ score, maxScore = 10, color }: { score: number; maxScore?: number; color: string }) {
+    const percentage = (score / maxScore) * 100;
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
+            <div style={{
+                flex: 1,
+                height: 8,
+                backgroundColor: '#E2E8F0',
+                borderRadius: 4,
+                overflow: 'hidden'
+            }}>
+                <div style={{
+                    width: `${percentage}%`,
+                    height: '100%',
+                    backgroundColor: color,
+                    borderRadius: 4,
+                    transition: 'width 0.3s ease'
+                }} />
+            </div>
+            <span style={{ fontWeight: 600, color, minWidth: 40 }}>{score}/{maxScore}</span>
+        </div>
+    );
+}
+
 export default function ResultsPage() {
     const router = useRouter();
     const [data, setData] = useState<ResultsData | null>(null);
+    const [selectedCity, setSelectedCity] = useState<CityRecommendation | null>(null);
+    const [cityDescription, setCityDescription] = useState<CityDescription | null>(null);
+    const [isLoadingDescription, setIsLoadingDescription] = useState(false);
+    const [activeTab, setActiveTab] = useState<'security' | 'education' | 'communities' | 'connectivity' | 'hospitals' | 'geography'>('security');
+
+    const handleCityClick = async (rec: CityRecommendation) => {
+        setSelectedCity(rec);
+        setCityDescription(null);
+        setIsLoadingDescription(true);
+        setActiveTab('security');
+
+        try {
+            const description = await fetchCityDescription(
+                rec.city_name,
+                data?.familyHealth.children ? data.familyHealth.children > 0 : false,
+                data?.familyHealth.elderly ? data.familyHealth.elderly > 0 : false
+            );
+            setCityDescription(description);
+        } catch (error) {
+            console.error('Failed to load city description:', error);
+        } finally {
+            setIsLoadingDescription(false);
+        }
+    };
+
+    const closeModal = () => {
+        setSelectedCity(null);
+        setCityDescription(null);
+    };
 
     useEffect(() => {
         const storedData = sessionStorage.getItem('airsafe_results');
@@ -192,6 +245,9 @@ export default function ResultsPage() {
                         <div
                             key={rec.city_name}
                             className={`recommendation-card ${index === 0 ? 'top' : ''}`}
+                            onClick={() => handleCityClick(rec)}
+                            style={{ cursor: 'pointer' }}
+                            title="Click to view detailed city information"
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                                 {/* Rank */}
@@ -228,7 +284,7 @@ export default function ResultsPage() {
 
                                 {/* City Info */}
                                 <div style={{ flex: 1 }}>
-                                     <div style={{ fontWeight: 600, color: '#1E293B', fontSize: 18 }}>
+                                    <div style={{ fontWeight: 600, color: '#1E293B', fontSize: 18 }}>
                                         {rec.city_name}
                                         {index === 0 && (
                                             <span style={{
@@ -243,7 +299,7 @@ export default function ResultsPage() {
                                                 AI RECOMMENDED
                                             </span>
                                         )}
-                                    </div> 
+                                    </div>
                                     <div style={{ color: '#64748B', fontSize: 14 }}>
                                         {rec.state} • {getAqiCategory(rec.target_aqi)}
                                     </div>
@@ -379,7 +435,7 @@ export default function ResultsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className= "print-hidden" style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+                <div className="print-hidden" style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
                     <button
                         className="btn-primary"
                         onClick={() => window.print()}
@@ -392,6 +448,311 @@ export default function ResultsPage() {
                     </Link>
                 </div>
             </div>
-        </div>
+
+            {/* City Description Modal */}
+            {selectedCity && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000,
+                        padding: 20
+                    }}
+                    onClick={(e) => e.target === e.currentTarget && closeModal()}
+                >
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: 16,
+                        maxWidth: 800,
+                        width: '100%',
+                        maxHeight: '90vh',
+                        overflow: 'hidden',
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                    }}>
+                        {/* Modal Header */}
+                        <div style={{
+                            padding: '24px 32px',
+                            borderBottom: '1px solid #E2E8F0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%)'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                <div style={{
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: 8,
+                                    background: getAqiColor(selectedCity.target_aqi),
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: 700,
+                                    fontSize: 18
+                                }}>
+                                    {selectedCity.target_aqi}
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#1E293B' }}>
+                                        {selectedCity.city_name}
+                                    </h3>
+                                    <p style={{ margin: 0, color: '#64748B', fontSize: 14 }}>
+                                        {selectedCity.state} • {getAqiCategory(selectedCity.target_aqi)}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={closeModal}
+                                style={{
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: 8,
+                                    border: 'none',
+                                    backgroundColor: '#F1F5F9',
+                                    cursor: 'pointer',
+                                    fontSize: 20,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Tabs */}
+                        <div style={{
+                            display: 'flex',
+                            borderBottom: '1px solid #E2E8F0',
+                            overflowX: 'auto',
+                            padding: '0 16px'
+                        }}>
+                            {[
+                                { id: 'security' as const, label: '🛡️ Security', icon: '🛡️' },
+                                { id: 'education' as const, label: '📚 Education', icon: '📚' },
+                                { id: 'communities' as const, label: '👥 Communities', icon: '👥' },
+                                { id: 'connectivity' as const, label: '🚗 Connectivity', icon: '🚗' },
+                                { id: 'hospitals' as const, label: '🏥 Healthcare', icon: '🏥' },
+                                { id: 'geography' as const, label: '🏔️ Geography', icon: '🏔️' }
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    style={{
+                                        padding: '12px 16px',
+                                        border: 'none',
+                                        backgroundColor: 'transparent',
+                                        cursor: 'pointer',
+                                        fontSize: 14,
+                                        fontWeight: activeTab === tab.id ? 600 : 400,
+                                        color: activeTab === tab.id ? '#14B8A6' : '#64748B',
+                                        borderBottom: activeTab === tab.id ? '2px solid #14B8A6' : '2px solid transparent',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Modal Content */}
+                        <div style={{ padding: 32, maxHeight: 'calc(90vh - 180px)', overflowY: 'auto' }}>
+                            {isLoadingDescription ? (
+                                <div style={{
+                                    textAlign: 'center',
+                                    padding: 60,
+                                    color: '#64748B'
+                                }}>
+                                    <div className="loading-pulse" style={{ fontSize: 18 }}>
+                                        🤖 AI is gathering information about {selectedCity.city_name}...
+                                    </div>
+                                    <p style={{ marginTop: 12, fontSize: 14 }}>
+                                        Fetching crime statistics, education facilities, connectivity data, and more
+                                    </p>
+                                </div>
+                            ) : cityDescription ? (
+                                <>
+                                    {activeTab === 'security' && (
+                                        <div>
+                                            <div style={{ marginBottom: 24 }}>
+                                                <h4 style={{ margin: 0, marginBottom: 12, fontSize: 16, color: '#1E293B' }}>
+                                                    Security Score
+                                                </h4>
+                                                <ScoreBar
+                                                    score={cityDescription.crime_rate.security_score}
+                                                    color={cityDescription.crime_rate.security_score >= 7 ? '#10B981' : cityDescription.crime_rate.security_score >= 5 ? '#F59E0B' : '#EF4444'}
+                                                />
+                                            </div>
+                                            <p style={{ color: '#475569', lineHeight: 1.7 }}>
+                                                {cityDescription.crime_rate.description}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'education' && (
+                                        <div>
+                                            <div style={{ marginBottom: 24 }}>
+                                                <h4 style={{ margin: 0, marginBottom: 12, fontSize: 16, color: '#1E293B' }}>
+                                                    Education Score
+                                                </h4>
+                                                <ScoreBar
+                                                    score={cityDescription.education.score}
+                                                    color="#3B82F6"
+                                                />
+                                            </div>
+                                            <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: 20 }}>
+                                                {cityDescription.education.description}
+                                            </p>
+                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: '#64748B' }}>
+                                                Key Educational Institutions
+                                            </h5>
+                                            <ul style={{ margin: 0, paddingLeft: 20, color: '#475569' }}>
+                                                {cityDescription.education.highlights.map((item, i) => (
+                                                    <li key={i} style={{ marginBottom: 8 }}>{item}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'communities' && (
+                                        <div>
+                                            <h4 style={{ margin: 0, marginBottom: 16, fontSize: 16, color: '#1E293B' }}>
+                                                Demographics & Communities
+                                            </h4>
+                                            <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: 20 }}>
+                                                {cityDescription.communities.demographics}
+                                            </p>
+                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: '#64748B' }}>
+                                                Community Highlights
+                                            </h5>
+                                            <ul style={{ margin: 0, paddingLeft: 20, color: '#475569' }}>
+                                                {cityDescription.communities.highlights.map((item, i) => (
+                                                    <li key={i} style={{ marginBottom: 8 }}>{item}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'connectivity' && (
+                                        <div>
+                                            <div style={{
+                                                display: 'grid',
+                                                gridTemplateColumns: '1fr 1fr',
+                                                gap: 16,
+                                                marginBottom: 24
+                                            }}>
+                                                <div className="card" style={{ padding: 20, textAlign: 'center' }}>
+                                                    <div style={{ fontSize: 28, fontWeight: 700, color: '#14B8A6' }}>
+                                                        {cityDescription.connectivity.nearest_metro}
+                                                    </div>
+                                                    <div style={{ fontSize: 12, color: '#64748B' }}>
+                                                        Nearest Metro City
+                                                    </div>
+                                                </div>
+                                                <div className="card" style={{ padding: 20, textAlign: 'center' }}>
+                                                    <div style={{ fontSize: 28, fontWeight: 700, color: '#3B82F6' }}>
+                                                        {cityDescription.connectivity.distance_km} km
+                                                    </div>
+                                                    <div style={{ fontSize: 12, color: '#64748B' }}>
+                                                        Distance
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: 12 }}>
+                                                {cityDescription.connectivity.description}
+                                            </p>
+                                            <p style={{ color: '#64748B', fontSize: 14 }}>
+                                                <strong>Transport Options:</strong> {cityDescription.connectivity.transport_options}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'hospitals' && (
+                                        <div>
+                                            <div style={{ marginBottom: 24 }}>
+                                                <h4 style={{ margin: 0, marginBottom: 12, fontSize: 16, color: '#1E293B' }}>
+                                                    Healthcare Score
+                                                </h4>
+                                                <ScoreBar
+                                                    score={cityDescription.hospitals.score}
+                                                    color="#8B5CF6"
+                                                />
+                                            </div>
+                                            <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: 20 }}>
+                                                {cityDescription.hospitals.description}
+                                            </p>
+                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: '#64748B' }}>
+                                                Major Healthcare Facilities
+                                            </h5>
+                                            <ul style={{ margin: 0, paddingLeft: 20, color: '#475569' }}>
+                                                {cityDescription.hospitals.facilities.map((item, i) => (
+                                                    <li key={i} style={{ marginBottom: 8 }}>{item}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'geography' && (
+                                        <div>
+                                            <div style={{
+                                                display: 'grid',
+                                                gridTemplateColumns: 'repeat(3, 1fr)',
+                                                gap: 16,
+                                                marginBottom: 24
+                                            }}>
+                                                <div className="card" style={{ padding: 16, textAlign: 'center' }}>
+                                                    <div style={{ fontSize: 16, fontWeight: 600, color: '#10B981' }}>
+                                                        {cityDescription.geography.terrain}
+                                                    </div>
+                                                    <div style={{ fontSize: 11, color: '#64748B' }}>Terrain</div>
+                                                </div>
+                                                <div className="card" style={{ padding: 16, textAlign: 'center' }}>
+                                                    <div style={{ fontSize: 16, fontWeight: 600, color: '#3B82F6' }}>
+                                                        {cityDescription.geography.climate}
+                                                    </div>
+                                                    <div style={{ fontSize: 11, color: '#64748B' }}>Climate</div>
+                                                </div>
+                                                {cityDescription.geography.elevation_m > 0 && (
+                                                    <div className="card" style={{ padding: 16, textAlign: 'center' }}>
+                                                        <div style={{ fontSize: 16, fontWeight: 600, color: '#8B5CF6' }}>
+                                                            {cityDescription.geography.elevation_m}m
+                                                        </div>
+                                                        <div style={{ fontSize: 11, color: '#64748B' }}>Elevation</div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: 20 }}>
+                                                {cityDescription.geography.description}
+                                            </p>
+                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: '#64748B' }}>
+                                                Natural Features
+                                            </h5>
+                                            <ul style={{ margin: 0, paddingLeft: 20, color: '#475569' }}>
+                                                {cityDescription.geography.features.map((item, i) => (
+                                                    <li key={i} style={{ marginBottom: 8 }}>{item}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: 40, color: '#EF4444' }}>
+                                    Failed to load city information. Please try again.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )
+            }
+        </div >
     );
 }

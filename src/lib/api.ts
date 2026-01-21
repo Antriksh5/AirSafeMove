@@ -75,6 +75,56 @@ export interface AdvisoryResponse {
     generated: boolean;
 }
 
+// City Description interfaces
+export interface CrimeRate {
+    security_score: number;
+    description: string;
+}
+
+export interface Education {
+    score: number;
+    highlights: string[];
+    description: string;
+}
+
+export interface Communities {
+    demographics: string;
+    highlights: string[];
+}
+
+export interface Connectivity {
+    nearest_metro: string;
+    distance_km: number;
+    transport_options: string;
+    description: string;
+}
+
+export interface Hospitals {
+    score: number;
+    facilities: string[];
+    description: string;
+}
+
+export interface Geography {
+    terrain: string;
+    climate: string;
+    elevation_m: number;
+    features: string[];
+    description: string;
+}
+
+export interface CityDescription {
+    city_name: string;
+    state: string;
+    generated: boolean;
+    crime_rate: CrimeRate;
+    education: Education;
+    communities: Communities;
+    connectivity: Connectivity;
+    hospitals: Hospitals;
+    geography: Geography;
+}
+
 // API Functions
 export async function fetchCities(): Promise<City[]> {
     try {
@@ -106,6 +156,27 @@ export async function fetchProfessions(): Promise<string[]> {
     } catch (error) {
         console.error('Error fetching professions:', error);
         return defaultProfessions;
+    }
+}
+
+export async function fetchCityDescription(
+    cityName: string,
+    hasChildren: boolean = false,
+    hasElderly: boolean = false
+): Promise<CityDescription> {
+    try {
+        const params = new URLSearchParams({
+            has_children: hasChildren.toString(),
+            has_elderly: hasElderly.toString()
+        });
+        const response = await fetch(
+            `${API_BASE_URL}/api/cities/description/${encodeURIComponent(cityName)}?${params}`
+        );
+        if (!response.ok) throw new Error('Failed to fetch city description');
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching city description:', error);
+        throw error;
     }
 }
 
