@@ -30,8 +30,8 @@ export default function WizardPage() {
     const router = useRouter();
     const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [cities, setCities] = useState([]);
-    const [professions, setProfessions] = useState([]);
+    const [cities, setCities] = useState<string[]>([]);
+    const [professions, setProfessions] = useState<string[]>([]);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -57,7 +57,7 @@ export default function WizardPage() {
     }, []);
 
     // Helper: Determine if a field is disabled
-    const isFieldDisabled = (field) => {
+    const isFieldDisabled = (field: string) => {
         const { familyType } = formData;
 
         if (familyType === 'Single') {
@@ -88,7 +88,7 @@ export default function WizardPage() {
         return totalMembers; // Joint family
     };
 
-    const handleInputChange = (field, value) => {
+    const handleInputChange = (field: string, value: string | number) => {
         setFormData(prev => {
             const newData = { ...prev, [field]: value };
 
@@ -98,7 +98,7 @@ export default function WizardPage() {
                     newData.totalMembers = 1;
                     newData.children = 0;
                     // Reset elderly if it exceeds the new limit (1)
-                    if (prev.elderly > 1) newData.elderly = 1; 
+                    if (prev.elderly > 1) newData.elderly = 1;
                 } else if (value === 'Couple') {
                     newData.totalMembers = 2;
                     newData.children = 0;
@@ -112,20 +112,20 @@ export default function WizardPage() {
 
             // Logic: If user changes Elderly count, ensure it doesn't exceed Total Members
             if (field === 'elderly') {
-                const max = getMaxElderly(); 
+                const numValue = typeof value === 'number' ? value : parseInt(value as string) || 0;
                 // We use the getter function, but since we are inside the setter and relying on 'prev', 
                 // we need to be careful. Simplest is to check against strict types:
-                if (prev.familyType === 'Single' && value > 1) newData.elderly = 1;
-                if (prev.familyType === 'Couple' && value > 2) newData.elderly = 2;
+                if (prev.familyType === 'Single' && numValue > 1) newData.elderly = 1;
+                if (prev.familyType === 'Couple' && numValue > 2) newData.elderly = 2;
                 // For Joint, elderly cannot exceed total members
-                if (prev.familyType === 'Joint Family' && value > prev.totalMembers) newData.elderly = prev.totalMembers;
+                if (prev.familyType === 'Joint Family' && numValue > prev.totalMembers) newData.elderly = prev.totalMembers;
             }
 
             return newData;
         });
     };
 
-    const toggleHealthCondition = (conditionId) => {
+    const toggleHealthCondition = (conditionId: string) => {
         setFormData(prev => {
             let newConditions = [...prev.healthConditions];
             if (conditionId === 'None') {
@@ -293,7 +293,7 @@ export default function WizardPage() {
                         <div>
                             <h2 style={{ fontSize: 28, fontWeight: 700, color: '#1E293B', textAlign: 'center', marginBottom: 8 }}>Family & Health Details</h2>
                             <p style={{ color: '#64748B', textAlign: 'center', marginBottom: 32 }}>Help us find the best city for your family's health</p>
-                            
+
                             <div style={{ marginBottom: 24 }}>
                                 <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#1E293B' }}>Family Type</label>
                                 <select className="form-select" value={formData.familyType} onChange={(e) => handleInputChange('familyType', e.target.value)}>
@@ -304,44 +304,44 @@ export default function WizardPage() {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
                                 <div>
                                     <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#1E293B', fontSize: 14 }}>Total Members</label>
-                                    <input 
-                                        type="number" 
-                                        className="form-input" 
-                                        min="1" 
-                                        max="20" 
-                                        value={formData.totalMembers} 
-                                        onChange={(e) => handleInputChange('totalMembers', parseInt(e.target.value) || 1)} 
-                                        disabled={isFieldDisabled('totalMembers')} 
-                                        style={{ backgroundColor: isFieldDisabled('totalMembers') ? '#F1F5F9' : 'white', cursor: isFieldDisabled('totalMembers') ? 'not-allowed' : 'text', color: isFieldDisabled('totalMembers') ? '#94A3B8' : 'inherit' }} 
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        min="1"
+                                        max="20"
+                                        value={formData.totalMembers}
+                                        onChange={(e) => handleInputChange('totalMembers', parseInt(e.target.value) || 1)}
+                                        disabled={isFieldDisabled('totalMembers')}
+                                        style={{ backgroundColor: isFieldDisabled('totalMembers') ? '#F1F5F9' : 'white', cursor: isFieldDisabled('totalMembers') ? 'not-allowed' : 'text', color: isFieldDisabled('totalMembers') ? '#94A3B8' : 'inherit' }}
                                     />
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#1E293B', fontSize: 14 }}>Children</label>
-                                    <input 
-                                        type="number" 
-                                        className="form-input" 
-                                        min="0" 
-                                        max="10" 
-                                        value={formData.children} 
-                                        onChange={(e) => handleInputChange('children', parseInt(e.target.value) || 0)} 
-                                        disabled={isFieldDisabled('children')} 
-                                        style={{ backgroundColor: isFieldDisabled('children') ? '#F1F5F9' : 'white', cursor: isFieldDisabled('children') ? 'not-allowed' : 'text', color: isFieldDisabled('children') ? '#94A3B8' : 'inherit' }} 
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        min="0"
+                                        max="10"
+                                        value={formData.children}
+                                        onChange={(e) => handleInputChange('children', parseInt(e.target.value) || 0)}
+                                        disabled={isFieldDisabled('children')}
+                                        style={{ backgroundColor: isFieldDisabled('children') ? '#F1F5F9' : 'white', cursor: isFieldDisabled('children') ? 'not-allowed' : 'text', color: isFieldDisabled('children') ? '#94A3B8' : 'inherit' }}
                                     />
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#1E293B', fontSize: 14 }}>
                                         Elderly (60+)
                                     </label>
-                                    <input 
-                                        type="number" 
-                                        className="form-input" 
-                                        min="0" 
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        min="0"
                                         // UPDATED: Dynamic Max based on Family Type
                                         max={getMaxElderly()}
-                                        value={formData.elderly} 
-                                        onChange={(e) => handleInputChange('elderly', parseInt(e.target.value) || 0)} 
-                                        disabled={isFieldDisabled('elderly')} 
-                                        style={{ backgroundColor: isFieldDisabled('elderly') ? '#F1F5F9' : 'white', cursor: isFieldDisabled('elderly') ? 'not-allowed' : 'text', color: isFieldDisabled('elderly') ? '#94A3B8' : 'inherit' }} 
+                                        value={formData.elderly}
+                                        onChange={(e) => handleInputChange('elderly', parseInt(e.target.value) || 0)}
+                                        disabled={isFieldDisabled('elderly')}
+                                        style={{ backgroundColor: isFieldDisabled('elderly') ? '#F1F5F9' : 'white', cursor: isFieldDisabled('elderly') ? 'not-allowed' : 'text', color: isFieldDisabled('elderly') ? '#94A3B8' : 'inherit' }}
                                     />
                                 </div>
                             </div>
@@ -365,8 +365,8 @@ export default function WizardPage() {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 40, paddingTop: 24, borderTop: '1px solid #E2E8F0' }}>
                         {currentStep === 0 ? <Link href="/" className="btn-secondary">← Back to Home</Link> : <button className="btn-secondary" onClick={handlePrevious}>← Previous</button>}
-                        {currentStep < steps.length - 1 ? 
-                            <button className="btn-primary" onClick={handleNext} disabled={!canProceed()} style={{ opacity: canProceed() ? 1 : 0.5 }}>Next →</button> : 
+                        {currentStep < steps.length - 1 ?
+                            <button className="btn-primary" onClick={handleNext} disabled={!canProceed()} style={{ opacity: canProceed() ? 1 : 0.5 }}>Next →</button> :
                             <button className="btn-primary" onClick={handleSubmit} style={{ background: 'linear-gradient(135deg, #14B8A6 0%, #10B981 100%)' }}>Get Recommendations →</button>
                         }
                     </div>
