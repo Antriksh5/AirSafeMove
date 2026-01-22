@@ -1,5 +1,7 @@
 # AirSafe Move - AI-Powered Migration Advisory System
 
+🌐 **Live Demo:** [https://airsafemove.vercel.app/](https://airsafemove.vercel.app/)
+
 An AI-powered web application that helps users decide which Indian city to migrate to for better air quality, improved health outcomes, and long-term life expectancy gains.
 
 ## 🚀 Features
@@ -7,7 +9,7 @@ An AI-powered web application that helps users decide which Indian city to migra
 - **ML-Powered Recommendations**: City suitability prediction, AQI improvement forecasting, health impact estimation
 - **Real Data**: 26 Indian cities with actual AQI, rent, job market, and healthcare data
 - **AI Advisory**: ChatGroq (llama-3.3-70b-versatile) for personalized, explainable recommendations
-- **Beautiful UI**: Pixel-perfect implementation matching the original design
+- **Beautiful UI**: Pixel-perfect implementation with modern design
 
 ## 📁 Project Structure
 
@@ -28,6 +30,7 @@ airsafe-move/
 │   │   ├── models/           # Pydantic schemas
 │   │   └── ml/               # ML prediction service
 │   └── requirements.txt
+├── render.yaml               # Render deployment config
 └── README.md
 ```
 
@@ -72,7 +75,6 @@ uvicorn app.main:app --reload --port 8000
 ### Backend (.env)
 ```
 GROQ_API_KEY=your_groq_api_key_here
-GCP_PROJECT_ID=your_gcp_project_id
 ```
 
 ### Frontend (.env.local)
@@ -94,6 +96,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 | `/api/cities/` | GET | List all cities with AQI data |
 | `/api/cities/names` | GET | Get city names for dropdowns |
 | `/api/cities/professions` | GET | Get profession list |
+| `/api/cities/description/{city}` | GET | Get AI-generated city description |
 | `/api/recommendations/` | POST | Get top 5 city recommendations |
 | `/api/advisory/` | POST | Get AI-generated migration advisory |
 | `/api/report/generate` | POST | Generate migration report |
@@ -107,17 +110,15 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 ## 🚢 Deployment
 
-### Frontend (Firebase Hosting)
-```bash
-npm run build
-firebase deploy --only hosting
-```
+### Frontend (Vercel)
+- **Live URL**: [https://airsafemove.vercel.app/](https://airsafemove.vercel.app/)
+- Auto-deploys from `main` branch
+- Set `NEXT_PUBLIC_API_URL` environment variable to backend URL
 
-### Backend (Google Cloud Run)
-```bash
-cd backend
-gcloud run deploy airsafe-api --source .
-```
+### Backend (Render)
+- **API URL**: [https://air-safe-move-12pf.onrender.com](https://air-safe-move-12pf.onrender.com)
+- Auto-deploys from `main` branch using `render.yaml`
+- Set `GROQ_API_KEY` environment variable
 
 ## 📝 License
 
