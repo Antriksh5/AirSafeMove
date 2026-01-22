@@ -17,10 +17,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://*.web.app",
-        "https://*.vercel.app",
-        "https://airsafe-move.vercel.app",
+        "https://airsafemove.vercel.app",
+        "https://air-safe-move.vercel.app",
     ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
