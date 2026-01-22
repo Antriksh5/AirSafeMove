@@ -1,0 +1,16 @@
+# Render Blueprint - Backend Deployment Configuration
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: airsafe-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: GROQ_API_KEY
+        sync: false  # User must set this manually in Render dashboard
+    healthCheckPath: /health
