@@ -132,23 +132,6 @@ export default function ResultsPage() {
 
     return (
         <div className="bg-gradient-main" style={{ minHeight: '100vh' }}>
-            {/* Header */}
-            <style jsx global>{`
-                @media print {
-                    .print-hidden {
-                        display: none !important;
-                    }
-                    /* Optional: Remove background colors/shadows to save ink and look cleaner */
-                    .bg-gradient-main {
-                        background: white !important;
-                    }
-                    .results-container {
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        max-width: 100% !important;
-                    }
-                }
-            `}</style>
             <header className="nav-header">
                 <Link href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
                     <div style={{
@@ -177,7 +160,7 @@ export default function ResultsPage() {
                     <div className="badge badge-teal" style={{ marginBottom: 16 }}>
                         ✓ AI Analysis Complete
                     </div>
-                    <h1 style={{ fontSize: 36, fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>
+                    <h1 className="results-title">
                         Migration Readiness Report
                     </h1>
                     <p style={{ color: '#64748B' }}>
@@ -187,47 +170,27 @@ export default function ResultsPage() {
 
                 {/* Readiness Score Card */}
                 <div className="card" style={{ marginBottom: 24, padding: 32 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 24, textAlign: 'center' }}>
+                    <div className="score-grid">
                         <div>
-                            <div style={{
-                                fontSize: 48,
-                                fontWeight: 700,
-                                color: '#14B8A6',
-                                marginBottom: 8
-                            }}>
+                            <div className="score-value" style={{ color: '#14B8A6' }}>
                                 {data.readiness_score.toFixed(0)}%
                             </div>
                             <div style={{ color: '#64748B', fontSize: 14 }}>Migration Readiness</div>
                         </div>
                         <div>
-                            <div style={{
-                                fontSize: 48,
-                                fontWeight: 700,
-                                color: getAqiColor(data.current_aqi),
-                                marginBottom: 8
-                            }}>
+                            <div className="score-value" style={{ color: getAqiColor(data.current_aqi) }}>
                                 {data.current_aqi}
                             </div>
                             <div style={{ color: '#64748B', fontSize: 14 }}>Current AQI ({data.location.currentCity})</div>
                         </div>
                         <div>
-                            <div style={{
-                                fontSize: 48,
-                                fontWeight: 700,
-                                color: '#1E293B',
-                                marginBottom: 8
-                            }}>
+                            <div className="score-value" style={{ color: '#1E293B' }}>
                                 {topRec.aqi_improvement_percent.toFixed(0)}%
                             </div>
                             <div style={{ color: '#64748B', fontSize: 14 }}>Max AQI Improvement</div>
                         </div>
                         <div>
-                            <div style={{
-                                fontSize: 48,
-                                fontWeight: 700,
-                                color: '#10B981',
-                                marginBottom: 8
-                            }}>
+                            <div className="score-value" style={{ color: '#10B981' }}>
                                 +{topRec.life_expectancy_gain_years}
                             </div>
                             <div style={{ color: '#64748B', fontSize: 14 }}>Life Expectancy Gain (Years)</div>
@@ -249,7 +212,7 @@ export default function ResultsPage() {
                             style={{ cursor: 'pointer' }}
                             title="Click to view detailed city information"
                         >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                            <div className="rec-card-content">
                                 {/* Rank */}
                                 <div style={{
                                     width: 40,
@@ -306,7 +269,7 @@ export default function ResultsPage() {
                                 </div>
 
                                 {/* Scores */}
-                                <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+                                <div className="rec-scores">
                                     <div style={{ textAlign: 'center' }}>
                                         <div style={{ fontSize: 20, fontWeight: 700, color: '#10B981' }}>
                                             {rec.aqi_improvement_percent.toFixed(0)}%
@@ -336,13 +299,10 @@ export default function ResultsPage() {
 
                             {/* Expanded details for top recommendation */}
                             {index === 0 && (
-                                <div style={{
+                                <div className="expanded-grid" style={{
                                     marginTop: 20,
                                     paddingTop: 20,
-                                    borderTop: '1px dashed #E2E8F0',
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(4, 1fr)',
-                                    gap: 16
+                                    borderTop: '1px dashed #E2E8F0'
                                 }}>
                                     <div className="card" style={{ padding: 16, textAlign: 'center', background: 'rgba(16, 185, 129, 0.05)' }}>
                                         <div style={{ fontSize: 24, fontWeight: 700, color: '#10B981' }}>
@@ -409,7 +369,7 @@ export default function ResultsPage() {
                     <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1E293B', marginBottom: 16 }}>
                         Assessment Summary
                     </h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, fontSize: 14 }}>
+                    <div className="summary-grid">
                         <div>
                             <div style={{ color: '#64748B', marginBottom: 4 }}>Profile</div>
                             <div style={{ fontWeight: 500 }}>{data.userProfile.name}, {data.userProfile.age} years</div>
@@ -435,7 +395,7 @@ export default function ResultsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="print-hidden" style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+                <div className="print-hidden action-buttons">
                     <button
                         className="btn-primary"
                         onClick={() => window.print()}
@@ -452,39 +412,12 @@ export default function ResultsPage() {
             {/* City Description Modal */}
             {selectedCity && (
                 <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 1000,
-                        padding: 20
-                    }}
+                    className="modal-overlay"
                     onClick={(e) => e.target === e.currentTarget && closeModal()}
                 >
-                    <div style={{
-                        backgroundColor: 'white',
-                        borderRadius: 16,
-                        maxWidth: 800,
-                        width: '100%',
-                        maxHeight: '90vh',
-                        overflow: 'hidden',
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-                    }}>
+                    <div className="modal-content">
                         {/* Modal Header */}
-                        <div style={{
-                            padding: '24px 32px',
-                            borderBottom: '1px solid #E2E8F0',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%)'
-                        }}>
+                        <div className="modal-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                                 <div style={{
                                     width: 48,
@@ -501,7 +434,7 @@ export default function ResultsPage() {
                                     {selectedCity.target_aqi}
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#1E293B' }}>
+                                    <h3 className="modal-city-title">
                                         {selectedCity.city_name}
                                     </h3>
                                     <p style={{ margin: 0, color: '#64748B', fontSize: 14 }}>
@@ -564,7 +497,7 @@ export default function ResultsPage() {
                         </div>
 
                         {/* Modal Content */}
-                        <div style={{ padding: 32, maxHeight: 'calc(90vh - 180px)', overflowY: 'auto' }}>
+                        <div className="modal-body">
                             {isLoadingDescription ? (
                                 <div style={{
                                     textAlign: 'center',
@@ -643,12 +576,7 @@ export default function ResultsPage() {
 
                                     {activeTab === 'connectivity' && (
                                         <div>
-                                            <div style={{
-                                                display: 'grid',
-                                                gridTemplateColumns: '1fr 1fr',
-                                                gap: 16,
-                                                marginBottom: 24
-                                            }}>
+                                            <div className="connectivity-grid">
                                                 <div className="card" style={{ padding: 20, textAlign: 'center' }}>
                                                     <div style={{ fontSize: 28, fontWeight: 700, color: '#14B8A6' }}>
                                                         {cityDescription.connectivity.nearest_metro}
@@ -702,12 +630,7 @@ export default function ResultsPage() {
 
                                     {activeTab === 'geography' && (
                                         <div>
-                                            <div style={{
-                                                display: 'grid',
-                                                gridTemplateColumns: 'repeat(3, 1fr)',
-                                                gap: 16,
-                                                marginBottom: 24
-                                            }}>
+                                            <div className="geography-grid">
                                                 <div className="card" style={{ padding: 16, textAlign: 'center' }}>
                                                     <div style={{ fontSize: 16, fontWeight: 600, color: '#10B981' }}>
                                                         {cityDescription.geography.terrain}

@@ -20,32 +20,17 @@ export default function Hero() {
     return (
         // UPDATED: Enhanced background gradient for more depth and freshness
         <section className="hero-section" style={{
-            background: 'linear-gradient(180deg, #F0F9FF 0%, #ECFDF5 60%, #FFFFFF 100%)',
-            padding: '80px 20px' // Ensure some padding around the grid
+            background: 'linear-gradient(180deg, #F0F9FF 0%, #ECFDF5 60%, #FFFFFF 100%)'
         }}>
-            <div style={{
-                maxWidth: 1200,
-                margin: '0 auto',
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 80, // Increased gap slightly for better breathing room
-                alignItems: 'center'
-            }}>
+            <div className="hero-grid">
                 {/* Left Content */}
-                <div>
+                <div className="hero-left">
                     <div className="badge badge-teal" style={{ marginBottom: 24, backgroundColor: '#E0F2FE', color: '#0284C7', border: '1px solid #BAE6FD' }}>
                         <span style={{ fontSize: 12, marginRight: 6 }}>●</span>
                         AI-Powered Migration Advisor
                     </div>
 
-                    <h1 style={{
-                        fontSize: 56, // Slightly larger
-                        fontWeight: 700,
-                        lineHeight: 1.1,
-                        marginBottom: 24,
-                        color: '#1E293B',
-                        letterSpacing: '-0.02em'
-                    }}>
+                    <h1 className="hero-title">
                         Migrate to{' '}
                         <br />
                         {/* UPDATED: Added vibrant gradient text */}
@@ -59,54 +44,41 @@ export default function Hero() {
                         Live Healthier
                     </h1>
 
-                    <p style={{
-                        fontSize: 18,
-                        color: '#475569', // Slightly darker for better contrast
-                        marginBottom: 40,
-                        lineHeight: 1.7,
-                        maxWidth: '540px'
-                    }}>
+                    <p className="hero-subtitle">
                         Make data-driven relocation decisions with AI. Find cities with
                         better air quality, affordable living, and career opportunities tailored
                         to your profile.
                     </p>
 
                     {/* UPDATED: Gradient Button */}
-                    <Link href="/wizard" className="btn-primary" style={{
+                    <Link href="/wizard" className="btn-primary hero-cta" style={{
                         ...bgGradientStyle,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: 600,
-                        padding: '16px 32px',
+                        padding: '14px 24px',
                         borderRadius: '12px',
-                        display: 'inline-flex',
                         alignItems: 'center',
                         gap: '8px',
                         border: 'none',
-                        boxShadow: '0 10px 15px -3px rgba(14, 165, 233, 0.3)' // Add a colored shadow glow
+                        boxShadow: '0 10px 15px -3px rgba(14, 165, 233, 0.3)'
                     }}>
                         Find Your City
                         <span>→</span>
                     </Link>
 
                     {/* Stats */}
-                    <div style={{
-                        display: 'flex',
-                        gap: 48,
-                        marginTop: 56,
-                        paddingTop: 32,
-                        borderTop: '1px solid #E2E8F0'
-                    }}>
+                    <div className="hero-stats">
                         <div className="stat-box" style={{ textAlign: 'left', padding: 0 }}>
-                            <div className="stat-value" style={{ fontSize: 36, fontWeight: 700, color: '#1E293B' }}>25+</div>
+                            <div className="stat-value" style={{ fontWeight: 700, color: '#1E293B' }}>25+</div>
                             <div className="stat-label" style={{ color: '#64748B', marginTop: 4 }}>Cities Analyzed</div>
                         </div>
                         <div className="stat-box" style={{ textAlign: 'left', padding: 0 }}>
-                            <div className="stat-value" style={{ fontSize: 36, fontWeight: 700, color: '#1E293B' }}>5 Year</div>
+                            <div className="stat-value" style={{ fontWeight: 700, color: '#1E293B' }}>5 Year</div>
                             <div className="stat-label" style={{ color: '#64748B', marginTop: 4 }}>AQI Data</div>
                         </div>
                         <div className="stat-box" style={{ textAlign: 'left', padding: 0 }}>
                             {/* UPDATED: Gradient text on the stat */}
-                            <div className="stat-value" style={{ ...textGradientStyle, fontSize: 36, fontWeight: 700 }}>100%</div>
+                            <div className="stat-value" style={{ ...textGradientStyle, fontWeight: 700 }}>100%</div>
                             <div className="stat-label" style={{ color: '#64748B', marginTop: 4 }}>Free to Use</div>
                         </div>
                     </div>

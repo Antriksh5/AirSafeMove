@@ -1,8 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Logo from '../app/logo.png'
+
 export default function Navbar() {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+    };
+
     return (
         <header className="nav-header">
             <Link href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
@@ -22,6 +34,7 @@ export default function Navbar() {
                 <span>AirSafe Move</span>
             </Link>
 
+            {/* Desktop Navigation */}
             <nav className="nav-links">
                 <a href="#how-it-works" className="nav-link">How it Works</a>
                 <a href="#features" className="nav-link">Features</a>
@@ -29,6 +42,26 @@ export default function Navbar() {
                     Start Planning
                 </Link>
             </nav>
+
+            {/* Mobile Menu Button */}
+            <button
+                className="mobile-menu-btn"
+                onClick={toggleMobileMenu}
+                aria-label="Toggle navigation menu"
+                aria-expanded={isMobileMenuOpen}
+            >
+                {isMobileMenuOpen ? '✕' : '☰'}
+            </button>
+
+            {/* Mobile Navigation */}
+            <nav className={`nav-links-mobile ${isMobileMenuOpen ? 'open' : ''}`}>
+                <a href="#how-it-works" className="nav-link" onClick={closeMobileMenu}>How it Works</a>
+                <a href="#features" className="nav-link" onClick={closeMobileMenu}>Features</a>
+                <Link href="/wizard" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14, textAlign: 'center' }} onClick={closeMobileMenu}>
+                    Start Planning
+                </Link>
+            </nav>
         </header>
     );
 }
+

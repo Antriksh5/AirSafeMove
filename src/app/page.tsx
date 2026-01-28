@@ -13,7 +13,7 @@ export default function Home() {
       <footer style={{
         background: '#1E293B',
         color: 'white',
-        padding: '40px 32px',
+        padding: '40px 16px',
         textAlign: 'center'
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -32,17 +32,18 @@ export default function Home() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 16
+              fontSize: 16,
+              flexShrink: 0
             }}>
               🌬️
             </div>
             <span style={{ fontWeight: 600, fontSize: 18 }}>AirSafe Move</span>
           </div>
-          <p style={{ color: '#94A3B8', fontSize: 14, marginBottom: 8 }}>
+          <p style={{ color: '#94A3B8', fontSize: 14, marginBottom: 8, padding: '0 16px' }}>
             AI-powered migration advisory for healthier living
           </p>
           <p style={{ color: '#64748B', fontSize: 12 }}>
-            © 2026 AirSafe Move. Built with ML & ❤️ for cleaner air.
+            © AirSafe Move.
           </p>
         </div>
       </footer>

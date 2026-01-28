@@ -241,12 +241,12 @@ export default function WizardPage() {
     return (
         <div className="bg-gradient-main" style={{ minHeight: '100vh' }}>
             <div className="wizard-container">
-                <div className="card" style={{ padding: '40px 32px' }}>
+                <div className="card wizard-card">
                     <StepIndicator currentStep={currentStep} steps={steps} />
 
                     {currentStep === 0 && (
                         <div>
-                            <h2 style={{ fontSize: 28, fontWeight: 700, color: '#1E293B', textAlign: 'center', marginBottom: 8 }}>Tell us about yourself</h2>
+                            <h2 className="wizard-title">Tell us about yourself</h2>
                             <p style={{ color: '#64748B', textAlign: 'center', marginBottom: 32 }}>We'll use this to personalize your recommendations</p>
                             <div style={{ marginBottom: 24 }}>
                                 <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#1E293B' }}>Full Name</label>
@@ -268,7 +268,7 @@ export default function WizardPage() {
 
                     {currentStep === 1 && (
                         <div>
-                            <h2 style={{ fontSize: 28, fontWeight: 700, color: '#1E293B', textAlign: 'center', marginBottom: 8 }}>Current Location</h2>
+                            <h2 className="wizard-title">Current Location</h2>
                             <p style={{ color: '#64748B', textAlign: 'center', marginBottom: 32 }}>Help us understand where you're migrating from</p>
                             <div style={{ marginBottom: 24 }}>
                                 <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#1E293B' }}>Current City</label>
@@ -291,7 +291,7 @@ export default function WizardPage() {
 
                     {currentStep === 2 && (
                         <div>
-                            <h2 style={{ fontSize: 28, fontWeight: 700, color: '#1E293B', textAlign: 'center', marginBottom: 8 }}>Family & Health Details</h2>
+                            <h2 className="wizard-title">Family & Health Details</h2>
                             <p style={{ color: '#64748B', textAlign: 'center', marginBottom: 32 }}>Help us find the best city for your family's health</p>
 
                             <div style={{ marginBottom: 24 }}>
@@ -301,7 +301,7 @@ export default function WizardPage() {
                                 </select>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+                            <div className="family-grid">
                                 <div>
                                     <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#1E293B', fontSize: 14 }}>Total Members</label>
                                     <input
@@ -348,7 +348,7 @@ export default function WizardPage() {
 
                             <div>
                                 <label style={{ display: 'block', fontWeight: 600, marginBottom: 12, color: '#1E293B' }}>Health Conditions in Family (Select all that apply)</label>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+                                <div className="health-grid">
                                     {healthConditions.map(condition => (
                                         <div key={condition.id} className={`checkbox-card ${formData.healthConditions.includes(condition.id) ? 'selected' : ''}`} onClick={() => toggleHealthCondition(condition.id)}>
                                             <div className="checkbox-circle" />
@@ -363,7 +363,7 @@ export default function WizardPage() {
                         </div>
                     )}
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 40, paddingTop: 24, borderTop: '1px solid #E2E8F0' }}>
+                    <div className="wizard-buttons">
                         {currentStep === 0 ? <Link href="/" className="btn-secondary">← Back to Home</Link> : <button className="btn-secondary" onClick={handlePrevious}>← Previous</button>}
                         {currentStep < steps.length - 1 ?
                             <button className="btn-primary" onClick={handleNext} disabled={!canProceed()} style={{ opacity: canProceed() ? 1 : 0.5 }}>Next →</button> :

@@ -66,7 +66,7 @@ export default function HowItWorks() {
     // Refs for scroll detection
     const stepSectionRef = useRef(null);
     const featureSectionRef = useRef(null);
-    
+
     // Visibility states
     const [isStepsVisible, setIsStepsVisible] = useState(false);
     const [isFeaturesVisible, setIsFeaturesVisible] = useState(false);
@@ -123,13 +123,13 @@ export default function HowItWorks() {
             `}</style>
 
             {/* --- SECTION 1: HOW IT WORKS --- */}
-            <section 
-                id="how-it-works" 
+            <section
+                id="how-it-works"
                 ref={stepSectionRef}
-                style={{ 
-                    position: 'relative', 
+                style={{
+                    position: 'relative',
                     padding: '100px 32px 80px 32px',
-                    background: 'white' 
+                    background: 'white'
                 }}
             >
                 {/* SVG Wave */}
@@ -141,7 +141,7 @@ export default function HowItWorks() {
 
                 <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 10 }}>
                     <div className={`fade-in-header ${isStepsVisible ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 60 }}>
-                        <h2 style={{ fontSize: 36, fontWeight: 700, color: '#1E293B', marginBottom: 12 }}>
+                        <h2 className="section-title">
                             How AirSafe Move Works
                         </h2>
                         <p style={{ fontSize: 16, color: '#64748B' }}>
@@ -149,9 +149,9 @@ export default function HowItWorks() {
                         </p>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+                    <div className="steps-grid">
                         {steps.map((step, index) => (
-                            <div key={index} style={{ 
+                            <div key={index} style={{
                                 position: 'relative',
                                 opacity: isStepsVisible ? 1 : 0,
                                 animation: isStepsVisible ? `fadeInUp 0.8s ease-out forwards ${index * 0.2}s` : 'none'
@@ -166,7 +166,7 @@ export default function HowItWorks() {
                                         <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6 }}>{step.description}</p>
                                     </div>
                                     {index < steps.length - 1 && (
-                                        <div style={{ position: 'absolute', right: -24, top: '50%', transform: 'translateY(-50%)', color: '#CBD5E1', fontSize: 24, zIndex: 2 }}>▶</div>
+                                        <div className="step-arrow">▶</div>
                                     )}
                                 </div>
                             </div>
@@ -176,18 +176,18 @@ export default function HowItWorks() {
             </section>
 
             {/* --- SECTION 2: FEATURES (UPDATED) --- */}
-            <section 
-                id="features" 
+            <section
+                id="features"
                 ref={featureSectionRef}
                 style={{
                     padding: '100px 32px',
                     // Added a very subtle gradient to the section background itself
-                    background: 'linear-gradient(180deg, #F8FAFC 0%, #F0FDFA 100%)' 
+                    background: 'linear-gradient(180deg, #F8FAFC 0%, #F0FDFA 100%)'
                 }}
             >
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <div className={`fade-in-header ${isFeaturesVisible ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 60 }}>
-                        <h2 style={{ fontSize: 36, fontWeight: 700, color: '#1E293B', marginBottom: 12 }}>
+                        <h2 className="section-title">
                             Comprehensive Migration Intelligence
                         </h2>
                         <p style={{ fontSize: 16, color: '#64748B', maxWidth: 600, margin: '0 auto' }}>
@@ -196,14 +196,10 @@ export default function HowItWorks() {
                         </p>
                     </div>
 
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-                        gap: 32
-                    }}>
+                    <div className="features-grid">
                         {features.map((feature, index) => (
-                            <div 
-                                key={index} 
+                            <div
+                                key={index}
                                 className="feature-card"
                                 style={{
                                     background: 'white',
