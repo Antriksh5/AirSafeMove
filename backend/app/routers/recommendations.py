@@ -9,6 +9,8 @@ from typing import List, Optional, Dict, Any
 
 from app.ml.prediction_service import get_top_recommendations
 from app.models.schemas import MigrationRequest
+from app.services.supabase_client import supabase
+
 
 router = APIRouter()
 
@@ -24,6 +26,8 @@ class RecommendationRequest(BaseModel):
     children: int = 0
     elderly: int = 0
     health_conditions: List[str] = ["None"]
+    user_id: Optional[str] = None  # Supabase Auth User ID
+
 
 
 class CityRecommendation(BaseModel):
@@ -69,6 +73,26 @@ async def get_recommendations(request: RecommendationRequest) -> RecommendationR
             elderly=request.elderly,
             health_conditions=request.health_conditions
         )
+
+        # If user_id is provided, update the profile in Supabase
+        if request.user_id and supabase:
+            try:
+                profile_update = {
+                    "current_city": request.current_city,
+                    "age": request.age,
+                    "profession": request.profession,
+                    "max_distance_km": request.max_distance_km,
+                    "monthly_budget": request.monthly_budget,
+                    "family_type": request.family_type,
+                    "total_members": request.total_members,
+                    "children": request.children,
+                    "elderly": request.elderly,
+                    "health_conditions": request.health_conditions,
+                    "updated_at": "now()"
+                }
+                supabase.table("profiles").update(profile_update).eq("id", request.user_id).execute()
+            except Exception as e:
+                print(f"Error updating user profile: {e}")
 
         return RecommendationResponse(
             recommendations=[CityRecommendation(**rec) for rec in recommendations],

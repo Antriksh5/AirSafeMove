@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from app.routers import cities, predictions, recommendations, advisory, report
+from app.routers import cities, predictions, recommendations, advisory, report, user
+
 
 # Load .env from the backend directory (next to this package) regardless of CWD
 _env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -36,6 +37,8 @@ app.include_router(predictions.router, prefix="/api/predict", tags=["Predictions
 app.include_router(recommendations.router, prefix="/api/recommendations", tags=["Recommendations"])
 app.include_router(advisory.router, prefix="/api/advisory", tags=["Advisory"])
 app.include_router(report.router, prefix="/api/report", tags=["Report"])
+app.include_router(user.router, prefix="/api/user", tags=["User"])
+
 
 @app.get("/")
 async def root():

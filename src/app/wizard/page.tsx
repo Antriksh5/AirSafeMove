@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import StepIndicator from '@/components/StepIndicator';
 import { fetchCityNames, fetchProfessions, getRecommendations, getAdvisory } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 
 const steps = [
     { label: 'Personal Info', icon: '👤' },
@@ -55,6 +56,29 @@ export default function WizardPage() {
         fetchCityNames().then(setCities);
         fetchProfessions().then(setProfessions);
     }, []);
+
+    // Auto-fill form from profile
+    const { profile } = useAuth();
+    useEffect(() => {
+        if (profile) {
+            setFormData(prev => ({
+                ...prev,
+                name: profile.name || prev.name,
+                age: profile.age || prev.age,
+                profession: profile.profession || prev.profession,
+                currentCity: profile.current_city || prev.currentCity,
+                maxDistance: profile.max_distance_km || prev.maxDistance,
+                monthlyBudget: profile.monthly_budget ? String(profile.monthly_budget) : prev.monthlyBudget,
+                familyType: profile.family_type || prev.familyType,
+                totalMembers: profile.total_members || prev.totalMembers,
+                children: profile.children ?? prev.children,
+                elderly: profile.elderly ?? prev.elderly,
+                healthConditions: profile.health_conditions && profile.health_conditions.length > 0
+                    ? profile.health_conditions
+                    : prev.healthConditions,
+            }));
+        }
+    }, [profile]);
 
     // Helper: Determine if a field is disabled
     const isFieldDisabled = (field: string) => {
