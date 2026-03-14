@@ -88,6 +88,7 @@ export default function ResultsPage() {
     const [selectedCity, setSelectedCity] = useState<CityRecommendation | null>(null);
     const [cityDescription, setCityDescription] = useState<CityDescription | null>(null);
     const [isLoadingDescription, setIsLoadingDescription] = useState(false);
+    const [descriptionError, setDescriptionError] = useState(false);
     const [activeTab, setActiveTab] = useState<'security' | 'education' | 'communities' | 'connectivity' | 'hospitals' | 'geography'>('security');
     const [savingCity, setSavingCity] = useState<string | null>(null);
     const [savedCities, setSavedCities] = useState<Set<string>>(new Set());
@@ -168,6 +169,7 @@ export default function ResultsPage() {
     const handleCityClick = async (rec: CityRecommendation) => {
         setSelectedCity(rec);
         setCityDescription(null);
+        setDescriptionError(false);
         setIsLoadingDescription(true);
         setActiveTab('security');
 
@@ -180,6 +182,7 @@ export default function ResultsPage() {
             setCityDescription(description);
         } catch (error) {
             console.error('Failed to load city description:', error);
+            setDescriptionError(true);
         } finally {
             setIsLoadingDescription(false);
         }
@@ -957,9 +960,26 @@ export default function ResultsPage() {
                                         </div>
                                     )}
                                 </>
+                            ) : descriptionError ? (
+                                <div style={{ textAlign: 'center', padding: 40 }}>
+                                    <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+                                    <div style={{ color: '#EF4444', fontSize: 16, fontWeight: 600, marginBottom: 8 }}>
+                                        Failed to load city information
+                                    </div>
+                                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 20 }}>
+                                        The AI service may be temporarily unavailable. Please try again.
+                                    </p>
+                                    <button
+                                        onClick={() => selectedCity && handleCityClick(selectedCity)}
+                                        className="btn-primary"
+                                        style={{ padding: '10px 24px', fontSize: 14 }}
+                                    >
+                                        🔄 Retry
+                                    </button>
+                                </div>
                             ) : (
-                                <div style={{ textAlign: 'center', padding: 40, color: '#EF4444' }}>
-                                    Failed to load city information. Please try again.
+                                <div style={{ textAlign: 'center', padding: 40, color: 'rgba(255,255,255,0.5)' }}>
+                                    Select a tab to view city information.
                                 </div>
                             )}
                         </div>
