@@ -95,12 +95,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             async (event, session) => {
                 setSession(session);
                 setUser(session?.user ?? null);
+                setLoading(false);
+
                 if (session?.user) {
                     await fetchProfile(session.user.id);
                 } else {
                     setProfile(null);
                 }
-                setLoading(false);
             }
         );
 
