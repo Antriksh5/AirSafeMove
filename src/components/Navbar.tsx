@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Logo from '../app/logo.png'
 import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { user, profile, signOut, loading } = useAuth();
+    const router = useRouter();
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -20,6 +22,7 @@ export default function Navbar() {
     const handleSignOut = async () => {
         await signOut();
         closeMobileMenu();
+        router.push('/');
     };
 
     return (
