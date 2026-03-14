@@ -186,10 +186,13 @@ export async function fetchCityDescription(
             has_children: hasChildren.toString(),
             has_elderly: hasElderly.toString()
         });
-        const response = await fetch(
-            `${API_BASE_URL}/api/cities/description/${encodeURIComponent(cityName)}?${params}`
-        );
-        if (!response.ok) throw new Error('Failed to fetch city description');
+        const url = `${API_BASE_URL}/api/cities/description/${encodeURIComponent(cityName)}?${params}`;
+        console.log(`Fetching city description from: ${url}`);
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.error(`fetchCityDescription failed with status: ${response.status}`);
+            throw new Error(`Failed to fetch city description (Status: ${response.status})`);
+        }
         return response.json();
     } catch (error) {
         console.error('Error fetching city description:', error);
@@ -259,11 +262,31 @@ export async function getAdvisory(
 export async function fetchSavedRecommendations(userId: string): Promise<SavedRecommendation[]> {
     try {
         const response = await fetch(`${API_BASE_URL}/api/user/saved?user_id=${encodeURIComponent(userId)}`);
-        if (!response.ok) throw new Error('Failed to fetch saved recommendations');
+        if (!response.ok) {
+            console.error(`fetchSavedRecommendations returned status: ${response.status}`);
+            return [];
+        }
         return response.json();
     } catch (error) {
-        console.error('Error fetching saved recommendations:', error);
+        console.error('Error fetching saved:', error);
         return [];
+    }
+}
+
+export async function saveRecommendation(data: Partial<SavedRecommendation>): Promise<SavedRecommendation | null> {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/user/saved`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error('Failed to save recommendation');
+        return response.json();
+    } catch (error) {
+        console.error('Error saving recommendation:', error);
+        return null;
     }
 }
 
