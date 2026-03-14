@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List, Optional
 from pydantic import BaseModel
-from app.services.supabase_client import supabase
+from app.services.supabase_client import get_supabase
 
 router = APIRouter()
 
@@ -22,6 +22,7 @@ async def get_saved_recommendations(user_id: str):
     """
     Fetch all saved city recommendations for a specific user.
     """
+    supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase client not initialized")
         
@@ -41,6 +42,7 @@ async def get_user_profile(user_id: str):
     """
     Fetch the user's profile information from the profiles table.
     """
+    supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase client not initialized")
         
@@ -62,6 +64,7 @@ async def get_user_profile(user_id: str):
 @router.delete("/saved/{saved_id}")
 async def delete_saved_recommendation(saved_id: str, user_id: str):
     """Remove a saved recommendation for a user."""
+    supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase client not initialized")
 
@@ -81,3 +84,4 @@ async def delete_saved_recommendation(saved_id: str, user_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting saved recommendation: {str(e)}")
+
