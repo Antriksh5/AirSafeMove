@@ -34,7 +34,7 @@ class Communities(BaseModel):
 
 class Connectivity(BaseModel):
     nearest_metro: str
-    distance_km: int
+    distance_km: float
     transport_options: str
     description: str
 
@@ -48,7 +48,7 @@ class Hospitals(BaseModel):
 class Geography(BaseModel):
     terrain: str
     climate: str
-    elevation_m: int = 0
+    elevation_m: float = 0
     features: List[str]
     description: str
 
