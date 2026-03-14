@@ -252,7 +252,7 @@ export default function WizardPage() {
             }}>
                 <div className="card" style={{ padding: 60, textAlign: 'center', maxWidth: 400 }}>
                     <div className="loading-pulse" style={{ marginBottom: 24 }}>
-                        <div style={{ width: 80, height: 80, margin: '0 auto', background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>🧠</div>
+                        <div style={{ width: 80, height: 80, margin: '0 auto', background: '#7c3aed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>🧠</div>
                     </div>
                     <h2 style={{ fontSize: 24, fontWeight: 600, color: '#FFFFFF', marginBottom: 12 }}>AI Analysis in Progress</h2>
                     <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: 24 }}>Our ML models are analyzing AQI data, job markets, and health factors...</p>
@@ -391,7 +391,7 @@ export default function WizardPage() {
                         {currentStep === 0 ? <Link href="/" className="btn-secondary">← Back to Home</Link> : <button className="btn-secondary" onClick={handlePrevious}>← Previous</button>}
                         {currentStep < steps.length - 1 ?
                             <button className="btn-primary" onClick={handleNext} disabled={!canProceed()} style={{ opacity: canProceed() ? 1 : 0.5 }}>Next →</button> :
-                            <button className="btn-primary" onClick={handleSubmit} style={{ background: 'linear-gradient(135deg, #14B8A6 0%, #10B981 100%)' }}>Get Recommendations →</button>
+                            <button className="btn-primary" onClick={handleSubmit} style={{ background: '#7c3aed' }}>Get Recommendations →</button>
                         }
                     </div>
                 </div>
