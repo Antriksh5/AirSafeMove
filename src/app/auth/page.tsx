@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
 
 export default function AuthPage() {
     const router = useRouter();
@@ -17,10 +18,11 @@ export default function AuthPage() {
     const [successMessage, setSuccessMessage] = useState('');
 
     // Redirect if already logged in
-    if (!loading && user) {
-        router.push('/wizard');
-        return null;
-    }
+    useEffect(() => {
+        if (!loading && user) {
+            router.push('/wizard');
+        }
+    }, [loading, user, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
