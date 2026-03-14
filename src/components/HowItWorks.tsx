@@ -117,8 +117,8 @@ export default function HowItWorks() {
                 }
                 .feature-card:hover {
                     transform: translateY(-8px);
-                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                    border-color: #2DD4BF; /* Teal border on hover */
+                    box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.3);
+                    border-color: rgba(45, 212, 191, 0.4);
                 }
             `}</style>
 
@@ -129,13 +129,13 @@ export default function HowItWorks() {
                 style={{
                     position: 'relative',
                     padding: '100px 32px 80px 32px',
-                    background: 'white'
+                    background: 'transparent'
                 }}
             >
                 {/* SVG Wave */}
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0 }}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: 60 }}>
-                        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#F0F9FF"></path>
+                        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="rgba(255,255,255,0.03)"></path>
                     </svg>
                 </div>
 
@@ -144,7 +144,7 @@ export default function HowItWorks() {
                         <h2 className="section-title">
                             How AirSafe Move Works
                         </h2>
-                        <p style={{ fontSize: 16, color: '#64748B' }}>
+                        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }}>
                             Four simple steps to find your ideal clean-air destination
                         </p>
                     </div>
@@ -160,10 +160,10 @@ export default function HowItWorks() {
                                     <div style={{ position: 'absolute', top: -12, left: 16, background: '#14B8A6', color: 'white', padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, zIndex: 1, boxShadow: '0 4px 6px -1px rgba(20, 184, 166, 0.3)' }}>
                                         {step.number}
                                     </div>
-                                    <div className="card" style={{ paddingTop: 32, paddingBottom: 24, paddingLeft: 20, paddingRight: 20, height: '100%', position: 'relative', background: 'white', borderRadius: 16, border: '1px solid #F1F5F9', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)' }}>
+                                    <div className="card" style={{ paddingTop: 32, paddingBottom: 24, paddingLeft: 20, paddingRight: 20, height: '100%', position: 'relative' }}>
                                         <div className="icon-circle" style={{ marginBottom: 16, fontSize: 32 }}>{step.icon}</div>
-                                        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>{step.title}</h3>
-                                        <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6 }}>{step.description}</p>
+                                        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#FFFFFF', marginBottom: 8 }}>{step.title}</h3>
+                                        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{step.description}</p>
                                     </div>
                                     {index < steps.length - 1 && (
                                         <div className="step-arrow">▶</div>
@@ -175,14 +175,13 @@ export default function HowItWorks() {
                 </div>
             </section>
 
-            {/* --- SECTION 2: FEATURES (UPDATED) --- */}
+            {/* --- SECTION 2: FEATURES --- */}
             <section
                 id="features"
                 ref={featureSectionRef}
                 style={{
                     padding: '100px 32px',
-                    // Added a very subtle gradient to the section background itself
-                    background: 'linear-gradient(180deg, #F8FAFC 0%, #F0FDFA 100%)'
+                    background: 'transparent'
                 }}
             >
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -190,7 +189,7 @@ export default function HowItWorks() {
                         <h2 className="section-title">
                             Comprehensive Migration Intelligence
                         </h2>
-                        <p style={{ fontSize: 16, color: '#64748B', maxWidth: 600, margin: '0 auto' }}>
+                        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', maxWidth: 600, margin: '0 auto' }}>
                             Our AI analyzes multiple factors to give you the most suitable city
                             recommendations for a healthier, happier life.
                         </p>
@@ -200,32 +199,28 @@ export default function HowItWorks() {
                         {features.map((feature, index) => (
                             <div
                                 key={index}
-                                className="feature-card"
+                                className="feature-card card"
                                 style={{
-                                    background: 'white',
                                     padding: 32,
                                     borderRadius: 24,
-                                    border: '1px solid #E2E8F0',
                                     // Animation Control
                                     opacity: isFeaturesVisible ? 1 : 0,
                                     animation: isFeaturesVisible ? `fadeInUp 0.6s ease-out forwards ${index * 0.1}s` : 'none'
                                 }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
-                                    {/* Animated Floating Icon with Gradient Background */}
+                                    {/* Animated Floating Icon */}
                                     <div style={{
                                         minWidth: 56,
                                         height: 56,
                                         borderRadius: 16,
-                                        // Vibrant Gradient Background
-                                        background: 'linear-gradient(135deg, #CCFBF1 0%, #E0F2FE 100%)',
+                                        background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(14, 165, 233, 0.2) 100%)',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         fontSize: 28,
-                                        // Floating animation applied to the icon specifically
                                         animation: isFeaturesVisible ? `float 4s ease-in-out infinite` : 'none',
-                                        animationDelay: `${index * 0.3}s` // Staggered float
+                                        animationDelay: `${index * 0.3}s`
                                     }}>
                                         {feature.icon}
                                     </div>
@@ -234,7 +229,7 @@ export default function HowItWorks() {
                                         <h3 style={{
                                             fontSize: 18,
                                             fontWeight: 700,
-                                            color: '#1E293B',
+                                            color: '#FFFFFF',
                                             marginBottom: 8,
                                             marginTop: 4
                                         }}>
@@ -242,7 +237,7 @@ export default function HowItWorks() {
                                         </h3>
                                         <p style={{
                                             fontSize: 15,
-                                            color: '#64748B',
+                                            color: 'rgba(255,255,255,0.6)',
                                             lineHeight: 1.6
                                         }}>
                                             {feature.description}

@@ -11,10 +11,13 @@ export default function Home() {
 
       {/* Footer */}
       <footer style={{
-        background: '#1E293B',
+        background: 'rgba(15, 23, 42, 0.5)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         color: 'white',
         padding: '40px 16px',
-        textAlign: 'center'
+        textAlign: 'center',
+        borderTop: '1px solid rgba(255,255,255,0.08)'
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{
@@ -39,10 +42,10 @@ export default function Home() {
             </div>
             <span style={{ fontWeight: 600, fontSize: 18 }}>AirSafe Move</span>
           </div>
-          <p style={{ color: '#94A3B8', fontSize: 14, marginBottom: 8, padding: '0 16px' }}>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 8, padding: '0 16px' }}>
             AI-powered migration advisory for healthier living
           </p>
-          <p style={{ color: '#64748B', fontSize: 12 }}>
+          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>
             © AirSafe Move.
           </p>
         </div>
