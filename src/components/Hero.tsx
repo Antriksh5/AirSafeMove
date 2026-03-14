@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 // Define common gradient styles to reuse
 const textGradientStyle = {
-    background: 'linear-gradient(90deg, #0EA5E9 0%, #10B981 100%)', // Sky blue to Emerald green
+    background: '#7c3aed', // Sky blue to Emerald green
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
@@ -12,7 +12,7 @@ const textGradientStyle = {
 };
 
 const bgGradientStyle = {
-    background: 'linear-gradient(90deg, #0EA5E9 0%, #10B981 100%)',
+    background: '#7c3aed',
     color: 'white',
 };
 

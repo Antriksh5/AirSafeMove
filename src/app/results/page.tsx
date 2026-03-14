@@ -228,7 +228,7 @@ export default function ResultsPage() {
                     <div style={{
                         width: 32,
                         height: 32,
-                        background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
+                        background: '#7c3aed',
                         borderRadius: 8,
                         display: 'flex',
                         alignItems: 'center',
@@ -263,7 +263,7 @@ export default function ResultsPage() {
                 <div className="card" style={{ marginBottom: 24, padding: 32 }}>
                     <div className="score-grid">
                         <div>
-                            <div className="score-value" style={{ color: '#14B8A6' }}>
+                            <div className="score-value" style={{ color: '#7c3aed' }}>
                                 {data.readiness_score.toFixed(0)}%
                             </div>
                             <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Migration Readiness</div>
@@ -281,7 +281,7 @@ export default function ResultsPage() {
                             <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Max AQI Improvement</div>
                         </div>
                         <div>
-                            <div className="score-value" style={{ color: '#10B981' }}>
+                            <div className="score-value" style={{ color: '#7c3aed' }}>
                                 +{topRec.life_expectancy_gain_years}
                             </div>
                             <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Life Expectancy Gain (Years)</div>
@@ -309,7 +309,7 @@ export default function ResultsPage() {
                                     width: 40,
                                     height: 40,
                                     borderRadius: 8,
-                                    background: index === 0 ? 'linear-gradient(135deg, #14B8A6 0%, #10B981 100%)' : 'rgba(255,255,255,0.1)',
+                                    background: index === 0 ? '#7c3aed' : 'rgba(255,255,255,0.1)',
                                     color: index === 0 ? 'white' : 'rgba(255,255,255,0.6)',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -347,7 +347,7 @@ export default function ResultsPage() {
                                             <div style={{
                                                 fontSize: 10,
                                                 fontWeight: 700,
-                                                color: '#10B981',
+                                                color: '#7c3aed',
                                                 lineHeight: 1.2,
                                                 letterSpacing: '0.02em',
                                             }}>
@@ -401,7 +401,7 @@ export default function ResultsPage() {
                                 {/* Scores */}
                                 <div className="rec-scores">
                                     <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#10B981' }}>
+                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#7c3aed' }}>
                                             {rec.aqi_improvement_percent.toFixed(0)}%
                                         </div>
                                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>AQI Improve</div>
@@ -419,7 +419,7 @@ export default function ResultsPage() {
                                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Avg Rent</div>
                                     </div>
                                     <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#14B8A6' }}>
+                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#7c3aed' }}>
                                             {rec.suitability_score.toFixed(0)}
                                         </div>
                                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Score</div>
@@ -445,7 +445,7 @@ export default function ResultsPage() {
                                             background: savedCities.has(rec.city_name)
                                                 ? 'rgba(16, 185, 129, 0.1)'
                                                 : 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)',
-                                            color: savedCities.has(rec.city_name) ? '#10B981' : 'white',
+                                            color: savedCities.has(rec.city_name) ? '#7c3aed' : 'white',
                                             transition: 'all 0.2s',
                                             whiteSpace: 'nowrap',
                                             opacity: savingCity === rec.city_name ? 0.7 : 1,
@@ -468,13 +468,13 @@ export default function ResultsPage() {
                                     borderTop: '1px dashed rgba(255,255,255,0.15)'
                                 }}>
                                     <div className="card" style={{ padding: 16, textAlign: 'center', background: 'rgba(16, 185, 129, 0.05)' }}>
-                                        <div style={{ fontSize: 24, fontWeight: 700, color: '#10B981' }}>
+                                        <div style={{ fontSize: 24, fontWeight: 700, color: '#7c3aed' }}>
                                             {rec.respiratory_risk_reduction.toFixed(1)}%
                                         </div>
                                         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Respiratory Risk ↓</div>
                                     </div>
-                                    <div className="card" style={{ padding: 16, textAlign: 'center', background: 'rgba(20, 184, 166, 0.05)' }}>
-                                        <div style={{ fontSize: 24, fontWeight: 700, color: '#14B8A6' }}>
+                                    <div className="card" style={{ padding: 16, textAlign: 'center', background: 'rgba(124, 58, 237, 0.05)' }}>
+                                        <div style={{ fontSize: 24, fontWeight: 700, color: '#7c3aed' }}>
                                             +{rec.life_expectancy_gain_years} yrs
                                         </div>
                                         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Life Expectancy</div>
@@ -583,9 +583,9 @@ export default function ResultsPage() {
                                             <div style={{
                                                 padding: '6px 10px',
                                                 borderRadius: 6,
-                                                background: 'rgba(20, 184, 166, 0.08)',
-                                                border: '1px solid rgba(20, 184, 166, 0.2)',
-                                                color: '#0D9488',
+                                                background: 'rgba(124, 58, 237, 0.08)',
+                                                border: '1px solid rgba(124, 58, 237, 0.2)',
+                                                color: '#6d28d9',
                                                 fontSize: 12,
                                                 fontWeight: 600,
                                             }}>
@@ -617,7 +617,7 @@ export default function ResultsPage() {
                                                 <div style={{
                                                     height: '100%',
                                                     width: `${rec.suitability_score}%`,
-                                                    background: 'linear-gradient(90deg, #14B8A6, #06B6D4)',
+                                                    background: '#7c3aed',
                                                     borderRadius: 3
                                                 }} />
                                             </div>
@@ -781,8 +781,8 @@ export default function ResultsPage() {
                                         cursor: 'pointer',
                                         fontSize: 14,
                                         fontWeight: activeTab === tab.id ? 600 : 400,
-                                        color: activeTab === tab.id ? '#14B8A6' : 'rgba(255,255,255,0.6)',
-                                        borderBottom: activeTab === tab.id ? '2px solid #14B8A6' : '2px solid transparent',
+                                        color: activeTab === tab.id ? '#7c3aed' : 'rgba(255,255,255,0.6)',
+                                        borderBottom: activeTab === tab.id ? '2px solid #7c3aed' : '2px solid transparent',
                                         whiteSpace: 'nowrap'
                                     }}
                                 >
@@ -816,7 +816,7 @@ export default function ResultsPage() {
                                                 </h4>
                                                 <ScoreBar
                                                     score={cityDescription.crime_rate.security_score}
-                                                    color={cityDescription.crime_rate.security_score >= 7 ? '#10B981' : cityDescription.crime_rate.security_score >= 5 ? '#F59E0B' : '#EF4444'}
+                                                    color={cityDescription.crime_rate.security_score >= 7 ? '#7c3aed' : cityDescription.crime_rate.security_score >= 5 ? '#F59E0B' : '#EF4444'}
                                                 />
                                             </div>
                                             <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7 }}>
@@ -873,7 +873,7 @@ export default function ResultsPage() {
                                         <div>
                                             <div className="connectivity-grid">
                                                 <div className="card" style={{ padding: 20, textAlign: 'center' }}>
-                                                    <div style={{ fontSize: 28, fontWeight: 700, color: '#14B8A6' }}>
+                                                    <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed' }}>
                                                         {cityDescription.connectivity.nearest_metro}
                                                     </div>
                                                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
@@ -927,7 +927,7 @@ export default function ResultsPage() {
                                         <div>
                                             <div className="geography-grid">
                                                 <div className="card" style={{ padding: 16, textAlign: 'center' }}>
-                                                    <div style={{ fontSize: 16, fontWeight: 600, color: '#10B981' }}>
+                                                    <div style={{ fontSize: 16, fontWeight: 600, color: '#7c3aed' }}>
                                                         {cityDescription.geography.terrain}
                                                     </div>
                                                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Terrain</div>
