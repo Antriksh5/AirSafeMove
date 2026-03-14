@@ -4,12 +4,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from app.routers import cities, predictions, recommendations, advisory, report, user
-
-
-# Load .env from the backend directory (next to this package) regardless of CWD
+# Load .env BEFORE importing routers to ensure env vars are available to any module-level code
 _env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=_env_path)
+
+from app.routers import cities, predictions, recommendations, advisory, report, user
 
 app = FastAPI(
     title="AirSafe Move API",

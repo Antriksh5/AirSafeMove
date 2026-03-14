@@ -9,6 +9,7 @@ import {
     SavedRecommendation,
     fetchCityDescription,
     fetchSavedRecommendations,
+    saveRecommendation,
     deleteSavedRecommendation,
 } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
@@ -121,7 +122,7 @@ export default function ResultsPage() {
         if (!user) return;
         setSavingCity(rec.city_name);
         try {
-            const { data: inserted, error } = await supabase.from('saved_recommendations').insert({
+            const inserted = await saveRecommendation({
                 user_id: user.id,
                 target_city: rec.city_name,
                 target_state: rec.state,
@@ -130,18 +131,18 @@ export default function ResultsPage() {
                 aqi_improvement_percent: rec.aqi_improvement_percent,
                 suitability_score: rec.suitability_score,
                 advisory_text: data?.advisory || null,
-            }).select().single();
+            });
 
-            if (!error) {
+            if (inserted) {
                 setSavedCities(prev => new Set(prev).add(rec.city_name));
-                if (inserted) {
-                    setSavedRecommendations(prev => [...prev, inserted as SavedRecommendation]);
-                }
+                setSavedRecommendations(prev => [inserted, ...prev]);
             } else {
-                console.error('Error saving recommendation:', error);
+                console.error('Error saving recommendation');
+                alert('Database Error: Could not save recommendation. Check server logs.');
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error saving:', err);
+            alert('Unexpected Error: ' + err.message);
         } finally {
             setSavingCity(null);
         }
