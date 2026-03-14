@@ -60,20 +60,6 @@ export default function AuthPage() {
         }
     };
 
-    if (loading) {
-        return (
-            <div style={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'transparent'
-            }}>
-                <div className="loading-pulse" style={{ color: 'rgba(255,255,255,0.7)' }}>Loading...</div>
-            </div>
-        );
-    }
-
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
