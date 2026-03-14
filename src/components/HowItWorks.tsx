@@ -157,7 +157,7 @@ export default function HowItWorks() {
                                 animation: isStepsVisible ? `fadeInUp 0.8s ease-out forwards ${index * 0.2}s` : 'none'
                             }}>
                                 <div style={{ height: '100%', animation: isStepsVisible ? `float 5s ease-in-out infinite` : 'none', animationDelay: `${index * 0.5}s` }}>
-                                    <div style={{ position: 'absolute', top: -12, left: 16, background: '#14B8A6', color: 'white', padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, zIndex: 1, boxShadow: '0 4px 6px -1px rgba(20, 184, 166, 0.3)' }}>
+                                    <div style={{ position: 'absolute', top: -12, left: 16, background: '#7c3aed', color: 'white', padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, zIndex: 1, boxShadow: '0 4px 6px -1px rgba(124, 58, 237, 0.3)' }}>
                                         {step.number}
                                     </div>
                                     <div className="card" style={{ paddingTop: 32, paddingBottom: 24, paddingLeft: 20, paddingRight: 20, height: '100%', position: 'relative' }}>
@@ -214,7 +214,7 @@ export default function HowItWorks() {
                                         minWidth: 56,
                                         height: 56,
                                         borderRadius: 16,
-                                        background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(14, 165, 233, 0.2) 100%)',
+                                        background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(14, 165, 233, 0.2) 100%)',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',

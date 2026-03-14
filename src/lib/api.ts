@@ -282,11 +282,15 @@ export async function saveRecommendation(data: Partial<SavedRecommendation>): Pr
             },
             body: JSON.stringify(data),
         });
-        if (!response.ok) throw new Error('Failed to save recommendation');
+        if (!response.ok) {
+            const errText = await response.text();
+            console.error(`Save failed with status ${response.status}:`, errText);
+            throw new Error(`Failed to save recommendation: ${response.status} - ${errText}`);
+        }
         return response.json();
     } catch (error) {
         console.error('Error saving recommendation:', error);
-        return null;
+        throw error;
     }
 }
 

@@ -30,7 +30,7 @@ export default function Home() {
             <div style={{
               width: 32,
               height: 32,
-              background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
+              background: '#7c3aed',
               borderRadius: 8,
               display: 'flex',
               alignItems: 'center',
