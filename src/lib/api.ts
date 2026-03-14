@@ -1,5 +1,5 @@
 // Backend API base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Types
 export interface City {
@@ -64,6 +64,19 @@ export interface CityRecommendation {
     live_aqi?: number;
     historical_avg_aqi?: number;
     aqi_data_source?: string;
+}
+
+export interface SavedRecommendation {
+    id: string;
+    user_id: string;
+    target_city: string;
+    target_state?: string | null;
+    current_aqi?: number | null;
+    target_aqi?: number | null;
+    aqi_improvement_percent?: number | null;
+    suitability_score?: number | null;
+    advisory_text?: string | null;
+    created_at: string;
 }
 
 export interface RecommendationResponse {
@@ -240,6 +253,29 @@ export async function getAdvisory(
     } catch (error) {
         console.error('Error getting advisory:', error);
         return { advisory: getMockAdvisory(userName, recommendations[0]), generated: false };
+    }
+}
+
+export async function fetchSavedRecommendations(userId: string): Promise<SavedRecommendation[]> {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/user/saved?user_id=${encodeURIComponent(userId)}`);
+        if (!response.ok) throw new Error('Failed to fetch saved recommendations');
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching saved recommendations:', error);
+        return [];
+    }
+}
+
+export async function deleteSavedRecommendation(savedId: string, userId: string): Promise<boolean> {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/user/saved/${encodeURIComponent(savedId)}?user_id=${encodeURIComponent(userId)}`, {
+            method: 'DELETE',
+        });
+        return response.ok;
+    } catch (error) {
+        console.error('Error deleting saved recommendation:', error);
+        return false;
     }
 }
 

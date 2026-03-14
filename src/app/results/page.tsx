@@ -3,7 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CityRecommendation, CityDescription, fetchCityDescription } from '@/lib/api';
+import {
+    CityRecommendation,
+    CityDescription,
+    SavedRecommendation,
+    fetchCityDescription,
+    fetchSavedRecommendations,
+    deleteSavedRecommendation,
+} from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 interface ResultsData {
     recommendations: CityRecommendation[];
@@ -74,11 +83,87 @@ function ScoreBar({ score, maxScore = 10, color }: { score: number; maxScore?: n
 
 export default function ResultsPage() {
     const router = useRouter();
+    const { user, loading: authLoading } = useAuth();
     const [data, setData] = useState<ResultsData | null>(null);
     const [selectedCity, setSelectedCity] = useState<CityRecommendation | null>(null);
     const [cityDescription, setCityDescription] = useState<CityDescription | null>(null);
     const [isLoadingDescription, setIsLoadingDescription] = useState(false);
     const [activeTab, setActiveTab] = useState<'security' | 'education' | 'communities' | 'connectivity' | 'hospitals' | 'geography'>('security');
+    const [savingCity, setSavingCity] = useState<string | null>(null);
+    const [savedCities, setSavedCities] = useState<Set<string>>(new Set());
+    const [savedRecommendations, setSavedRecommendations] = useState<SavedRecommendation[]>([]);
+
+    // Protect route: redirect if not authenticated
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.push('/auth');
+        }
+    }, [authLoading, user, router]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        const loadSaved = async () => {
+            try {
+                const saved = await fetchSavedRecommendations(user.id);
+                setSavedRecommendations(saved);
+                setSavedCities(new Set(saved.map((item) => item.target_city)));
+            } catch (error) {
+                console.error('Error loading saved recommendations:', error);
+            }
+        };
+
+        loadSaved();
+    }, [user]);
+
+    const handleSaveRecommendation = async (rec: CityRecommendation) => {
+        if (!user) return;
+        setSavingCity(rec.city_name);
+        try {
+            const { data: inserted, error } = await supabase.from('saved_recommendations').insert({
+                user_id: user.id,
+                target_city: rec.city_name,
+                target_state: rec.state,
+                current_aqi: rec.current_aqi,
+                target_aqi: rec.target_aqi,
+                aqi_improvement_percent: rec.aqi_improvement_percent,
+                suitability_score: rec.suitability_score,
+                advisory_text: data?.advisory || null,
+            }).select().single();
+
+            if (!error) {
+                setSavedCities(prev => new Set(prev).add(rec.city_name));
+                if (inserted) {
+                    setSavedRecommendations(prev => [...prev, inserted as SavedRecommendation]);
+                }
+            } else {
+                console.error('Error saving recommendation:', error);
+            }
+        } catch (err) {
+            console.error('Error saving:', err);
+        } finally {
+            setSavingCity(null);
+        }
+    };
+
+    const handleRemoveSaved = async (savedId: string, targetCity: string) => {
+        if (!user) return;
+        try {
+            const success = await deleteSavedRecommendation(savedId, user.id);
+            if (success) {
+                setSavedRecommendations(prev => prev.filter(item => item.id !== savedId));
+                setSavedCities(prev => {
+                    const next = new Set(prev);
+                    next.delete(targetCity);
+                    return next;
+                });
+            } else {
+                console.error('Failed to remove saved recommendation');
+            }
+        } catch (error) {
+            console.error('Error removing saved recommendation:', error);
+        }
+    };
 
     const handleCityClick = async (rec: CityRecommendation) => {
         setSelectedCity(rec);
@@ -106,15 +191,17 @@ export default function ResultsPage() {
     };
 
     useEffect(() => {
+        if (authLoading) return;
+        if (!user) return;
         const storedData = sessionStorage.getItem('airsafe_results');
         if (storedData) {
             setData(JSON.parse(storedData));
         } else {
             router.push('/wizard');
         }
-    }, [router]);
+    }, [router, authLoading, user]);
 
-    if (!data) {
+    if (authLoading || !data) {
         return (
             <div style={{
                 minHeight: '100vh',
@@ -334,6 +421,39 @@ export default function ResultsPage() {
                                         <div style={{ fontSize: 11, color: '#64748B' }}>Score</div>
                                     </div>
                                 </div>
+
+                                {/* Save to Profile Button */}
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSaveRecommendation(rec);
+                                        }}
+                                        disabled={savingCity === rec.city_name || savedCities.has(rec.city_name)}
+                                        id={`save-btn-${rec.city_name.toLowerCase().replace(/\s+/g, '-')}`}
+                                        style={{
+                                            padding: '10px 18px',
+                                            borderRadius: 8,
+                                            border: 'none',
+                                            fontSize: 13,
+                                            fontWeight: 600,
+                                            cursor: savedCities.has(rec.city_name) ? 'default' : 'pointer',
+                                            background: savedCities.has(rec.city_name)
+                                                ? 'rgba(16, 185, 129, 0.1)'
+                                                : 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)',
+                                            color: savedCities.has(rec.city_name) ? '#10B981' : 'white',
+                                            transition: 'all 0.2s',
+                                            whiteSpace: 'nowrap',
+                                            opacity: savingCity === rec.city_name ? 0.7 : 1,
+                                        }}
+                                    >
+                                        {savedCities.has(rec.city_name)
+                                            ? '✓ Saved'
+                                            : savingCity === rec.city_name
+                                                ? '⏳ Saving...'
+                                                : '💾 Save to Profile'}
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Expanded details for top recommendation */}
@@ -372,6 +492,138 @@ export default function ResultsPage() {
                         </div>
                     ))}
                 </div>
+
+                {/* Saved Recommendations Gallery */}
+                {savedRecommendations.length > 0 && (
+                    <div style={{ marginBottom: 48 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                            <div style={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: 12,
+                                background: 'rgba(124, 58, 237, 0.1)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 20
+                            }}>
+                                ⭐
+                            </div>
+                            <h2 style={{ fontSize: 24, fontWeight: 700, color: '#1E293B', margin: 0 }}>
+                                Saved Recommendations
+                            </h2>
+                        </div>
+
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                            gap: 20
+                        }}>
+                            {savedRecommendations.map((rec) => (
+                                <div key={rec.id} className="card" style={{
+                                    padding: '24px',
+                                    position: 'relative',
+                                    border: '1px solid rgba(226, 232, 240, 0.8)',
+                                    background: 'rgba(255, 255, 255, 0.7)',
+                                    backdropFilter: 'blur(10px)',
+                                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 16
+                                }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(-4px)';
+                                        e.currentTarget.style.boxShadow = '0 12px 24px -10px rgba(0,0,0,0.1)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = 'none';
+                                    }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: 20, color: '#1E293B' }}>
+                                                {rec.target_city}
+                                            </div>
+                                            <div style={{ color: '#64748B', fontSize: 13, fontWeight: 500, marginTop: 2 }}>
+                                                {rec.target_state || 'India'}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleRemoveSaved(rec.id, rec.target_city)}
+                                            style={{
+                                                border: '1px solid #FEE2E2',
+                                                background: 'white',
+                                                color: '#EF4444',
+                                                padding: '6px 10px',
+                                                borderRadius: 6,
+                                                cursor: 'pointer',
+                                                fontSize: 12,
+                                                fontWeight: 600,
+                                                transition: 'all 0.2s',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = '#EF4444';
+                                                e.currentTarget.style.color = 'white';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = 'white';
+                                                e.currentTarget.style.color = '#EF4444';
+                                            }}
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+
+                                    {rec.target_aqi != null && (
+                                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                            <div style={{
+                                                padding: '6px 10px',
+                                                borderRadius: 6,
+                                                background: 'rgba(20, 184, 166, 0.08)',
+                                                border: '1px solid rgba(20, 184, 166, 0.2)',
+                                                color: '#0D9488',
+                                                fontSize: 12,
+                                                fontWeight: 600,
+                                            }}>
+                                                Target AQI: {rec.target_aqi}
+                                            </div>
+                                            {rec.aqi_improvement_percent != null && (
+                                                <div style={{
+                                                    padding: '6px 10px',
+                                                    borderRadius: 6,
+                                                    background: 'rgba(124, 58, 237, 0.08)',
+                                                    border: '1px solid rgba(124, 58, 237, 0.2)',
+                                                    color: '#7C3AED',
+                                                    fontSize: 12,
+                                                    fontWeight: 600,
+                                                }}>
+                                                    {rec.aqi_improvement_percent.toFixed(0)}% Better
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {rec.suitability_score != null && (
+                                        <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid #F1F5F9' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span style={{ fontSize: 13, color: '#64748B' }}>Suitability Score</span>
+                                                <span style={{ fontSize: 15, fontWeight: 700, color: '#1E293B' }}>{rec.suitability_score.toFixed(1)}</span>
+                                            </div>
+                                            <div style={{ height: 6, background: '#F1F5F9', borderRadius: 3, marginTop: 8, overflow: 'hidden' }}>
+                                                <div style={{
+                                                    height: '100%',
+                                                    width: `${rec.suitability_score}%`,
+                                                    background: 'linear-gradient(90deg, #14B8A6, #06B6D4)',
+                                                    borderRadius: 3
+                                                }} />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* AI Advisory Section */}
                 <div className="card" style={{ marginBottom: 32, padding: 32 }}>
