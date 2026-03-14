@@ -66,7 +66,7 @@ export default function AuthPage() {
             <header className="nav-header">
                 <Link href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
                     <div style={{
-                        background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
+                        background: '#7c3aed',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -101,7 +101,7 @@ export default function AuthPage() {
                         left: 0,
                         right: 0,
                         height: 4,
-                        background: 'linear-gradient(90deg, #14B8A6 0%, #06B6D4 50%, #7C3AED 100%)',
+                        background: '#7c3aed',
                     }} />
 
                     {/* Icon */}
@@ -260,7 +260,7 @@ export default function AuthPage() {
                                 style={{
                                     background: 'none',
                                     border: 'none',
-                                    color: '#14B8A6',
+                                    color: '#7c3aed',
                                     fontWeight: 600,
                                     cursor: 'pointer',
                                     fontSize: 14,
