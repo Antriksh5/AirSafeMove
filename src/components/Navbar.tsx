@@ -45,75 +45,81 @@ export default function Navbar() {
             <nav className="nav-links">
                 <a href="#how-it-works" className="nav-link">How it Works</a>
                 <a href="#features" className="nav-link">Features</a>
-                {!loading && (
-                    user ? (
-                        <>
+                {loading ? (
+                    <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
+                        Loading...
+                    </span>
+                ) : user ? (
+                    <>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            backgroundColor: 'rgba(20, 184, 166, 0.15)',
+                            border: '1px solid rgba(20, 184, 166, 0.3)',
+                        }}>
                             <div style={{
+                                width: 28,
+                                height: 28,
+                                borderRadius: '50%',
+                                background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 8,
-                                padding: '6px 14px',
-                                borderRadius: 8,
-                                backgroundColor: 'rgba(20, 184, 166, 0.15)',
-                                border: '1px solid rgba(20, 184, 166, 0.3)',
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontSize: 12,
+                                fontWeight: 700,
                             }}>
-                                <div style={{
-                                    width: 28,
-                                    height: 28,
-                                    borderRadius: '50%',
-                                    background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: 'white',
-                                    fontSize: 12,
-                                    fontWeight: 700,
-                                }}>
-                                    {(profile?.name || user.email || '?')[0].toUpperCase()}
-                                </div>
-                                <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>
-                                    {profile?.name || user.email?.split('@')[0]}
-                                </span>
+                                {(profile?.name || user.email || '?')[0].toUpperCase()}
                             </div>
-                            <Link href="/wizard" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }}>
-                                Start Planning
-                            </Link>
-                            <button
-                                onClick={handleSignOut}
-                                id="navbar-signout"
-                                style={{
-                                    background: 'none',
-                                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                                    padding: '8px 16px',
-                                    borderRadius: 8,
-                                    fontSize: 14,
-                                    color: 'rgba(255, 255, 255, 0.7)',
-                                    cursor: 'pointer',
-                                    fontWeight: 500,
-                                    transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.borderColor = '#EF4444';
-                                    e.currentTarget.style.color = '#EF4444';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                                    e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
-                                }}
-                            >
-                                Sign Out
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <Link href="/auth" className="nav-link" style={{ fontWeight: 500 }}>
-                                Login
-                            </Link>
-                            <Link href="/wizard" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }}>
-                                Start Planning
-                            </Link>
-                        </>
-                    )
+
+                            <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>
+                                {profile?.name || user.email?.split('@')[0]}
+                            </span>
+                        </div>
+
+                        <Link href="/wizard" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }}>
+                            Start Planning
+                        </Link>
+
+                        <button
+                            onClick={handleSignOut}
+                            id="navbar-signout"
+                            style={{
+                                background: 'none',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                padding: '8px 16px',
+                                borderRadius: 8,
+                                fontSize: 14,
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                cursor: 'pointer',
+                                fontWeight: 500,
+                                transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = '#EF4444';
+                                e.currentTarget.style.color = '#EF4444';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+                            }}
+                        >
+                            Sign Out
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <Link href="/auth" className="nav-link" style={{ fontWeight: 500 }}>
+                            Login
+                        </Link>
+
+                        <Link href="/wizard" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }}>
+                            Start Planning
+                        </Link>
+                    </>
                 )}
             </nav>
 
