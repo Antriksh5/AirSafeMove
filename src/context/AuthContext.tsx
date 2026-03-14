@@ -87,19 +87,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     useEffect(() => {
-        // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                fetchProfile(session.user.id);
-            }
-            setLoading(false);
-        });
-
-        // Listen for auth state changes
+        // Use onAuthStateChange as the single source of truth for session state.
+        // It fires INITIAL_SESSION on setup, so a separate getSession() call is
+        // unnecessary and was causing a race condition where loading/user would
+        // flip twice, making the Login button appear inconsistently.
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (_event, session) => {
+            async (event, session) => {
                 setSession(session);
                 setUser(session?.user ?? null);
                 if (session?.user) {
