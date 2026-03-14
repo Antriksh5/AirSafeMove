@@ -54,8 +54,8 @@ export default function Navbar() {
                                 gap: 8,
                                 padding: '6px 14px',
                                 borderRadius: 8,
-                                backgroundColor: 'rgba(20, 184, 166, 0.08)',
-                                border: '1px solid rgba(20, 184, 166, 0.2)',
+                                backgroundColor: 'rgba(20, 184, 166, 0.15)',
+                                border: '1px solid rgba(20, 184, 166, 0.3)',
                             }}>
                                 <div style={{
                                     width: 28,
@@ -71,7 +71,7 @@ export default function Navbar() {
                                 }}>
                                     {(profile?.name || user.email || '?')[0].toUpperCase()}
                                 </div>
-                                <span style={{ fontSize: 14, fontWeight: 500, color: '#1E293B' }}>
+                                <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>
                                     {profile?.name || user.email?.split('@')[0]}
                                 </span>
                             </div>
@@ -83,11 +83,11 @@ export default function Navbar() {
                                 id="navbar-signout"
                                 style={{
                                     background: 'none',
-                                    border: '1px solid #E2E8F0',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
                                     padding: '8px 16px',
                                     borderRadius: 8,
                                     fontSize: 14,
-                                    color: '#64748B',
+                                    color: 'rgba(255, 255, 255, 0.7)',
                                     cursor: 'pointer',
                                     fontWeight: 500,
                                     transition: 'all 0.2s',
@@ -97,8 +97,8 @@ export default function Navbar() {
                                     e.currentTarget.style.color = '#EF4444';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.borderColor = '#E2E8F0';
-                                    e.currentTarget.style.color = '#64748B';
+                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                                    e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
                                 }}
                             >
                                 Sign Out
@@ -139,7 +139,7 @@ export default function Navbar() {
                                 alignItems: 'center',
                                 gap: 8,
                                 padding: '8px 0',
-                                color: '#1E293B',
+                                color: '#FFFFFF',
                                 fontSize: 14,
                                 fontWeight: 500,
                             }}>
@@ -166,7 +166,7 @@ export default function Navbar() {
                                 onClick={handleSignOut}
                                 style={{
                                     background: 'none',
-                                    border: '1px solid #E2E8F0',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
                                     padding: '10px 16px',
                                     borderRadius: 8,
                                     fontSize: 14,

@@ -65,23 +65,20 @@ export default function AuthPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'linear-gradient(135deg, #E0F7FA 0%, #F8FAFC 50%, #E8F5E9 100%)'
+                background: 'transparent'
             }}>
-                <div className="loading-pulse">Loading...</div>
+                <div className="loading-pulse" style={{ color: 'rgba(255,255,255,0.7)' }}>Loading...</div>
             </div>
         );
     }
 
     return (
-        <div className="bg-gradient-main" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
             <header className="nav-header">
                 <Link href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
                     <div style={{
-                        width: 32,
-                        height: 32,
                         background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
-                        borderRadius: 8,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -121,29 +118,16 @@ export default function AuthPage() {
 
                     {/* Icon */}
                     <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                        <div style={{
-                            width: 64,
-                            height: 64,
-                            margin: '0 auto 16px',
-                            background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
-                            borderRadius: 16,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 28,
-                            boxShadow: '0 8px 32px rgba(20, 184, 166, 0.25)',
-                        }}>
-                            {isSignUp ? '🚀' : '👋'}
-                        </div>
+
                         <h1 style={{
                             fontSize: 28,
                             fontWeight: 700,
-                            color: '#1E293B',
+                            color: '#FFFFFF',
                             margin: '0 0 8px 0',
                         }}>
                             {isSignUp ? 'Create Account' : 'Welcome Back'}
                         </h1>
-                        <p style={{ color: '#64748B', fontSize: 15, margin: 0 }}>
+                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, margin: 0 }}>
                             {isSignUp
                                 ? 'Join AirSafe Move for personalized migration insights'
                                 : 'Sign in to access your saved recommendations'}
@@ -186,7 +170,7 @@ export default function AuthPage() {
                                     display: 'block',
                                     fontWeight: 600,
                                     marginBottom: 8,
-                                    color: '#1E293B',
+                                    color: '#FFFFFF',
                                     fontSize: 14,
                                 }}>
                                     Full Name
@@ -208,7 +192,7 @@ export default function AuthPage() {
                                 display: 'block',
                                 fontWeight: 600,
                                 marginBottom: 8,
-                                color: '#1E293B',
+                                color: '#FFFFFF',
                                 fontSize: 14,
                             }}>
                                 Email Address
@@ -229,7 +213,7 @@ export default function AuthPage() {
                                 display: 'block',
                                 fontWeight: 600,
                                 marginBottom: 8,
-                                color: '#1E293B',
+                                color: '#FFFFFF',
                                 fontSize: 14,
                             }}>
                                 Password
@@ -273,9 +257,9 @@ export default function AuthPage() {
                         textAlign: 'center',
                         marginTop: 24,
                         paddingTop: 24,
-                        borderTop: '1px solid #E2E8F0',
+                        borderTop: '1px solid rgba(255,255,255,0.1)',
                     }}>
-                        <p style={{ color: '#64748B', fontSize: 14, margin: 0 }}>
+                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, margin: 0 }}>
                             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
                             <button
                                 type="button"
