@@ -4,7 +4,10 @@ Uses Llama-3.3-70b model to provide real-time, data-backed city information.
 """
 
 import os
+import logging
 from typing import Dict, Any, List
+
+logger = logging.getLogger(__name__)
 from groq import Groq
 
 
@@ -33,7 +36,10 @@ def generate_city_description(
     - Hospital facilities
     - Geographical features
     """
-    client = get_groq_client()
+    try:
+        client = get_groq_client()
+    except Exception:
+        return get_fallback_description(city_name, state)
     
     # Build context for special family considerations
     family_context = ""
@@ -143,9 +149,10 @@ IMPORTANT:
         return city_data
         
     except json.JSONDecodeError as e:
-        # Return fallback structure if JSON parsing fails
+        logger.error("Failed to parse Groq response as JSON for %s: %s", city_name, e)
         return get_fallback_description(city_name, state)
     except Exception as e:
+        logger.error("Error generating city description for %s: %s", city_name, e)
         return get_fallback_description(city_name, state)
 
 

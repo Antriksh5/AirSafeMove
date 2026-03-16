@@ -11,10 +11,13 @@ export default function Home() {
 
       {/* Footer */}
       <footer style={{
-        background: '#1E293B',
+        background: 'rgba(15, 23, 42, 0.5)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         color: 'white',
-        padding: '40px 32px',
-        textAlign: 'center'
+        padding: '40px 16px',
+        textAlign: 'center',
+        borderTop: '1px solid rgba(255,255,255,0.08)'
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{
@@ -27,22 +30,23 @@ export default function Home() {
             <div style={{
               width: 32,
               height: 32,
-              background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
+              background: '#7c3aed',
               borderRadius: 8,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 16
+              fontSize: 16,
+              flexShrink: 0
             }}>
               🌬️
             </div>
             <span style={{ fontWeight: 600, fontSize: 18 }}>AirSafe Move</span>
           </div>
-          <p style={{ color: '#94A3B8', fontSize: 14, marginBottom: 8 }}>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 8, padding: '0 16px' }}>
             AI-powered migration advisory for healthier living
           </p>
-          <p style={{ color: '#64748B', fontSize: 12 }}>
-            © 2026 AirSafe Move. Built with ML & ❤️ for cleaner air.
+          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>
+            © AirSafe Move.
           </p>
         </div>
       </footer>
