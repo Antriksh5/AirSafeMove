@@ -175,7 +175,7 @@ export default function ResultsPage() {
                 {/* Title Section */}
                 <div style={{ textAlign: 'center', marginBottom: 40 }}>
                     <div className="badge badge-teal" style={{ marginBottom: 16 }}>
-                        ✓ AI Analysis Complete
+                        ✓ AI Analysis 
                     </div>
                     <h1 style={{ fontSize: 36, fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>
                         Migration Readiness Report
