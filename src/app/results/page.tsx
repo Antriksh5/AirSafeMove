@@ -11,9 +11,9 @@ import {
     fetchSavedRecommendations,
     saveRecommendation,
     deleteSavedRecommendation,
-} from '@/lib/api';
-import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/lib/supabase';
+} from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 interface ResultsData {
     recommendations: CityRecommendation[];
