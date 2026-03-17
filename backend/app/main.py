@@ -21,6 +21,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
+        "http://localhost:3001",
+        "https://nextjs-frontend-44079236102.asia-south1.run.app",
         "https://airsafemove.vercel.app",
         "https://air-safe-move.vercel.app",
     ],
