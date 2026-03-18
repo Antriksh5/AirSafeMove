@@ -1,22 +1,32 @@
 """
-City Description AI Service - Generates comprehensive city descriptions using ChatGroq.
-Uses Llama-3.3-70b model to provide real-time, data-backed city information.
+City Description AI Service - Generates comprehensive city descriptions using Google Gemini.
+Uses gemini-2.5-flash model to provide real-time, data-backed city information.
 """
 
 import os
+import json
 import logging
 from typing import Dict, Any, List
 
+import google.generativeai as genai
+
 logger = logging.getLogger(__name__)
-from groq import Groq
 
 
-def get_groq_client():
-    """Get Groq client with API key from environment"""
-    api_key = os.getenv("GROQ_API_KEY")
+def get_gemini_model(system_instruction: str = None):
+    """Get Gemini model with API key from environment"""
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise ValueError("GROQ_API_KEY environment variable not set")
-    return Groq(api_key=api_key)
+        raise ValueError("GEMINI_API_KEY environment variable not set")
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel(
+        "gemini-2.5-flash",
+        system_instruction=system_instruction,
+        generation_config=genai.types.GenerationConfig(
+            temperature=0.3,
+            max_output_tokens=1500,
+        ),
+    )
 
 
 def generate_city_description(
@@ -26,7 +36,7 @@ def generate_city_description(
     has_elderly: bool = False
 ) -> Dict[str, Any]:
     """
-    Generate comprehensive city description using ChatGroq.
+    Generate comprehensive city description using Google Gemini.
     
     Returns structured data about:
     - Crime rate and security score
@@ -37,7 +47,9 @@ def generate_city_description(
     - Geographical features
     """
     try:
-        client = get_groq_client()
+        model = get_gemini_model(
+            system_instruction="You are a precise data assistant that provides factual information about Indian cities based on government data, census reports, and verified sources. Always respond with valid JSON only, no markdown or explanations."
+        )
     except Exception:
         return get_fallback_description(city_name, state)
     
@@ -113,24 +125,8 @@ IMPORTANT:
 - Provide genuine geographical information"""
 
     try:
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a precise data assistant that provides factual information about Indian cities based on government data, census reports, and verified sources. Always respond with valid JSON only, no markdown or explanations."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=0.3,  # Lower temperature for more factual responses
-            max_tokens=1500
-        )
-        
-        import json
-        response_text = response.choices[0].message.content.strip()
+        response = model.generate_content(prompt)
+        response_text = response.text.strip()
         
         # Clean up response if it has markdown code blocks
         if response_text.startswith("```"):
@@ -149,7 +145,7 @@ IMPORTANT:
         return city_data
         
     except json.JSONDecodeError as e:
-        logger.error("Failed to parse Groq response as JSON for %s: %s", city_name, e)
+        logger.error("Failed to parse Gemini response as JSON for %s: %s", city_name, e)
         return get_fallback_description(city_name, state)
     except Exception as e:
         logger.error("Error generating city description for %s: %s", city_name, e)

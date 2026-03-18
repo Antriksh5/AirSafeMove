@@ -36,8 +36,8 @@ class AdvisoryResponse(BaseModel):
 @router.post("/")
 async def get_advisory(request: AdvisoryRequest) -> AdvisoryResponse:
     """Generate AI-powered migration advisory"""
-    # Check if GROQ_API_KEY is set
-    if not os.getenv("GROQ_API_KEY"):
+    # Check if GEMINI_API_KEY is set
+    if not os.getenv("GEMINI_API_KEY"):
         # Return a fallback advisory if API key not configured
         return AdvisoryResponse(
             advisory=generate_fallback_advisory(request),

@@ -1,19 +1,28 @@
 """
-ChatGroq AI Advisory Service for personalized migration explanations.
-Uses llama-3.3-70b-versatile model for human-readable insights.
+Google Gemini AI Advisory Service for personalized migration explanations.
+Uses gemini-2.5-flash model for human-readable insights.
 """
 
 import os
 from typing import List, Dict, Any
-from groq import Groq
+
+import google.generativeai as genai
 
 
-def get_groq_client():
-    """Get Groq client with API key from environment"""
-    api_key = os.getenv("GROQ_API_KEY")
+def get_gemini_model(system_instruction: str = None, temperature: float = 0.7, max_output_tokens: int = 800):
+    """Get Gemini model with API key from environment"""
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise ValueError("GROQ_API_KEY environment variable not set")
-    return Groq(api_key=api_key)
+        raise ValueError("GEMINI_API_KEY environment variable not set")
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel(
+        "gemini-2.5-flash",
+        system_instruction=system_instruction,
+        generation_config=genai.types.GenerationConfig(
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
+        ),
+    )
 
 
 def generate_migration_advisory(
@@ -32,12 +41,16 @@ def generate_migration_advisory(
     health_urgency: float
 ) -> str:
     """
-    Generate personalized AI migration advisory using ChatGroq.
+    Generate personalized AI migration advisory using Google Gemini.
     
     This function takes ML model outputs and user context to generate
     human-readable, personalized migration advice.
     """
-    client = get_groq_client()
+    model = get_gemini_model(
+        system_instruction="You are a compassionate migration advisor who helps families make informed decisions about relocating for better air quality and health outcomes. You balance medical insights with practical life considerations.",
+        temperature=0.7,
+        max_output_tokens=800,
+    )
     
     # Build context for the AI
     recommendations_context = ""
@@ -98,23 +111,8 @@ IMPORTANT:
 - Focus on health benefits while acknowledging practical considerations
 """
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a compassionate migration advisor who helps families make informed decisions about relocating for better air quality and health outcomes. You balance medical insights with practical life considerations."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        temperature=0.7,
-        max_tokens=800
-    )
-    
-    return response.choices[0].message.content
+    response = model.generate_content(prompt)
+    return response.text
 
 
 def generate_city_explanation(
@@ -127,7 +125,7 @@ def generate_city_explanation(
     """
     Generate a brief explanation for why a specific city is recommended.
     """
-    client = get_groq_client()
+    model = get_gemini_model(temperature=0.6, max_output_tokens=150)
     
     prompt = f"""Generate a 2-3 sentence explanation for recommending {city_name} for migration:
 - AQI will improve by {aqi_improvement:.1f}%
@@ -138,14 +136,8 @@ def generate_city_explanation(
 
 Be concise and focus on the biggest benefit. No markdown formatting."""
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.6,
-        max_tokens=150
-    )
-    
-    return response.choices[0].message.content
+    response = model.generate_content(prompt)
+    return response.text
 
 
 def generate_health_insight(
@@ -160,7 +152,7 @@ def generate_health_insight(
     if not has_children and not has_elderly and (not health_conditions or health_conditions == ["None"]):
         return ""
     
-    client = get_groq_client()
+    model = get_gemini_model(temperature=0.6, max_output_tokens=150)
     
     context_parts = []
     if has_children:
@@ -175,11 +167,5 @@ who will experience a {aqi_delta} point reduction in AQI exposure.
 
 Focus on specific health benefits backed by research. Be encouraging but factual. No markdown."""
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.6,
-        max_tokens=150
-    )
-    
-    return response.choices[0].message.content
+    response = model.generate_content(prompt)
+    return response.text
