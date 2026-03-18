@@ -81,7 +81,7 @@ OPENAQ_API_KEY=your_openaq_api_key_here
 
 ### Frontend (.env.local)
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=https://fastapi-backend-44079236102.asia-south1.run.app
 ```
 
 ## 🧠 ML Models
@@ -112,15 +112,13 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 ## 🚢 Deployment
 
-### Frontend (Vercel)
-- **Live URL**: [https://airsafemove.vercel.app/](https://airsafemove.vercel.app/)
-- Auto-deploys from `main` branch
-- Set `NEXT_PUBLIC_API_URL` environment variable to backend URL
+### Frontend (Google Cloud Run)
+- **Live URL**: [https://nextjs-frontend-44079236102.asia-south1.run.app](https://nextjs-frontend-44079236102.asia-south1.run.app)
+- Set `NEXT_PUBLIC_API_URL` to your backend Cloud Run URL
 
-### Backend (Render)
-- **API URL**: [https://air-safe-move-12pf.onrender.com](https://air-safe-move-12pf.onrender.com)
-- Auto-deploys from `main` branch using `render.yaml`
-- Set `GROQ_API_KEY` **and** `OPENAQ_API_KEY` environment variables in Render Dashboard → Environment
+### Backend (Google Cloud Run)
+- **API URL**: [https://fastapi-backend-44079236102.asia-south1.run.app](https://fastapi-backend-44079236102.asia-south1.run.app)
+- Set `GROQ_API_KEY` **and** `OPENAQ_API_KEY` in Cloud Run environment variables
 
 ## 🌬️ Real-Time AQI Integration
 

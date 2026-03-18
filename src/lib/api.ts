@@ -1,5 +1,5 @@
 // Backend API base URL
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://fastapi-backend-44079236102.asia-south1.run.app').replace(/\/$/, '');
 
 // Types
 export interface City {

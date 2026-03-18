@@ -11,9 +11,9 @@ import {
     fetchSavedRecommendations,
     saveRecommendation,
     deleteSavedRecommendation,
-} from '@/lib/api';
-import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/lib/supabase';
+} from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 interface ResultsData {
     recommendations: CityRecommendation[];
@@ -249,7 +249,7 @@ export default function ResultsPage() {
                 {/* Title Section */}
                 <div style={{ textAlign: 'center', marginBottom: 40 }}>
                     <div className="badge badge-teal" style={{ marginBottom: 16 }}>
-                        ✓ AI Analysis Complete
+                        ✓ AI Analysis 
                     </div>
                     <h1 className="results-title">
                         Migration Readiness Report

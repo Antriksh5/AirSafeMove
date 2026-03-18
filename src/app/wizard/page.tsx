@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import StepIndicator from '@/components/StepIndicator';
-import { fetchCityNames, fetchProfessions, getRecommendations, getAdvisory } from '@/lib/api';
-import { useAuth } from '@/context/AuthContext';
+import StepIndicator from '../../components/StepIndicator';
+import { fetchCityNames, fetchProfessions, getRecommendations, getAdvisory } from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
 
 const steps = [
     { label: 'Personal Info', icon: '👤' },
