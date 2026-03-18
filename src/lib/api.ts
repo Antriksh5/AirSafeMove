@@ -1,6 +1,7 @@
 // Backend API base URL
-export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://fastapi-backend-44079236102.asia-south1.run.app').replace(/\/$/, '');
-
+// export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://fastapi-backend-44079236102.asia-south1.run.app').replace(/\/$/, '');
+// Temporarily force local backend for testing
+export const API_BASE_URL = 'http://127.0.0.1:8000';
 // Types
 export interface City {
     city_name: string;
@@ -200,21 +201,6 @@ export async function fetchCityDescription(
     }
 }
 
-export async function getRecommendations(request: MigrationRequest): Promise<RecommendationResponse> {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/recommendations/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(request),
-        });
-        if (!response.ok) throw new Error('Failed to get recommendations');
-        return response.json();
-    } catch (error) {
-        console.error('Error getting recommendations:', error);
-        // Return mock data for demo
-        return getMockRecommendations(request);
-    }
-}
 
 export async function getAdvisory(
     userName: string,
@@ -258,10 +244,40 @@ export async function getAdvisory(
         return { advisory: getMockAdvisory(userName, recommendations[0]), generated: false };
     }
 }
+// Add token as an argument to functions that interact with user data or protected routes
 
-export async function fetchSavedRecommendations(userId: string): Promise<SavedRecommendation[]> {
+export async function getRecommendations(
+    request: MigrationRequest, 
+    token?: string // Added token
+): Promise<RecommendationResponse> {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/user/saved?user_id=${encodeURIComponent(userId)}`);
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        
+        // Include token if available (Backend will now require it for authenticated users)
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/recommendations/`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(request),
+        });
+        if (!response.ok) throw new Error('Failed to get recommendations');
+        return response.json();
+    } catch (error) {
+        console.error('Error getting recommendations:', error);
+        return getMockRecommendations(request);
+    }
+}
+
+export async function fetchSavedRecommendations(userId: string, token: string): Promise<SavedRecommendation[]> {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/user/saved?user_id=${encodeURIComponent(userId)}`, {
+            headers: {
+                'Authorization': `Bearer ${token}` // Required for backend Step 3
+            }
+        });
         if (!response.ok) {
             console.error(`fetchSavedRecommendations returned status: ${response.status}`);
             return [];
@@ -273,12 +289,16 @@ export async function fetchSavedRecommendations(userId: string): Promise<SavedRe
     }
 }
 
-export async function saveRecommendation(data: Partial<SavedRecommendation>): Promise<SavedRecommendation | null> {
+export async function saveRecommendation(
+    data: Partial<SavedRecommendation>, 
+    token: string // Added token
+): Promise<SavedRecommendation | null> {
     try {
         const response = await fetch(`${API_BASE_URL}/api/user/saved`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Required for backend Step 3
             },
             body: JSON.stringify(data),
         });
@@ -294,10 +314,17 @@ export async function saveRecommendation(data: Partial<SavedRecommendation>): Pr
     }
 }
 
-export async function deleteSavedRecommendation(savedId: string, userId: string): Promise<boolean> {
+export async function deleteSavedRecommendation(
+    savedId: string, 
+    userId: string, 
+    token: string // Added token
+): Promise<boolean> {
     try {
         const response = await fetch(`${API_BASE_URL}/api/user/saved/${encodeURIComponent(savedId)}?user_id=${encodeURIComponent(userId)}`, {
             method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}` // Required for backend Step 3
+            }
         });
         return response.ok;
     } catch (error) {
@@ -305,7 +332,6 @@ export async function deleteSavedRecommendation(savedId: string, userId: string)
         return false;
     }
 }
-
 // Default data for fallback
 const defaultCityNames = [
     'Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune',
