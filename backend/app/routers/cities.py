@@ -115,7 +115,7 @@ async def list_professions() -> List[str]:
 
 
 @router.get("/description/{city_name}")
-async def get_city_description(
+def get_city_description(
     city_name: str,
     has_children: bool = False,
     has_elderly: bool = False

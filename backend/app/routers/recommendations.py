@@ -1,15 +1,15 @@
 """
 Recommendations API Router - City recommendation engine.
-Updated to propagate real-time AQI fields from OpenAQ integration.
+Updated to use Firebase Firestore for profile persistence.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
-
+from firebase_admin import firestore
 from app.ml.prediction_service import get_top_recommendations
 from app.models.schemas import MigrationRequest
-from app.services.supabase_client import supabase
+from app.services.firebase_client import get_firebase
 
 
 router = APIRouter()
@@ -26,8 +26,7 @@ class RecommendationRequest(BaseModel):
     children: int = 0
     elderly: int = 0
     health_conditions: List[str] = ["None"]
-    user_id: Optional[str] = None  # Supabase Auth User ID
-
+    user_id: Optional[str] = None  # Firebase Auth User ID
 
 
 class CityRecommendation(BaseModel):
@@ -74,25 +73,34 @@ async def get_recommendations(request: RecommendationRequest) -> RecommendationR
             health_conditions=request.health_conditions
         )
 
-        # If user_id is provided, update the profile in Supabase
-        if request.user_id and supabase:
-            try:
-                profile_update = {
-                    "current_city": request.current_city,
-                    "age": request.age,
-                    "profession": request.profession,
-                    "max_distance_km": request.max_distance_km,
-                    "monthly_budget": request.monthly_budget,
-                    "family_type": request.family_type,
-                    "total_members": request.total_members,
-                    "children": request.children,
-                    "elderly": request.elderly,
-                    "health_conditions": request.health_conditions,
-                    "updated_at": "now()"
-                }
-                supabase.table("profiles").update(profile_update).eq("id", request.user_id).execute()
-            except Exception as e:
-                print(f"Error updating user profile: {e}")
+        # Step 2: Use Firestore instead of Supabase
+        if request.user_id:
+            db = get_firebase()
+            if db:
+                try:
+                    profile_update = {
+                        "current_city": request.current_city,
+                        "age": request.age,
+                        "profession": request.profession,
+                        "max_distance_km": request.max_distance_km,
+                        "monthly_budget": request.monthly_budget,
+                        "family_type": request.family_type,
+                        "total_members": request.total_members,
+                        "children": request.children,
+                        "elderly": request.elderly,
+                        "health_conditions": request.health_conditions,
+                        # Use Firestore's native server timestamp
+                        "updated_at": firestore.SERVER_TIMESTAMP 
+                    }
+                    
+                    # .set with merge=True creates the document if it doesn't exist
+                    # or updates the specified fields if it does.
+                    db.collection("profiles").document(request.user_id).set(
+                        profile_update, 
+                        merge=True
+                    )
+                except Exception as e:
+                    print(f"Error updating user profile in Firestore: {e}")
 
         return RecommendationResponse(
             recommendations=[CityRecommendation(**rec) for rec in recommendations],

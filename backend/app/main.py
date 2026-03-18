@@ -23,8 +23,6 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:3001",
         "https://nextjs-frontend-44079236102.asia-south1.run.app",
-        "https://airsafemove.vercel.app",
-        "https://air-safe-move.vercel.app",
     ],
     allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,

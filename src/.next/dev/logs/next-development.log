@@ -1,0 +1,16 @@
+[00:00:02.452] Server  LOG     ✓ Ready in 1699ms
+[00:00:05.429] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:09.010] Browser ERROR   Error fetching saved: {}
+[00:00:13.820] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:34.972] Browser ERROR   fetchSavedRecommendations returned status: 401
+[00:00:34.972] Browser ERROR   fetchSavedRecommendations returned status: 401
+[00:00:39.321] Browser LOG     Fetching city description from: http://127.0.0.1:8000/api/cities/description/Shimla?has_children=true&has_elderly=false
+[00:00:50.175] Browser ERROR   Save failed with status 401: {"detail":"Invalid or expired Firebase token: The default Firebase app does not exist. Make sure to initialize the SDK by calling initialize_app()."}
+[00:00:50.175] Browser ERROR   Error saving recommendation: {}
+[00:00:50.175] Browser ERROR   Error saving: {}
+[00:01:10.923] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:12.062] Browser ERROR   fetchSavedRecommendations returned status: 401
+[00:08:37.105] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:08:41.504] Browser LOG     Fetching city description from: http://127.0.0.1:8000/api/cities/description/Shimla?has_children=true&has_elderly=false
+[00:09:36.066] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:11:08.604] Browser LOG     Fetching city description from: http://127.0.0.1:8000/api/cities/description/Dehradun?has_children=true&has_elderly=false

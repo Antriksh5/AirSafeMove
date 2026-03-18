@@ -39,7 +39,11 @@ export default function Navbar() {
                     color: 'white',
                     fontSize: 16
                 }}>
-                    <img src={Logo.src} alt="AirSafe Move logo" />
+                    <img
+                        src={Logo.src}
+                        alt="AirSafe Move logo"
+                        style={{ width: 20, height: 20, objectFit: 'contain', display: 'block' }}
+                    />
                 </div>
                 <span>AirSafe Move</span>
             </Link>
