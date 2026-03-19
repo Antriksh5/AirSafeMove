@@ -16,7 +16,15 @@ export interface Profile {
     id: string;
     name: string | null;
     profession: string | null;
-    // ... other fields matching your backend schemas
+    age: number | null;
+    current_city: string | null;
+    max_distance_km: number | null;
+    monthly_budget: number | null;
+    family_type: string | null;
+    total_members: number | null;
+    children: number | null;
+    elderly: number | null;
+    health_conditions: string[] | null;
 }
 
 interface AuthContextType {
