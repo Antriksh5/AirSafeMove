@@ -14,7 +14,9 @@ node_modules
 /coverage
 
 # next.js
+src/.next/
 /.next/
+src/out/
 /out/
 
 # production
@@ -43,4 +45,10 @@ next-env.d.ts
 
 backend/venv
 
+# Firebase service account — NEVER commit
+serviceAccountKey.json
 servieAccountkey.json
+
+# Python cache
+**/__pycache__/
+**/*.pyc
