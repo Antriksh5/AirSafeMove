@@ -13,7 +13,6 @@ import {
     deleteSavedRecommendation,
 } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabase';
 
 interface ResultsData {
     recommendations: CityRecommendation[];
@@ -84,7 +83,7 @@ function ScoreBar({ score, maxScore = 10, color }: { score: number; maxScore?: n
 
 export default function ResultsPage() {
     const router = useRouter();
-    const { user, loading: authLoading } = useAuth();
+    const { user, token, loading: authLoading } = useAuth(); // Extracted token for API calls
     const [data, setData] = useState<ResultsData | null>(null);
     const [selectedCity, setSelectedCity] = useState<CityRecommendation | null>(null);
     const [cityDescription, setCityDescription] = useState<CityDescription | null>(null);
@@ -102,12 +101,15 @@ export default function ResultsPage() {
         }
     }, [authLoading, user, router]);
 
+    // Load saved recommendations using Firebase UID and Token
     useEffect(() => {
-        if (!user) return;
+        // Wait until BOTH the user and the token are loaded
+        if (!user || !token) return;
 
         const loadSaved = async () => {
             try {
-                const saved = await fetchSavedRecommendations(user.id);
+                // Pass the token here
+                const saved = await fetchSavedRecommendations(user.uid, token);
                 setSavedRecommendations(saved);
                 setSavedCities(new Set(saved.map((item) => item.target_city)));
             } catch (error) {
@@ -116,14 +118,14 @@ export default function ResultsPage() {
         };
 
         loadSaved();
-    }, [user]);
+    }, [user, token]); // Add token to dependency array
 
     const handleSaveRecommendation = async (rec: CityRecommendation) => {
-        if (!user) return;
+        if (!user || !token) return;
         setSavingCity(rec.city_name);
         try {
             const inserted = await saveRecommendation({
-                user_id: user.id,
+                user_id: user.uid, // Updated to uid
                 target_city: rec.city_name,
                 target_state: rec.state,
                 current_aqi: rec.current_aqi,
@@ -131,7 +133,7 @@ export default function ResultsPage() {
                 aqi_improvement_percent: rec.aqi_improvement_percent,
                 suitability_score: rec.suitability_score,
                 advisory_text: data?.advisory || null,
-            });
+            }, token); // Pass the auth token
 
             if (inserted) {
                 setSavedCities(prev => new Set(prev).add(rec.city_name));
@@ -149,9 +151,9 @@ export default function ResultsPage() {
     };
 
     const handleRemoveSaved = async (savedId: string, targetCity: string) => {
-        if (!user) return;
+        if (!user || !token) return;
         try {
-            const success = await deleteSavedRecommendation(savedId, user.id);
+            const success = await deleteSavedRecommendation(savedId, user.uid, token);
             if (success) {
                 setSavedRecommendations(prev => prev.filter(item => item.id !== savedId));
                 setSavedCities(prev => {
@@ -246,7 +248,6 @@ export default function ResultsPage() {
             </header>
 
             <div className="results-container">
-                {/* Title Section */}
                 <div style={{ textAlign: 'center', marginBottom: 40 }}>
                     <div className="badge badge-teal" style={{ marginBottom: 16 }}>
                         ✓ AI Analysis 
@@ -259,7 +260,6 @@ export default function ResultsPage() {
                     </p>
                 </div>
 
-                {/* Readiness Score Card */}
                 <div className="card" style={{ marginBottom: 24, padding: 32 }}>
                     <div className="score-grid">
                         <div>
@@ -289,7 +289,6 @@ export default function ResultsPage() {
                     </div>
                 </div>
 
-                {/* Top 5 Recommendations */}
                 <h2 style={{ fontSize: 24, fontWeight: 600, color: '#FFFFFF', marginBottom: 16 }}>
                     Top 5 Recommended Cities
                 </h2>
@@ -304,7 +303,6 @@ export default function ResultsPage() {
                             title="Click to view detailed city information"
                         >
                             <div className="rec-card-content">
-                                {/* Rank */}
                                 <div style={{
                                     width: 40,
                                     height: 40,
@@ -320,7 +318,6 @@ export default function ResultsPage() {
                                     #{index + 1}
                                 </div>
 
-                                {/* AQI Badge */}
                                 <div style={{
                                     display: 'flex',
                                     flexDirection: 'column',
@@ -375,7 +372,6 @@ export default function ResultsPage() {
                                     )}
                                 </div>
 
-                                {/* City Info */}
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontWeight: 600, color: '#FFFFFF', fontSize: 18 }}>
                                         {rec.city_name}
@@ -398,7 +394,6 @@ export default function ResultsPage() {
                                     </div>
                                 </div>
 
-                                {/* Scores */}
                                 <div className="rec-scores">
                                     <div style={{ textAlign: 'center' }}>
                                         <div style={{ fontSize: 20, fontWeight: 700, color: '#7c3aed' }}>
@@ -426,7 +421,6 @@ export default function ResultsPage() {
                                     </div>
                                 </div>
 
-                                {/* Save to Profile Button */}
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <button
                                         onClick={(e) => {
@@ -434,7 +428,6 @@ export default function ResultsPage() {
                                             handleSaveRecommendation(rec);
                                         }}
                                         disabled={savingCity === rec.city_name || savedCities.has(rec.city_name)}
-                                        id={`save-btn-${rec.city_name.toLowerCase().replace(/\s+/g, '-')}`}
                                         style={{
                                             padding: '10px 18px',
                                             borderRadius: 8,
@@ -460,7 +453,6 @@ export default function ResultsPage() {
                                 </div>
                             </div>
 
-                            {/* Expanded details for top recommendation */}
                             {index === 0 && (
                                 <div className="expanded-grid" style={{
                                     marginTop: 20,
@@ -497,7 +489,6 @@ export default function ResultsPage() {
                     ))}
                 </div>
 
-                {/* Saved Recommendations Gallery */}
                 {savedRecommendations.length > 0 && (
                     <div style={{ marginBottom: 48 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
@@ -565,14 +556,6 @@ export default function ResultsPage() {
                                                 fontWeight: 600,
                                                 transition: 'all 0.2s',
                                             }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = '#EF4444';
-                                                e.currentTarget.style.color = 'white';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                                                e.currentTarget.style.color = '#EF4444';
-                                            }}
                                         >
                                             Remove
                                         </button>
@@ -629,7 +612,6 @@ export default function ResultsPage() {
                     </div>
                 )}
 
-                {/* AI Advisory Section */}
                 <div className="card" style={{ marginBottom: 32, padding: 32 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
                         <div style={{
@@ -659,7 +641,6 @@ export default function ResultsPage() {
                     </div>
                 </div>
 
-                {/* User Profile Summary */}
                 <div className="card" style={{ marginBottom: 32, padding: 24 }}>
                     <h3 style={{ fontSize: 18, fontWeight: 600, color: '#FFFFFF', marginBottom: 16 }}>
                         Assessment Summary
@@ -689,7 +670,6 @@ export default function ResultsPage() {
                     </div>
                 </div>
 
-                {/* Actions */}
                 <div className="print-hidden action-buttons">
                     <button
                         className="btn-primary"
@@ -704,14 +684,12 @@ export default function ResultsPage() {
                 </div>
             </div>
 
-            {/* City Description Modal */}
             {selectedCity && (
                 <div
                     className="modal-overlay"
                     onClick={(e) => e.target === e.currentTarget && closeModal()}
                 >
                     <div className="modal-content">
-                        {/* Modal Header */}
                         <div className="modal-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                                 <div style={{
@@ -756,7 +734,6 @@ export default function ResultsPage() {
                             </button>
                         </div>
 
-                        {/* Tabs */}
                         <div style={{
                             display: 'flex',
                             borderBottom: '1px solid rgba(255,255,255,0.1)',
@@ -791,7 +768,6 @@ export default function ResultsPage() {
                             ))}
                         </div>
 
-                        {/* Modal Content */}
                         <div className="modal-body">
                             {isLoadingDescription ? (
                                 <div style={{
@@ -986,8 +962,7 @@ export default function ResultsPage() {
                         </div>
                     </div>
                 </div>
-            )
-            }
-        </div >
+            )}
+        </div>
     );
 }

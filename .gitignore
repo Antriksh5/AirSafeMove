@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -14,7 +14,9 @@
 /coverage
 
 # next.js
+src/.next/
 /.next/
+src/out/
 /out/
 
 # production
@@ -32,7 +34,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-./backend/.env
+backend/.env
 
 # vercel
 .vercel
@@ -41,4 +43,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-./backend/venv
+backend/venv
+
+# Firebase service account — NEVER commit
+serviceAccountKey.json
+servieAccountkey.json
+
+# Python cache
+**/__pycache__/
+**/*.pyc

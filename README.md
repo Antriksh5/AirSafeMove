@@ -17,7 +17,6 @@ An AI-powered web application that helps users decide which Indian city to migra
 ```
 airsafe-move/
 ├── src/                      # Next.js frontend
-│   ├── app/
 │   │   ├── page.tsx          # Landing page
 │   │   ├── wizard/           # Multi-step form
 │   │   └── results/          # Recommendations page
@@ -37,6 +36,7 @@ airsafe-move/
 
 ## 🛠️ Setup
 
+```
 ### Frontend (Next.js)
 
 ```bash

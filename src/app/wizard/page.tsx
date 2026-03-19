@@ -58,7 +58,7 @@ export default function WizardPage() {
     }, []);
 
     // Auto-fill form from profile
-    const { profile } = useAuth();
+    const { profile, user, token } = useAuth();
     useEffect(() => {
         if (profile) {
             setFormData(prev => ({
@@ -195,7 +195,9 @@ export default function WizardPage() {
                 health_conditions: formData.healthConditions
             };
 
-            const recResponse = await getRecommendations(request);
+            // Get a fresh token (avoids 1-hour expiry issues with cached token)
+            const freshToken = user ? await user.getIdToken() : token ?? undefined;
+            const recResponse = await getRecommendations(request, freshToken);
 
             const advisoryResponse = await getAdvisory(
                 formData.name,
