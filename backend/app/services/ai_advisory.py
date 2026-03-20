@@ -28,7 +28,8 @@ def get_gemini_model(system_instruction: str = None, temperature: float = 0.7, m
 def generate_migration_advisory(
     user_name: str,
     user_age: int,
-    profession: str,
+    professions: List[str],
+    earning_members: int,
     current_city: str,
     current_aqi: int,
     family_type: str,
@@ -42,9 +43,6 @@ def generate_migration_advisory(
 ) -> str:
     """
     Generate personalized AI migration advisory using Google Gemini.
-    
-    This function takes ML model outputs and user context to generate
-    human-readable, personalized migration advice.
     """
     model = get_gemini_model(
         system_instruction="You are a compassionate migration advisor who helps families make informed decisions about relocating for better air quality and health outcomes. You balance medical insights with practical life considerations.",
@@ -67,6 +65,7 @@ City {i}: {rec['city_name']}, {rec['state']}
 - Job Match Score: {rec['job_match_score']}/100
 """
     
+    professions_str = ", ".join(professions) if professions else "General"
     health_context = ", ".join([c for c in health_conditions if c != "None"]) or "No specific conditions"
     
     family_context = f"{family_type} with {total_members} member(s)"
@@ -75,12 +74,12 @@ City {i}: {rec['city_name']}, {rec['state']}
     if elderly > 0:
         family_context += f" and {elderly} elderly member(s)"
     
-    prompt = f"""You are an expert migration advisor specializing in air quality and health-based relocation in India.
+    prompt = f"""You are an expert migration advisor helping Indian families relocate for better quality of life, jobs, and health.
 
 USER PROFILE:
 - Name: {user_name}
 - Age: {user_age}
-- Profession: {profession}
+- Professions ({earning_members} earning member(s)): {professions_str}
 - Current City: {current_city} (AQI: {current_aqi} - {'Hazardous' if current_aqi > 200 else 'Unhealthy' if current_aqi > 150 else 'Moderate' if current_aqi > 100 else 'Good'})
 - Family: {family_context}
 - Health Conditions: {health_context}
@@ -89,26 +88,27 @@ ML MODEL OUTPUTS:
 - Migration Readiness Score: {readiness_score}/100
 - Health Urgency Score: {health_urgency}/100
 
-TOP RECOMMENDED CITIES (from ML analysis):
+TOP RECOMMENDED CITIES (ranked by balanced score: job market 30%, living cost 20%, healthcare 15%, AQI 10%, distance 10%, AQI trend 5%, education/community/connectivity 10%):
 {recommendations_context}
 
 TASK:
 Generate a personalized, empathetic migration advisory (250-400 words) that:
 
 1. Opens with a warm, personalized greeting using the user's name
-2. Explains why migration is recommended based on their health profile and current AQI exposure
-3. Highlights the top recommended city and why it's the best fit for their profession ({profession}) and family situation
-4. Specifically addresses health benefits for any children or elderly family members if applicable
-5. Mentions trade-offs honestly (e.g., job opportunities vs cleaner air, cost differences)
-6. Provides actionable next steps based on their readiness score
-7. Ends with an encouraging, health-focused message
+2. Explains why the top city was recommended — focus on the OVERALL balanced score, NOT just air quality (mention job market strength, living cost affordability, healthcare quality, and connectivity)
+3. For each of the {earning_members} earning member(s) in professions ({professions_str}), mention specific job market compatibility in the top city
+4. Discuss living cost affordability: highlight how far the city's average salary stretches compared to living expenses
+5. Specifically addresses health and education benefits for any children or elderly family members if applicable
+6. Mentions the AQI improvement as ONE of many benefits (not the primary driver)
+7. Provides actionable next steps based on their readiness score
+8. Ends with an encouraging, forward-looking message
 
 IMPORTANT:
-- Use specific numbers from the ML outputs (AQI improvement %, life expectancy gain)
+- Use specific numbers from the ML outputs (job scores, AQI improvement %, life expectancy gain, rent)
 - Be warm but professional
 - Do NOT use markdown formatting (no ##, **, etc.)
 - Write in clear paragraphs
-- Focus on health benefits while acknowledging practical considerations
+- Cities are ranked by a BALANCED score across multiple factors — acknowledge this holistic approach
 """
 
     response = model.generate_content(prompt)

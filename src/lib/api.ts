@@ -17,7 +17,8 @@ export interface City {
 export interface UserProfile {
     name: string;
     age: number;
-    profession: string;
+    professions: string[];
+    earningMembers: number;
 }
 
 export interface LocationConstraints {
@@ -37,7 +38,8 @@ export interface FamilyHealth {
 export interface MigrationRequest {
     current_city: string;
     age: number;
-    profession: string;
+    professions: string[];       // multi-profession list
+    earning_members: number;
     max_distance_km: number;
     monthly_budget: number | null;
     family_type: string;
@@ -205,7 +207,8 @@ export async function fetchCityDescription(
 export async function getAdvisory(
     userName: string,
     age: number,
-    profession: string,
+    professions: string[],
+    earningMembers: number,
     currentCity: string,
     currentAqi: number,
     familyType: string,
@@ -224,7 +227,8 @@ export async function getAdvisory(
             body: JSON.stringify({
                 user_name: userName,
                 age,
-                profession,
+                professions,
+                earning_members: earningMembers,
                 current_city: currentCity,
                 current_aqi: currentAqi,
                 family_type: familyType,
