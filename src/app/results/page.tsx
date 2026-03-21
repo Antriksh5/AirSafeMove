@@ -345,7 +345,7 @@ export default function ResultsPage() {
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -374,6 +374,25 @@ export default function ResultsPage() {
                                                 ? '⏳ Saving...'
                                                 : '💾 Save to Profile'}
                                     </button>
+                                    <Link
+                                        href={`/city/${encodeURIComponent(rec.city_name)}?state=${encodeURIComponent(rec.state)}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        style={{
+                                            padding: '10px 18px',
+                                            borderRadius: 8,
+                                            border: '1px solid rgba(255,255,255,0.2)',
+                                            background: 'rgba(255,255,255,0.05)',
+                                            color: '#fff',
+                                            fontSize: 13,
+                                            fontWeight: 600,
+                                            textDecoration: 'none',
+                                            transition: 'all 0.2s',
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                                    >
+                                        Explore City →
+                                    </Link>
                                 </div>
                             </div>
 
@@ -637,23 +656,40 @@ export default function ResultsPage() {
                                     </p>
                                 </div>
                             </div>
-                            <button
-                                onClick={closeModal}
-                                style={{
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: 8,
-                                    border: 'none',
-                                    backgroundColor: 'rgba(255,255,255,0.1)',
-                                    cursor: 'pointer',
-                                    fontSize: 20,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                ✕
-                            </button>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <Link
+                                    href={`/city/${encodeURIComponent(selectedCity.city_name)}?state=${encodeURIComponent(selectedCity.state)}`}
+                                    style={{
+                                        padding: '10px 20px',
+                                        borderRadius: 8,
+                                        background: 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)',
+                                        color: 'white',
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        textDecoration: 'none',
+                                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)'
+                                    }}
+                                >
+                                    Explore City →
+                                </Link>
+                                <button
+                                    onClick={closeModal}
+                                    style={{
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: 8,
+                                        border: 'none',
+                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        cursor: 'pointer',
+                                        fontSize: 20,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
                         </div>
 
                         <div style={{

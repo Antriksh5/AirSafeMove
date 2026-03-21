@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 _env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=_env_path)
 
-from app.routers import cities, predictions, recommendations, advisory, report, user
+from app.routers import cities, predictions, recommendations, advisory, report, user, city_explore
 
 app = FastAPI(
     title="AirSafe Move API",
@@ -37,6 +37,7 @@ app.include_router(recommendations.router, prefix="/api/recommendations", tags=[
 app.include_router(advisory.router, prefix="/api/advisory", tags=["Advisory"])
 app.include_router(report.router, prefix="/api/report", tags=["Report"])
 app.include_router(user.router, prefix="/api/user", tags=["User"])
+app.include_router(city_explore.router, prefix="/api/city-explore", tags=["City Explore"])
 
 
 @app.get("/")
