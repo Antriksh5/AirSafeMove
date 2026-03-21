@@ -19,17 +19,24 @@ logger = logging.getLogger(__name__)
 class CrimeRate(BaseModel):
     security_score: int
     description: str
+    key_factors: List[str] = []
+    sources: List[str] = []
 
 
 class Education(BaseModel):
     score: int
     highlights: List[str]
     description: str
+    key_factors: List[str] = []
+    sources: List[str] = []
 
 
 class Communities(BaseModel):
     demographics: str
+    description: str = ""
     highlights: List[str]
+    key_factors: List[str] = []
+    sources: List[str] = []
 
 
 class Connectivity(BaseModel):
@@ -37,12 +44,16 @@ class Connectivity(BaseModel):
     distance_km: float
     transport_options: str
     description: str
+    key_factors: List[str] = []
+    sources: List[str] = []
 
 
 class Hospitals(BaseModel):
     score: int
     facilities: List[str]
     description: str
+    key_factors: List[str] = []
+    sources: List[str] = []
 
 
 class Geography(BaseModel):
@@ -51,6 +62,8 @@ class Geography(BaseModel):
     elevation_m: float = 0
     features: List[str]
     description: str
+    key_factors: List[str] = []
+    sources: List[str] = []
 
 
 class CityDescriptionResponse(BaseModel):

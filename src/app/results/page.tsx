@@ -81,6 +81,25 @@ function ScoreBar({ score, maxScore = 10, color }: { score: number; maxScore?: n
     );
 }
 
+function renderListSection(title: string, items?: string[]) {
+    if (!items || items.length === 0) return null;
+
+    return (
+        <div style={{ marginTop: 20 }}>
+            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
+                {title}
+            </h5>
+            <ul style={{ margin: 0, paddingLeft: 20, color: 'rgba(255,255,255,0.72)' }}>
+                {items.map((item, index) => (
+                    <li key={`${title}-${index}`} style={{ marginBottom: 8 }}>
+                        {item}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
 export default function ResultsPage() {
     const router = useRouter();
     const { user, token, loading: authLoading } = useAuth(); // Extracted token for API calls
@@ -374,25 +393,6 @@ export default function ResultsPage() {
                                                 ? '⏳ Saving...'
                                                 : '💾 Save to Profile'}
                                     </button>
-                                    <Link
-                                        href={`/city/${encodeURIComponent(rec.city_name)}?state=${encodeURIComponent(rec.state)}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                        style={{
-                                            padding: '10px 18px',
-                                            borderRadius: 8,
-                                            border: '1px solid rgba(255,255,255,0.2)',
-                                            background: 'rgba(255,255,255,0.05)',
-                                            color: '#fff',
-                                            fontSize: 13,
-                                            fontWeight: 600,
-                                            textDecoration: 'none',
-                                            transition: 'all 0.2s',
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                                    >
-                                        Explore City →
-                                    </Link>
                                 </div>
                             </div>
 
@@ -753,9 +753,11 @@ export default function ResultsPage() {
                                                     color={cityDescription.crime_rate.security_score >= 7 ? '#7c3aed' : cityDescription.crime_rate.security_score >= 5 ? '#F59E0B' : '#EF4444'}
                                                 />
                                             </div>
-                                            <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7 }}>
+                                            <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 8 }}>
                                                 {cityDescription.crime_rate.description}
-                                            </p>
+                                            </div>
+                                            {renderListSection('Key Factors', cityDescription.crime_rate.key_factors)}
+                                            {renderListSection('Sources', cityDescription.crime_rate.sources)}
                                         </div>
                                     )}
 
@@ -770,17 +772,19 @@ export default function ResultsPage() {
                                                     color="#3B82F6"
                                                 />
                                             </div>
-                                            <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
+                                            <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
                                                 {cityDescription.education.description}
-                                            </p>
+                                            </div>
                                             <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
-                                                Key Educational Institutions
+                                                Education Highlights
                                             </h5>
                                             <ul style={{ margin: 0, paddingLeft: 20, color: 'rgba(255,255,255,0.7)' }}>
                                                 {cityDescription.education.highlights.map((item, i) => (
                                                     <li key={i} style={{ marginBottom: 8 }}>{item}</li>
                                                 ))}
                                             </ul>
+                                            {renderListSection('Key Factors', cityDescription.education.key_factors)}
+                                            {renderListSection('Sources', cityDescription.education.sources)}
                                         </div>
                                     )}
 
@@ -789,9 +793,14 @@ export default function ResultsPage() {
                                             <h4 style={{ margin: 0, marginBottom: 16, fontSize: 16, color: '#FFFFFF' }}>
                                                 Demographics & Communities
                                             </h4>
-                                            <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
+                                            <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
                                                 {cityDescription.communities.demographics}
-                                            </p>
+                                            </div>
+                                            {cityDescription.communities.description && (
+                                                <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
+                                                    {cityDescription.communities.description}
+                                                </div>
+                                            )}
                                             <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
                                                 Community Highlights
                                             </h5>
@@ -800,6 +809,8 @@ export default function ResultsPage() {
                                                     <li key={i} style={{ marginBottom: 8 }}>{item}</li>
                                                 ))}
                                             </ul>
+                                            {renderListSection('Key Factors', cityDescription.communities.key_factors)}
+                                            {renderListSection('Sources', cityDescription.communities.sources)}
                                         </div>
                                     )}
 
@@ -823,12 +834,14 @@ export default function ResultsPage() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 12 }}>
+                                            <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 12 }}>
                                                 {cityDescription.connectivity.description}
-                                            </p>
-                                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
+                                            </div>
+                                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
                                                 <strong>Transport Options:</strong> {cityDescription.connectivity.transport_options}
-                                            </p>
+                                            </div>
+                                            {renderListSection('Key Factors', cityDescription.connectivity.key_factors)}
+                                            {renderListSection('Sources', cityDescription.connectivity.sources)}
                                         </div>
                                     )}
 
@@ -843,9 +856,9 @@ export default function ResultsPage() {
                                                     color="#8B5CF6"
                                                 />
                                             </div>
-                                            <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
+                                            <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
                                                 {cityDescription.hospitals.description}
-                                            </p>
+                                            </div>
                                             <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
                                                 Major Healthcare Facilities
                                             </h5>
@@ -854,6 +867,8 @@ export default function ResultsPage() {
                                                     <li key={i} style={{ marginBottom: 8 }}>{item}</li>
                                                 ))}
                                             </ul>
+                                            {renderListSection('Key Factors', cityDescription.hospitals.key_factors)}
+                                            {renderListSection('Sources', cityDescription.hospitals.sources)}
                                         </div>
                                     )}
 
@@ -881,9 +896,9 @@ export default function ResultsPage() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
+                                            <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
                                                 {cityDescription.geography.description}
-                                            </p>
+                                            </div>
                                             <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
                                                 Natural Features
                                             </h5>
@@ -892,6 +907,8 @@ export default function ResultsPage() {
                                                     <li key={i} style={{ marginBottom: 8 }}>{item}</li>
                                                 ))}
                                             </ul>
+                                            {renderListSection('Key Factors', cityDescription.geography.key_factors)}
+                                            {renderListSection('Sources', cityDescription.geography.sources)}
                                         </div>
                                     )}
                                 </>

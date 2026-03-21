@@ -1,209 +1,27 @@
 """
-City Description AI Service - Generates comprehensive city descriptions using Google Gemini.
-Uses gemini-2.5-flash model to provide real-time, data-backed city information.
+City description service backed by local evidence datasets.
+
+For the current testing phase, the endpoint returns deterministic,
+dataset-backed descriptions instead of relying on prompt-only generation.
 """
 
-import os
-import json
-import logging
-from typing import Dict, Any, List
+from typing import Any, Dict
 
-import google.generativeai as genai
-
-logger = logging.getLogger(__name__)
-
-
-def get_gemini_model(system_instruction: str = None):
-    """Get Gemini model with API key from environment"""
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise ValueError("GEMINI_API_KEY environment variable not set")
-    genai.configure(api_key=api_key)
-    return genai.GenerativeModel(
-        "gemini-2.5-flash",
-        system_instruction=system_instruction,
-        generation_config=genai.types.GenerationConfig(
-            temperature=0.3,
-            max_output_tokens=1500,
-        ),
-    )
+from app.services.city_evidence_service import build_city_description_from_local_evidence
 
 
 def generate_city_description(
     city_name: str,
     state: str,
     has_children: bool = False,
-    has_elderly: bool = False
+    has_elderly: bool = False,
 ) -> Dict[str, Any]:
     """
-    Generate comprehensive city description using Google Gemini.
-    
-    Returns structured data about:
-    - Crime rate and security score
-    - Education facilities
-    - Communities/demographics
-    - Connectivity to metro cities
-    - Hospital facilities
-    - Geographical features
+    Generate a city description using the local dataset-backed evidence layer.
     """
-    try:
-        model = get_gemini_model(
-            system_instruction="You are a precise data assistant that provides factual information about Indian cities based on government data, census reports, and verified sources. Always respond with valid JSON only, no markdown or explanations."
-        )
-    except Exception:
-        return get_fallback_description(city_name, state)
-    
-    # Build context for special family considerations
-    family_context = ""
-    if has_children:
-        family_context += "The family has children, so emphasize schools, child-friendly facilities, and safety. "
-    if has_elderly:
-        family_context += "The family has elderly members, so emphasize healthcare accessibility and senior-friendly infrastructure. "
-    
-    prompt = f"""You are an expert on Indian cities with comprehensive knowledge from government databases, census data, NCRB crime statistics, and geographical surveys.
-
-Provide detailed, factual information about {city_name}, {state} in the following JSON format. Be specific with real data points where known, and provide well-informed estimates based on your training data for others.
-
-{family_context}
-
-Return ONLY a valid JSON object with this exact structure (no markdown, no code blocks, just pure JSON):
-
-{{
-    "crime_rate": {{
-        "security_score": <number 1-10, where 10 is safest>,
-        "description": "<2-3 sentences about crime situation, citing NCRB data patterns>"
-    }},
-    "education": {{
-        "score": <number 1-10>,
-        "highlights": [
-            "<specific school/university 1>",
-            "<specific school/university 2>",
-            "<specific school/university 3>"
-        ],
-        "description": "<1-2 sentences about education landscape>"
-    }},
-    "communities": {{
-        "demographics": "<primary languages and cultural groups>",
-        "highlights": [
-            "<community aspect 1>",
-            "<community aspect 2>",
-            "<community aspect 3>"
-        ]
-    }},
-    "connectivity": {{
-        "nearest_metro": "<name of nearest major metropolitan city>",
-        "distance_km": <approximate distance in km>,
-        "transport_options": "<available transport modes: rail, road, air>",
-        "description": "<1-2 sentences about connectivity>"
-    }},
-    "hospitals": {{
-        "score": <number 1-10>,
-        "facilities": [
-            "<specific hospital 1>",
-            "<specific hospital 2>",
-            "<specific hospital 3>"
-        ],
-        "description": "<1-2 sentences about healthcare, note specialty care if elderly in family>"
-    }},
-    "geography": {{
-        "terrain": "<hill station/coastal/plains/plateau/etc>",
-        "climate": "<climate type>",
-        "elevation_m": <approximate elevation if relevant>,
-        "features": [
-            "<geographical feature 1>",
-            "<geographical feature 2>"
-        ],
-        "description": "<2-3 sentences about geography and natural environment>"
-    }}
-}}
-
-IMPORTANT:
-- Use actual data from your training (NCRB, Census, government sources)
-- Security scores should reflect actual crime rates for Indian cities
-- Include REAL hospital and school names that exist in {city_name}
-- Be accurate about distances to major metros
-- Provide genuine geographical information"""
-
-    try:
-        response = model.generate_content(prompt)
-        response_text = response.text.strip()
-        
-        # Clean up response if it has markdown code blocks
-        if response_text.startswith("```"):
-            response_text = response_text.split("```")[1]
-            if response_text.startswith("json"):
-                response_text = response_text[4:]
-            response_text = response_text.strip()
-        
-        city_data = json.loads(response_text)
-        
-        # Add city metadata
-        city_data["city_name"] = city_name
-        city_data["state"] = state
-        city_data["generated"] = True
-        
-        return city_data
-        
-    except json.JSONDecodeError as e:
-        logger.error("Failed to parse Gemini response as JSON for %s: %s", city_name, e)
-        return get_fallback_description(city_name, state)
-    except Exception as e:
-        logger.error("Error generating city description for %s: %s", city_name, e)
-        return get_fallback_description(city_name, state)
-
-
-def get_fallback_description(city_name: str, state: str) -> Dict[str, Any]:
-    """
-    Return a fallback description structure when AI generation fails.
-    """
-    return {
-        "city_name": city_name,
-        "state": state,
-        "generated": False,
-        "crime_rate": {
-            "security_score": 6,
-            "description": f"Crime statistics for {city_name} are in line with similar-sized Indian cities. Please consult local police department for current data."
-        },
-        "education": {
-            "score": 6,
-            "highlights": [
-                "Local government schools",
-                "Private CBSE/ICSE schools",
-                "Nearby universities for higher education"
-            ],
-            "description": f"{city_name} offers various educational institutions catering to different needs."
-        },
-        "communities": {
-            "demographics": f"Diverse population typical of {state}",
-            "highlights": [
-                "Mix of local and migrant communities",
-                "Active cultural associations",
-                "Growing expatriate community"
-            ]
-        },
-        "connectivity": {
-            "nearest_metro": "Delhi" if state in ["Himachal Pradesh", "Uttarakhand", "Punjab", "Haryana"] else "Mumbai" if state in ["Maharashtra", "Gujarat", "Goa"] else "Chennai" if state in ["Tamil Nadu", "Kerala", "Karnataka"] else "Kolkata",
-            "distance_km": 300,
-            "transport_options": "Road connectivity available, check for rail and air options",
-            "description": f"{city_name} is connected to major cities via road network."
-        },
-        "hospitals": {
-            "score": 6,
-            "facilities": [
-                "District hospital",
-                "Private multispecialty hospitals",
-                "Primary health centers"
-            ],
-            "description": f"Healthcare facilities available in {city_name}. Major medical emergencies may require transfer to larger cities."
-        },
-        "geography": {
-            "terrain": "Varied terrain",
-            "climate": "Seasonal variations",
-            "elevation_m": 500,
-            "features": [
-                "Natural landscapes",
-                "Local flora and fauna"
-            ],
-            "description": f"{city_name} is located in {state} with terrain typical of the region."
-        }
-    }
+    return build_city_description_from_local_evidence(
+        city_name=city_name,
+        state=state,
+        has_children=has_children,
+        has_elderly=has_elderly,
+    )

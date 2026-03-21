@@ -99,17 +99,24 @@ export interface AdvisoryResponse {
 export interface CrimeRate {
     security_score: number;
     description: string;
+    key_factors?: string[];
+    sources?: string[];
 }
 
 export interface Education {
     score: number;
     highlights: string[];
     description: string;
+    key_factors?: string[];
+    sources?: string[];
 }
 
 export interface Communities {
     demographics: string;
+    description?: string;
     highlights: string[];
+    key_factors?: string[];
+    sources?: string[];
 }
 
 export interface Connectivity {
@@ -117,12 +124,16 @@ export interface Connectivity {
     distance_km: number;
     transport_options: string;
     description: string;
+    key_factors?: string[];
+    sources?: string[];
 }
 
 export interface Hospitals {
     score: number;
     facilities: string[];
     description: string;
+    key_factors?: string[];
+    sources?: string[];
 }
 
 export interface Geography {
@@ -131,6 +142,8 @@ export interface Geography {
     elevation_m: number;
     features: string[];
     description: string;
+    key_factors?: string[];
+    sources?: string[];
 }
 
 export interface CityDescription {

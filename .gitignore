@@ -45,10 +45,14 @@ next-env.d.ts
 
 backend/venv
 
-# Firebase service account — NEVER commit
+# Firebase service account - NEVER commit
 serviceAccountKey.json
+serviceAccountKey.json.*
 servieAccountkey.json
 
 # Python cache
 **/__pycache__/
-**/*.pyc
+**/*.pyc
+
+# Local datasets
+backend/dataset/
