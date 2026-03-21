@@ -18,7 +18,8 @@ router = APIRouter()
 class RecommendationRequest(BaseModel):
     current_city: str
     age: int
-    profession: str
+    professions: List[str]          # multi-profession list
+    earning_members: int = 1
     max_distance_km: int = 500
     monthly_budget: Optional[int] = None
     family_type: str = "Nuclear Family"
@@ -64,13 +65,14 @@ async def get_recommendations(request: RecommendationRequest) -> RecommendationR
         recommendations, metadata = await get_top_recommendations(
             current_city=request.current_city,
             user_age=request.age,
-            profession=request.profession,
+            professions=request.professions,
             max_distance=request.max_distance_km,
             budget=request.monthly_budget,
             total_members=request.total_members,
             children=request.children,
             elderly=request.elderly,
-            health_conditions=request.health_conditions
+            health_conditions=request.health_conditions,
+            earning_members=request.earning_members,
         )
 
         # Step 2: Use Firestore instead of Supabase
@@ -81,7 +83,8 @@ async def get_recommendations(request: RecommendationRequest) -> RecommendationR
                     profile_update = {
                         "current_city": request.current_city,
                         "age": request.age,
-                        "profession": request.profession,
+                        "professions": request.professions,
+                        "earning_members": request.earning_members,
                         "max_distance_km": request.max_distance_km,
                         "monthly_budget": request.monthly_budget,
                         "family_type": request.family_type,
@@ -89,7 +92,6 @@ async def get_recommendations(request: RecommendationRequest) -> RecommendationR
                         "children": request.children,
                         "elderly": request.elderly,
                         "health_conditions": request.health_conditions,
-                        # Use Firestore's native server timestamp
                         "updated_at": firestore.SERVER_TIMESTAMP 
                     }
                     

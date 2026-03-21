@@ -15,7 +15,8 @@ router = APIRouter()
 class AdvisoryRequest(BaseModel):
     user_name: str
     age: int
-    profession: str
+    professions: List[str]          # multi-profession list
+    earning_members: int = 1
     current_city: str
     current_aqi: int
     family_type: str = "Nuclear Family"
@@ -48,7 +49,8 @@ async def get_advisory(request: AdvisoryRequest) -> AdvisoryResponse:
         advisory = generate_migration_advisory(
             user_name=request.user_name,
             user_age=request.age,
-            profession=request.profession,
+            professions=request.professions,
+            earning_members=request.earning_members,
             current_city=request.current_city,
             current_aqi=request.current_aqi,
             family_type=request.family_type,
@@ -72,6 +74,7 @@ async def get_advisory(request: AdvisoryRequest) -> AdvisoryResponse:
 def generate_fallback_advisory(request: AdvisoryRequest) -> str:
     """Generate template-based advisory when AI is unavailable"""
     top_city = request.top_recommendations[0] if request.top_recommendations else None
+    professions_str = ", ".join(request.professions) if request.professions else "your field"
     
     if not top_city:
         return f"""Dear {request.user_name},
@@ -92,9 +95,9 @@ Please consult with local real estate agents and healthcare providers to plan yo
 
 Based on our comprehensive AI analysis, we strongly recommend considering migration from {request.current_city} (AQI: {request.current_aqi}) to {top_city['city_name']}, {top_city['state']} (AQI: {top_city['target_aqi']}).
 
-This move offers a remarkable {top_city['aqi_improvement_percent']:.1f}% improvement in air quality, which translates to an estimated {top_city['respiratory_risk_reduction']:.1f}% reduction in respiratory health risks and a potential life expectancy gain of {top_city['life_expectancy_gain_years']} years based on epidemiological research.{health_context}
+This move offers a {top_city['aqi_improvement_percent']:.1f}% improvement in air quality, translating to an estimated {top_city['respiratory_risk_reduction']:.1f}% reduction in respiratory health risks and a potential life expectancy gain of {top_city['life_expectancy_gain_years']} years based on epidemiological research.{health_context}
 
-For your profession in {request.profession}, {top_city['city_name']} shows a job compatibility score of {top_city['job_match_score']}/100, with average monthly rent around ₹{top_city['avg_rent']:,}. The city is approximately {top_city['distance_km']:.0f} km from your current location.
+With {request.earning_members} earning member(s) in your family working in {professions_str}, {top_city['city_name']} offers strong job compatibility (score: {top_city['job_match_score']:.0f}/100) and average monthly rent around \u20b9{top_city['avg_rent']:,}. The city is approximately {top_city['distance_km']:.0f} km from your current location.
 
 Your overall Migration Readiness Score is {request.readiness_score:.0f}/100. {'You appear well-positioned for this transition.' if request.readiness_score > 70 else 'Consider planning carefully to ensure a smooth transition.' if request.readiness_score > 50 else 'We recommend taking gradual steps and thoroughly researching before making a decision.'}
 

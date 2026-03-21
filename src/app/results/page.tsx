@@ -260,33 +260,11 @@ export default function ResultsPage() {
                     </p>
                 </div>
 
-                <div className="card" style={{ marginBottom: 24, padding: 32 }}>
-                    <div className="score-grid">
-                        <div>
-                            <div className="score-value" style={{ color: '#7c3aed' }}>
-                                {data.readiness_score.toFixed(0)}%
-                            </div>
-                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Migration Readiness</div>
-                        </div>
-                        <div>
-                            <div className="score-value" style={{ color: getAqiColor(data.current_aqi) }}>
-                                {data.current_aqi}
-                            </div>
-                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Current AQI ({data.location.currentCity})</div>
-                        </div>
-                        <div>
-                            <div className="score-value" style={{ color: '#FFFFFF' }}>
-                                {topRec.aqi_improvement_percent.toFixed(0)}%
-                            </div>
-                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Max AQI Improvement</div>
-                        </div>
-                        <div>
-                            <div className="score-value" style={{ color: '#7c3aed' }}>
-                                +{topRec.life_expectancy_gain_years}
-                            </div>
-                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Life Expectancy Gain (Years)</div>
-                        </div>
+                <div style={{ marginBottom: 24, padding: 32, textAlign: 'center' }}>
+                    <div className="score-value" style={{ color: '#7c3aed', fontSize: 48, marginBottom: 8 }}>
+                        {data.readiness_score.toFixed(0)}%
                     </div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16 }}>Migration Readiness Score</div>
                 </div>
 
                 <h2 style={{ fontSize: 24, fontWeight: 600, color: '#FFFFFF', marginBottom: 16 }}>
@@ -316,60 +294,6 @@ export default function ResultsPage() {
                                     fontSize: 16
                                 }}>
                                     #{index + 1}
-                                </div>
-
-                                <div style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: 4,
-                                    minWidth: 56,
-                                }}>
-                                    <div style={{
-                                        width: 48,
-                                        height: 48,
-                                        borderRadius: 8,
-                                        background: getAqiColor(rec.target_aqi),
-                                        color: 'white',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontWeight: 700,
-                                        fontSize: 16
-                                    }}>
-                                        {rec.target_aqi}
-                                    </div>
-                                    {rec.live_aqi != null ? (
-                                        <div style={{ textAlign: 'center' }}>
-                                            <div style={{
-                                                fontSize: 10,
-                                                fontWeight: 700,
-                                                color: '#7c3aed',
-                                                lineHeight: 1.2,
-                                                letterSpacing: '0.02em',
-                                            }}>
-                                                🟢 Live: {rec.live_aqi}
-                                            </div>
-                                            {rec.historical_avg_aqi != null && (
-                                                <div style={{
-                                                    fontSize: 9,
-                                                    color: 'rgba(255,255,255,0.5)',
-                                                    lineHeight: 1.2,
-                                                }}>
-                                                    Avg: {Math.round(rec.historical_avg_aqi)}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div style={{
-                                            fontSize: 9,
-                                            color: 'rgba(255,255,255,0.5)',
-                                            textAlign: 'center',
-                                            lineHeight: 1.2,
-                                        }}>
-                                            Hist. avg
-                                        </div>
-                                    )}
                                 </div>
 
                                 <div style={{ flex: 1 }}>
@@ -421,7 +345,7 @@ export default function ResultsPage() {
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -450,10 +374,28 @@ export default function ResultsPage() {
                                                 ? '⏳ Saving...'
                                                 : '💾 Save to Profile'}
                                     </button>
+                                    <Link
+                                        href={`/city/${encodeURIComponent(rec.city_name)}?state=${encodeURIComponent(rec.state)}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        style={{
+                                            padding: '10px 18px',
+                                            borderRadius: 8,
+                                            border: '1px solid rgba(255,255,255,0.2)',
+                                            background: 'rgba(255,255,255,0.05)',
+                                            color: '#fff',
+                                            fontSize: 13,
+                                            fontWeight: 600,
+                                            textDecoration: 'none',
+                                            transition: 'all 0.2s',
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                                    >
+                                        Explore City →
+                                    </Link>
                                 </div>
                             </div>
 
-                            {index === 0 && (
                                 <div className="expanded-grid" style={{
                                     marginTop: 20,
                                     paddingTop: 20,
@@ -484,7 +426,6 @@ export default function ResultsPage() {
                                         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Healthcare</div>
                                     </div>
                                 </div>
-                            )}
                         </div>
                     ))}
                 </div>
@@ -715,23 +656,40 @@ export default function ResultsPage() {
                                     </p>
                                 </div>
                             </div>
-                            <button
-                                onClick={closeModal}
-                                style={{
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: 8,
-                                    border: 'none',
-                                    backgroundColor: 'rgba(255,255,255,0.1)',
-                                    cursor: 'pointer',
-                                    fontSize: 20,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                ✕
-                            </button>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <Link
+                                    href={`/city/${encodeURIComponent(selectedCity.city_name)}?state=${encodeURIComponent(selectedCity.state)}`}
+                                    style={{
+                                        padding: '10px 20px',
+                                        borderRadius: 8,
+                                        background: 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)',
+                                        color: 'white',
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        textDecoration: 'none',
+                                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)'
+                                    }}
+                                >
+                                    Explore City →
+                                </Link>
+                                <button
+                                    onClick={closeModal}
+                                    style={{
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: 8,
+                                        border: 'none',
+                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        cursor: 'pointer',
+                                        fontSize: 20,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
                         </div>
 
                         <div style={{
