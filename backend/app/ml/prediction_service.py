@@ -2,13 +2,17 @@
 ML Prediction Service for AirSafe Move.
 Implements trained ML models for city recommendations.
 
-Updated to integrate real-time AQI from OpenAQ alongside historical data.
+Updated to integrate real-time AQI from OpenAQ alongside historical data,
+living cost dataset, and multi-profession scoring.
 
 Scoring weights:
-    - current AQI (OpenAQ live, 40%)  |  historical AQI trend (30%)
-    - distance constraint (15%)
-    - affordability (15%)
-    (health-care and job-match weights applied on top of the blended AQI score)
+    - Job market match (multi-profession avg): 30%
+    - Living cost affordability (dataset):     20%
+    - AQI improvement (blended live+hist):     10%
+    - Healthcare:                              15%
+    - Distance constraint:                     10%
+    - AQI trend bonus:                          5%
+    - Edu / Community / Connectivity:          10%
 """
 
 import math
@@ -19,13 +23,13 @@ from haversine import haversine, Unit
 
 from app.services.city_data import get_all_cities, get_city_by_name
 from app.services.openaq_service import get_current_aqi_batch
+from app.services.living_cost_service import get_affordability_score, get_living_cost
 
 logger = logging.getLogger(__name__)
 
-# Blending weights for AQI scoring
-LIVE_AQI_WEIGHT = 0.40         # weight for live OpenAQ reading
-HISTORICAL_AQI_WEIGHT = 0.30   # weight for 5-year historical average
-# The remaining 0.30 goes to distance + budget (both capped at 15 each)
+# AQI blending weights (live OpenAQ + historical average)
+LIVE_AQI_WEIGHT = 0.40
+HISTORICAL_AQI_WEIGHT = 0.30
 
 
 def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -184,88 +188,87 @@ def predict_city_suitability(
     city_data: Dict[str, Any],
     current_city_data: Dict[str, Any],
     user_age: int,
-    profession: str,
+    professions: List[str],
     max_distance: int,
     budget: int | None,
     health_sensitivity: float,
     distance_km: float,
+    earning_members: int = 1,
     live_aqi: Optional[int] = None,
 ) -> float:
     """
     ML Model: City Suitability Prediction
-    Trained on migration success data and user satisfaction surveys.
 
-    Updated weights:
-      - AQI improvement (blended live+historical): 30%
-      - Distance constraint: 15%
-      - Budget fit: 15%
-      - Job market: 20%
-      - Healthcare: 10–15%
-      - AQI trend bonus: 5%
+    Weights:
+      - Job market (multi-profession avg): 30%
+      - Living cost (dataset months_covered): 20%
+      - AQI improvement (blended):          10%
+      - Healthcare:                         15%
+      - Distance:                           10%
+      - AQI trend:                           5%
+      - Edu / Community / Connectivity:     10%
 
     Output: Suitability score (0-100)
     """
     score = 0.0
 
-    # Derive effective target AQI using live + historical blend
+    # Derive effective target AQI
     effective_target_aqi, _ = _blend_aqi(
         live_aqi,
-        city_data["current_aqi"],      # historical "current" snapshot
+        city_data["current_aqi"],
         city_data.get("avg_aqi_5yr", city_data["current_aqi"]),
     )
-
-    # Derive effective source AQI for the user's current city
     current_effective_aqi = float(current_city_data["current_aqi"])
 
-    # 1. AQI Improvement Score (30% weight)
+    # 1. Job Score (30% weight) — average across all professions
+    profession_availability = city_data.get("profession_availability", {})
+    if professions:
+        job_match = sum(profession_availability.get(p, 50) for p in professions) / len(professions)
+    else:
+        job_match = 50.0
+    job_score = 30 * (job_match / 100)
+    score += job_score
+
+    # 2. Living Cost / Affordability Score (20% weight)
+    city_name = city_data["city_name"]
+    affordability = get_affordability_score(city_name, num_earning_members=earning_members)
+    score += 20 * (affordability / 100)
+
+    # 3. AQI Improvement Score (10% weight)
     aqi_improvement = calculate_aqi_improvement(
         int(current_effective_aqi),
         effective_target_aqi
     )
-    aqi_score = min(30, aqi_improvement * 0.4)
+    aqi_score = min(10, aqi_improvement * 0.15)
     score += aqi_score
 
-    # 2. Distance Score (15% weight)
-    if distance_km <= max_distance:
-        distance_score = 15 * (1 - (distance_km / max_distance) * 0.5)
-    else:
-        distance_score = max(0, 15 - (distance_km - max_distance) / 100)
-    score += distance_score
-
-    # 3. Budget Score (15% weight)
-    if budget:
-        if city_data["avg_rent"] <= budget:
-            budget_ratio = city_data["avg_rent"] / budget
-            budget_score = 15 * (1.2 - budget_ratio)  # Bonus for under budget
-        else:
-            overage = (city_data["avg_rent"] - budget) / budget
-            budget_score = max(0, 15 * (1 - overage))
-        score += min(15, budget_score)
-    else:
-        score += 10  # Default neutral score if no budget specified
-
-    # 4. Job Score (20% weight)
-    profession_availability = city_data.get("profession_availability", {})
-    job_match = profession_availability.get(profession, 50)
-    job_score = 20 * (job_match / 100)
-    score += job_score
-
-    # 5. Healthcare Score (10–15% weight)
+    # 4. Healthcare Score (15% weight)
     healthcare = city_data.get("healthcare_score", 70)
-    if health_sensitivity > 60:
-        healthcare_weight = 15
+    score += 15 * (healthcare / 100)
+
+    # 5. Distance Score (10% weight)
+    if distance_km <= max_distance:
+        distance_score = 10 * (1 - (distance_km / max_distance) * 0.5)
     else:
-        healthcare_weight = 10
-    healthcare_score = healthcare_weight * (healthcare / 100)
-    score += healthcare_score
+        distance_score = max(0, 10 - (distance_km - max_distance) / 100)
+    score += distance_score
 
     # 6. AQI Trend Bonus (5% weight)
     trend_scores = {"improving": 5, "stable": 3, "worsening": 0}
     score += trend_scores.get(city_data.get("aqi_trend", "stable"), 2)
 
-    # 7. Health Urgency Multiplier
+    # 7. Education / Community / Connectivity Composite (10% weight)
+    # Heuristic until dedicated dataset is provided:
+    #   connectivity_proxy = 100 - (distance_km / max_distance * 50), min 0
+    connectivity_proxy = max(0, 100 - (distance_km / max(max_distance, 1)) * 50)
+    job_score_raw = city_data.get("job_score", 70)
+    healthcare_raw = city_data.get("healthcare_score", 70)
+    edu_comm_conn = job_score_raw * 0.4 + healthcare_raw * 0.3 + connectivity_proxy * 0.3
+    score += 10 * (edu_comm_conn / 100)
+
+    # 8. Health Urgency Multiplier
     if health_sensitivity > 70 and aqi_improvement > 50:
-        score *= 1.1  # 10% bonus for urgent health cases with good AQI cities
+        score *= 1.05  # small bonus for urgent health cases with good AQI cities
 
     return round(min(100, max(0, score)), 1)
 
@@ -302,21 +305,19 @@ def predict_migration_readiness(
 async def get_top_recommendations(
     current_city: str,
     user_age: int,
-    profession: str,
+    professions: List[str],
     max_distance: int,
     budget: int | None,
     total_members: int,
     children: int,
     elderly: int,
     health_conditions: List[str],
+    earning_members: int = 1,
     top_n: int = 5
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
     Main recommendation engine (async).
     Returns top N city recommendations with scores.
-
-    Now fetches live AQI from OpenAQ for all candidate cities concurrently,
-    then blends with historical data for robust scoring.
     """
     current_city_data = get_city_by_name(current_city)
     if not current_city_data:
@@ -402,11 +403,12 @@ async def get_top_recommendations(
             city,
             current_city_data,
             user_age,
-            profession,
+            professions,
             max_distance,
             budget,
             health_sensitivity,
             distance_km,
+            earning_members=earning_members,
             live_aqi=live_aqi_val,
         )
 
@@ -425,8 +427,12 @@ async def get_top_recommendations(
             user_age
         )
 
-        # Job match score
-        job_match = city.get("profession_availability", {}).get(profession, 50)
+        # Job match score: average across all professions
+        profession_availability = city.get("profession_availability", {})
+        if professions:
+            job_match = sum(profession_availability.get(p, 50) for p in professions) / len(professions)
+        else:
+            job_match = 50.0
 
         recommendations.append({
             "city_name": city["city_name"],

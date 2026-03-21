@@ -39,7 +39,8 @@ export default function WizardPage() {
         // Personal Info
         name: '',
         age: 30,
-        profession: '',
+        professions: [] as string[],
+        earningMembers: 1,
         // Location
         currentCity: '',
         maxDistance: 500,
@@ -65,7 +66,8 @@ export default function WizardPage() {
                 ...prev,
                 name: profile.name || prev.name,
                 age: profile.age || prev.age,
-                profession: profile.profession || prev.profession,
+                professions: (profile as any).professions || (profile.profession ? [profile.profession] : prev.professions),
+                earningMembers: (profile as any).earning_members || prev.earningMembers,
                 currentCity: profile.current_city || prev.currentCity,
                 maxDistance: profile.max_distance_km || prev.maxDistance,
                 monthlyBudget: profile.monthly_budget ? String(profile.monthly_budget) : prev.monthlyBudget,
@@ -167,9 +169,20 @@ export default function WizardPage() {
         });
     };
 
+    const toggleProfession = (prof: string) => {
+        setFormData(prev => {
+            const current = prev.professions;
+            if (current.includes(prof)) {
+                return { ...prev, professions: current.filter(p => p !== prof) };
+            }
+            if (current.length >= prev.earningMembers) return prev; // at max
+            return { ...prev, professions: [...current, prof] };
+        });
+    };
+
     const canProceed = () => {
         switch (currentStep) {
-            case 0: return formData.name.trim() && formData.profession;
+            case 0: return formData.name.trim() && formData.earningMembers >= 1 && formData.professions.length > 0;
             case 1: return formData.currentCity;
             case 2: return true;
             default: return false;
@@ -185,7 +198,8 @@ export default function WizardPage() {
             const request = {
                 current_city: formData.currentCity,
                 age: formData.age,
-                profession: formData.profession,
+                professions: formData.professions,
+                earning_members: formData.earningMembers,
                 max_distance_km: formData.maxDistance,
                 monthly_budget: formData.monthlyBudget ? parseInt(formData.monthlyBudget) : null,
                 family_type: formData.familyType,
@@ -195,14 +209,14 @@ export default function WizardPage() {
                 health_conditions: formData.healthConditions
             };
 
-            // Get a fresh token (avoids 1-hour expiry issues with cached token)
             const freshToken = user ? await user.getIdToken() : token ?? undefined;
             const recResponse = await getRecommendations(request, freshToken);
 
             const advisoryResponse = await getAdvisory(
                 formData.name,
                 formData.age,
-                formData.profession,
+                formData.professions,
+                formData.earningMembers,
                 formData.currentCity,
                 recResponse.current_aqi,
                 formData.familyType,
@@ -219,7 +233,7 @@ export default function WizardPage() {
                 ...recResponse,
                 advisory: advisoryResponse.advisory,
                 userName: formData.name,
-                userProfile: { name: formData.name, age: formData.age, profession: formData.profession },
+                userProfile: { name: formData.name, age: formData.age, professions: formData.professions, earningMembers: formData.earningMembers },
                 familyHealth: {
                     familyType: formData.familyType,
                     totalMembers: formData.totalMembers,
@@ -283,11 +297,72 @@ export default function WizardPage() {
                                 <input type="range" min="18" max="80" value={formData.age} onChange={(e) => handleInputChange('age', parseInt(e.target.value))} style={{ width: '100%' }} />
                             </div>
                             <div style={{ marginBottom: 24 }}>
-                                <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#FFFFFF' }}>Profession</label>
-                                <select className="form-select" value={formData.profession} onChange={(e) => handleInputChange('profession', e.target.value)}>
-                                    <option value="">Select your profession</option>
-                                    {professions.map(prof => <option key={prof} value={prof}>{prof}</option>)}
-                                </select>
+                                <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#FFFFFF' }}>Earning Members in Family</label>
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    min={1}
+                                    max={formData.totalMembers || 10}
+                                    value={formData.earningMembers}
+                                    placeholder="e.g. 2 — how many family members earn"
+                                    onChange={(e) => {
+                                        const val = Math.max(1, parseInt(e.target.value) || 1);
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            earningMembers: val,
+                                            // Trim professions if new limit is lower
+                                            professions: prev.professions.slice(0, val)
+                                        }));
+                                    }}
+                                />
+                                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>You can select up to this many professions below</p>
+                            </div>
+                            <div style={{ marginBottom: 24 }}>
+                                <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#FFFFFF' }}>
+                                    Professions
+                                    <span style={{ fontWeight: 400, fontSize: 13, color: 'rgba(255,255,255,0.5)', marginLeft: 8 }}>
+                                        (select up to {formData.earningMembers})
+                                    </span>
+                                </label>
+                                {/* Selected chips */}
+                                {formData.professions.length > 0 && (
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                                        {formData.professions.map(p => (
+                                            <span key={p} style={{
+                                                display: 'inline-flex', alignItems: 'center', gap: 6,
+                                                background: '#7c3aed', color: '#fff', borderRadius: 20,
+                                                padding: '4px 12px', fontSize: 13, fontWeight: 500, cursor: 'pointer'
+                                            }} onClick={() => toggleProfession(p)}>
+                                                {p} <span style={{ fontSize: 16, lineHeight: 1 }}>×</span>
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                                {/* Profession list */}
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                    {professions.map(prof => {
+                                        const isSelected = formData.professions.includes(prof);
+                                        const isDisabled = !isSelected && formData.professions.length >= formData.earningMembers;
+                                        return (
+                                            <button
+                                                key={prof}
+                                                type="button"
+                                                onClick={() => toggleProfession(prof)}
+                                                disabled={isDisabled}
+                                                style={{
+                                                    padding: '6px 14px', borderRadius: 20, border: '1.5px solid',
+                                                    borderColor: isSelected ? '#7c3aed' : 'rgba(255,255,255,0.2)',
+                                                    background: isSelected ? 'rgba(124,58,237,0.18)' : 'rgba(255,255,255,0.05)',
+                                                    color: isDisabled ? 'rgba(255,255,255,0.3)' : '#FFFFFF',
+                                                    fontSize: 13, cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                                    transition: 'all 0.15s'
+                                                }}
+                                            >
+                                                {prof}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
                     )}
