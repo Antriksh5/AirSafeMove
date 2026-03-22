@@ -9,16 +9,24 @@ endpoint.
 from __future__ import annotations
 
 import csv
+import json
 import math
 import re
+from copy import deepcopy
 from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
-from app.services.city_data import get_city_by_name
+from dataset.geography_fetcher import GeographyFetcher
+from dataset.nabh_fetcher import NABHFetcher
+from app.services.city_data import get_all_cities, get_city_by_name
 
 DATASET_DIR = Path(__file__).resolve().parent.parent.parent / "dataset"
+CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "dataset_cache"
+CACHE_FILE = CACHE_DIR / "city_description_cache.json"
+_NABH_FETCHER = NABHFetcher()
+_GEOGRAPHY_FETCHER = GeographyFetcher()
 
 
 CITY_MAPPING: Dict[str, Dict[str, List[str]]] = {
@@ -180,6 +188,17 @@ def _format_pct(value: float) -> str:
 
 def _dataset_paths(pattern: str) -> List[Path]:
     return sorted(DATASET_DIR.glob(pattern))
+
+
+def _dataset_signature() -> Dict[str, Dict[str, int]]:
+    signature: Dict[str, Dict[str, int]] = {}
+    for path in sorted(DATASET_DIR.glob("*.csv")):
+        stat = path.stat()
+        signature[path.name] = {
+            "size": int(stat.st_size),
+            "mtime_ns": int(stat.st_mtime_ns),
+        }
+    return signature
 
 
 def _sum_numeric_columns(row: Dict[str, str], excluded: Iterable[str]) -> int:
@@ -610,6 +629,186 @@ def _build_hospitals_section(city_name: str, state: str) -> Dict[str, Any]:
     }
 
 
+def _metric_lookup(rows: List[Dict[str, Any]]) -> Dict[str, str]:
+    metrics: Dict[str, str] = {}
+    for row in rows:
+        metric_name = row.get("metric_name")
+        metric_value = row.get("metric_value")
+        if metric_name and metric_name not in metrics and metric_value not in (None, ""):
+            metrics[metric_name] = str(metric_value)
+    return metrics
+
+
+def _source_lines(rows: List[Dict[str, Any]]) -> List[str]:
+    seen = set()
+    sources: List[str] = []
+    for row in rows:
+        source_name = row.get("source_name")
+        source_url = row.get("source_url")
+        if not source_name:
+            continue
+        line = f"{source_name} - {source_url}" if source_url else str(source_name)
+        if line not in seen:
+            seen.add(line)
+            sources.append(line)
+    return sources
+
+
+def _split_metric_list(value: str | None, delimiter: str = ",") -> List[str]:
+    if not value:
+        return []
+    return [item.strip() for item in value.split(delimiter) if item and item.strip()]
+
+
+def _build_live_hospitals_section(city_name: str, state: str) -> Dict[str, Any] | None:
+    city_record = get_city_by_name(city_name) or {}
+    lat = city_record.get("latitude")
+    lon = city_record.get("longitude")
+    if lat is None or lon is None:
+        return None
+
+    try:
+        rows = _NABH_FETCHER.fetch(city_name=city_name, state=state, lat=lat, lon=lon)
+    except Exception:
+        return None
+
+    if not rows:
+        return None
+
+    metrics = _metric_lookup(rows)
+    try:
+        count = int(float(metrics.get("nabh_accredited_hospitals_count", "0")))
+    except ValueError:
+        count = 0
+
+    nearest = metrics.get("nabh_nearest_hospital")
+    facilities = [
+        item.strip()
+        for item in metrics.get("nabh_accredited_hospitals_list", "").split(";")
+        if item.strip()
+    ]
+    fallback_score = round(city_record.get("healthcare_score", 60) / 10) or 6
+    score = max(1, min(10, max(fallback_score, min(10, 5 + min(count, 10) // 2))))
+
+    if count == 0:
+        description = (
+            f"The NABH directory was checked for {city_name}, {state}, but no accredited hospitals were found within the "
+            "configured radius around the city centre."
+        )
+        key_factors = [
+            "The result comes from the live NABH directory endpoint rather than the older local hospital CSV.",
+            "A zero result can mean either sparse accredited coverage or a city-centre radius that misses outer facilities.",
+            "The app can still fall back to the broader local hospital directory for general facility coverage.",
+        ]
+    else:
+        nearest_sentence = f" The nearest listed option is {nearest}." if nearest else ""
+        description = (
+            f"The live NABH directory currently shows {count} accredited hospitals within the configured radius of {city_name}."
+            f"{nearest_sentence} This is a stronger quality signal than generic facility inventory because it reflects active accreditation."
+        )
+        key_factors = [
+            f"NABH-accredited hospitals within the current city-radius filter: {count}.",
+            f"Nearest accredited hospital: {nearest}." if nearest else "Nearest accredited hospital was not available in the response.",
+            "This section now prioritizes live accreditation quality over the older hospital-directory proxy.",
+        ]
+
+    return {
+        "score": score,
+        "facilities": facilities[:10] or (["No NABH-accredited hospitals found within the configured radius"] if count == 0 else []),
+        "description": description,
+        "key_factors": key_factors,
+        "sources": _source_lines(rows),
+    }
+
+
+def _build_live_geography_section(city_name: str, state: str) -> Dict[str, Any] | None:
+    city_record = get_city_by_name(city_name) or {}
+    lat = city_record.get("latitude")
+    lon = city_record.get("longitude")
+    if lat is None or lon is None:
+        return None
+
+    try:
+        rows = _GEOGRAPHY_FETCHER.fetch(city_name=city_name, state=state, lat=lat, lon=lon)
+    except Exception:
+        return None
+
+    if not rows:
+        return None
+
+    metrics = _metric_lookup(rows)
+    terrain_parts: List[str] = []
+    features: List[str] = []
+
+    coastline = metrics.get("coastline_proximity")
+    if coastline == "yes":
+        terrain_parts.append("Coastal")
+        features.append("Coastline detected within the configured terrain search radius")
+    elif coastline == "no":
+        terrain_parts.append("Inland")
+
+    rivers = _split_metric_list(metrics.get("osm_rivers_nearby") or metrics.get("nearby_rivers"))
+    hills = _split_metric_list(metrics.get("osm_hills_peaks_nearby"))
+    lakes = _split_metric_list(metrics.get("osm_lakes_nearby"))
+
+    if hills:
+        terrain_parts.append("Hilly")
+        features.append(f"Nearby hills or peaks: {', '.join(hills[:3])}")
+    if lakes:
+        features.append(f"Nearby lakes: {', '.join(lakes[:3])}")
+    if rivers:
+        features.append(f"Nearby rivers: {', '.join(rivers[:3])}")
+
+    terrain = ", ".join(terrain_parts) if terrain_parts else "Mixed urban terrain"
+
+    climate_bits = []
+    if metrics.get("climate_type"):
+        climate_bits.append(metrics["climate_type"])
+    if metrics.get("annual_avg_temp_c"):
+        climate_bits.append(f"avg {metrics['annual_avg_temp_c']}C")
+    if metrics.get("annual_rainfall_mm"):
+        climate_bits.append(f"{metrics['annual_rainfall_mm']} mm rainfall")
+    climate = ", ".join(climate_bits) if climate_bits else "Climate data available from external geography APIs"
+
+    try:
+        elevation_m = float(metrics.get("elevation_m", "0"))
+    except ValueError:
+        elevation_m = 0.0
+
+    hottest = metrics.get("hottest_month")
+    coldest = metrics.get("coldest_month")
+    if hottest:
+        features.append(f"Hottest month: {hottest}")
+    if coldest:
+        features.append(f"Coldest month: {coldest}")
+    if not features:
+        features.append(f"Coordinates used for geography lookup: {lat}, {lon}")
+
+    description_parts = [
+        f"The geography section for {city_name} is now built from live SPARQL, Open-Meteo, and Overpass lookups using the city's coordinates.",
+    ]
+    if elevation_m > 0:
+        description_parts.append(f"Wikidata reports an elevation of about {round(elevation_m)} m.")
+    if climate_bits:
+        description_parts.append(f"Climate signals suggest {climate.lower()}.")
+    if rivers or hills or lakes or coastline in {"yes", "no"}:
+        description_parts.append("Nearby physical features were also inferred from OpenStreetMap terrain data.")
+
+    return {
+        "terrain": terrain,
+        "climate": climate,
+        "elevation_m": round(elevation_m, 1),
+        "features": features[:8],
+        "description": " ".join(description_parts),
+        "key_factors": [
+            "Elevation and climate are now API-backed rather than placeholder text.",
+            "Terrain labels are inferred from nearby coastline, river, hill, and lake features.",
+            "Climate summaries are derived from aggregated monthly Open-Meteo data for the requested date range.",
+        ],
+        "sources": _source_lines(rows),
+    }
+
+
 def _build_communities_section(city_name: str, state: str) -> Dict[str, Any]:
     mapping = _get_mapping(city_name, state)
     census_rows = [
@@ -785,7 +984,7 @@ def _build_generic_sections(city_name: str, state: str, has_children: bool, has_
             "key_factors": [
                 "Coordinates are available, but terrain and climate APIs are not integrated yet.",
                 "This section is intentionally minimal until geography evidence is added.",
-                "Open-Meteo, Wikidata, and Open-Elevation are the next high-value additions here.",
+                "Wikidata, Open-Meteo, and Overpass are the next high-value additions here.",
             ],
             "sources": [
                 "Internal city dataset (backend/app/services/city_data.py) - coordinates, AQI, and rent context",
@@ -794,7 +993,7 @@ def _build_generic_sections(city_name: str, state: str, has_children: bool, has_
     }
 
 
-def build_city_description_from_local_evidence(
+def _build_uncached_city_description(
     city_name: str,
     state: str,
     has_children: bool = False,
@@ -812,3 +1011,74 @@ def build_city_description_from_local_evidence(
         "hospitals": _build_hospitals_section(city_name, state),
         "geography": generic_sections["geography"],
     }
+
+
+@lru_cache(maxsize=1)
+def _load_cached_city_descriptions() -> Dict[str, Dict[str, Any]]:
+    current_signature = _dataset_signature()
+    if CACHE_FILE.exists():
+        with open(CACHE_FILE, encoding="utf-8") as file:
+            payload = json.load(file)
+        if payload.get("signature") == current_signature:
+            return payload.get("cities", {})
+
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cities_payload: Dict[str, Dict[str, Any]] = {}
+    for city in get_all_cities():
+        description = _build_uncached_city_description(
+            city_name=city["city_name"],
+            state=city["state"],
+            has_children=False,
+            has_elderly=False,
+        )
+        cities_payload[_city_key(city["city_name"])] = description
+
+    with open(CACHE_FILE, "w", encoding="utf-8") as file:
+        json.dump(
+            {
+                "signature": current_signature,
+                "cities": cities_payload,
+            },
+            file,
+            ensure_ascii=True,
+        )
+    return cities_payload
+
+
+def warm_city_description_cache() -> Dict[str, Dict[str, Any]]:
+    """Build or load the persisted city description cache."""
+    return _load_cached_city_descriptions()
+
+
+def build_city_description_from_local_evidence(
+    city_name: str,
+    state: str,
+    has_children: bool = False,
+    has_elderly: bool = False,
+) -> Dict[str, Any]:
+    cached = _load_cached_city_descriptions().get(_city_key(city_name))
+    if cached:
+        result = deepcopy(cached)
+        result["city_name"] = city_name
+        result["state"] = state
+        live_hospitals = _build_live_hospitals_section(city_name, state)
+        if live_hospitals:
+            result["hospitals"] = live_hospitals
+        live_geography = _build_live_geography_section(city_name, state)
+        if live_geography:
+            result["geography"] = live_geography
+        return result
+
+    result = _build_uncached_city_description(
+        city_name=city_name,
+        state=state,
+        has_children=has_children,
+        has_elderly=has_elderly,
+    )
+    live_hospitals = _build_live_hospitals_section(city_name, state)
+    if live_hospitals:
+        result["hospitals"] = live_hospitals
+    live_geography = _build_live_geography_section(city_name, state)
+    if live_geography:
+        result["geography"] = live_geography
+    return result
