@@ -48,6 +48,7 @@ backend/venv
 # Firebase service account - NEVER commit
 serviceAccountKey.json
 serviceAccountKey.json.*
+serviceAccountsKey.json
 servieAccountkey.json
 
 # Python cache

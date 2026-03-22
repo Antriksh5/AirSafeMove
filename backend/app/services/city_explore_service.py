@@ -3,24 +3,33 @@ City Explore AI Service — Gemini-powered deep dive into a recommended city.
 Returns structured info: best areas, schools/colleges/hospitals, hotels/restaurants, urban life.
 """
 
+import logging
 import os
 import json
 import re
+import time
 from typing import Dict, Any
 
 import google.generativeai as genai
 
+logger = logging.getLogger(__name__)
+
+_explore_cooldown_until: float = 0.0
+
 
 def _get_model():
+    if time.time() < _explore_cooldown_until:
+        return None
+
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         return None
     genai.configure(api_key=api_key)
     return genai.GenerativeModel(
-        "gemini-2.5-flash",
+        "gemini-2.0-flash-lite",
         generation_config=genai.types.GenerationConfig(
             temperature=0.5,
-            max_output_tokens=2000,
+            max_output_tokens=4096,
         ),
     )
 
@@ -164,18 +173,33 @@ RULES:
 - Use REAL, accurate place names for {city_name}
 - Response must be pure JSON only, no markdown code blocks"""
 
-    response = model.generate_content(prompt)
-    raw = response.text.strip()
+    global _explore_cooldown_until
+    try:
+        response = model.generate_content(prompt)
+    except Exception as exc:
+        exc_str = str(exc)
+        if "429" in exc_str or "quota" in exc_str.lower():
+            _explore_cooldown_until = time.time() + 300
+            logger.warning("City explore quota hit, cooldown 5min: %s", exc)
+        else:
+            logger.warning("City explore Gemini call failed: %s", exc)
+        return _get_mock_explore_data(city_name)
 
-    # Strip any accidental markdown fences
+    raw = (getattr(response, "text", None) or "").strip()
+    if not raw:
+        return _get_mock_explore_data(city_name)
+
     raw = re.sub(r"^```(?:json)?\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
 
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
-        # Attempt to find JSON object within response
         match = re.search(r'\{.*\}', raw, re.DOTALL)
         if match:
-            return json.loads(match.group())
-        raise ValueError(f"Failed to parse Gemini response as JSON for city: {city_name}")
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+        logger.warning("Failed to parse explore JSON for %s, using mock", city_name)
+        return _get_mock_explore_data(city_name)

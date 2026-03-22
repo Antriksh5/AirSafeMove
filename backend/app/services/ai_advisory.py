@@ -1,22 +1,31 @@
 """
 Google Gemini AI Advisory Service for personalized migration explanations.
-Uses gemini-2.5-flash model for human-readable insights.
+Uses gemini-2.0-flash-lite model for human-readable insights.
 """
 
+import logging
 import os
+import time
 from typing import List, Dict, Any
 
 import google.generativeai as genai
 
+logger = logging.getLogger(__name__)
+
+_advisory_cooldown_until: float = 0.0
+
 
 def get_gemini_model(system_instruction: str = None, temperature: float = 0.7, max_output_tokens: int = 800):
     """Get Gemini model with API key from environment"""
+    if time.time() < _advisory_cooldown_until:
+        raise ValueError("Gemini quota cooldown active, try again later")
+
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY environment variable not set")
     genai.configure(api_key=api_key)
     return genai.GenerativeModel(
-        "gemini-2.5-flash",
+        "gemini-2.0-flash-lite",
         system_instruction=system_instruction,
         generation_config=genai.types.GenerationConfig(
             temperature=temperature,
@@ -111,8 +120,24 @@ IMPORTANT:
 - Cities are ranked by a BALANCED score across multiple factors — acknowledge this holistic approach
 """
 
-    response = model.generate_content(prompt)
-    return response.text
+    global _advisory_cooldown_until
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as exc:
+        exc_str = str(exc)
+        if "429" in exc_str or "quota" in exc_str.lower():
+            _advisory_cooldown_until = time.time() + 300
+            logger.warning("Advisory quota hit, cooldown 5min: %s", exc)
+        else:
+            logger.warning("Advisory Gemini call failed: %s", exc)
+        return (
+            f"Hello {user_name}, based on our analysis your top recommended city is "
+            f"{top_recommendations[0]['city_name']} with a suitability score of "
+            f"{top_recommendations[0]['suitability_score']}/100. "
+            "The AI advisory is temporarily unavailable due to high demand. "
+            "Please try again in a few minutes for a detailed personalized advisory."
+        )
 
 
 def generate_city_explanation(
@@ -136,8 +161,16 @@ def generate_city_explanation(
 
 Be concise and focus on the biggest benefit. No markdown formatting."""
 
-    response = model.generate_content(prompt)
-    return response.text
+    global _advisory_cooldown_until
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as exc:
+        exc_str = str(exc)
+        if "429" in exc_str or "quota" in exc_str.lower():
+            _advisory_cooldown_until = time.time() + 300
+        logger.warning("City explanation Gemini call failed: %s", exc)
+        return f"{city_name} is recommended based on a balanced score across AQI improvement, job market, and healthcare quality."
 
 
 def generate_health_insight(
@@ -167,5 +200,13 @@ who will experience a {aqi_delta} point reduction in AQI exposure.
 
 Focus on specific health benefits backed by research. Be encouraging but factual. No markdown."""
 
-    response = model.generate_content(prompt)
-    return response.text
+    global _advisory_cooldown_until
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as exc:
+        exc_str = str(exc)
+        if "429" in exc_str or "quota" in exc_str.lower():
+            _advisory_cooldown_until = time.time() + 300
+        logger.warning("Health insight Gemini call failed: %s", exc)
+        return ""

@@ -10,17 +10,25 @@ from __future__ import annotations
 
 import csv
 import json
-import math
+import logging
 import re
+import time
 from copy import deepcopy
 from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Set
 
 from dataset.geography_fetcher import GeographyFetcher
 from dataset.nabh_fetcher import NABHFetcher
-from app.services.city_data import get_all_cities, get_city_by_name
+from app.services.city_data import get_all_cities, get_city_by_name, INDIAN_CITIES_DATA
+from app.services.connectivity_ai_service import get_live_connectivity
+from app.services.pdf_evidence_service import (
+    get_crime_section_for_city,
+    get_religion_snippet_for_district,
+)
+
+logger = logging.getLogger(__name__)
 
 DATASET_DIR = Path(__file__).resolve().parent.parent.parent / "dataset"
 CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "dataset_cache"
@@ -160,6 +168,14 @@ def _normalize(value: str | None) -> str:
     return value.strip()
 
 
+def _compute_relevant_state_norms() -> Set[str]:
+    """Pre-compute the set of normalised state names we actually need."""
+    return {_normalize(city.get("state")) for city in INDIAN_CITIES_DATA if city.get("state")}
+
+
+_RELEVANT_STATE_NORMS: Set[str] = _compute_relevant_state_norms()
+
+
 def _city_key(city_name: str) -> str:
     return _normalize(city_name.replace("(", " ").replace(")", " "))
 
@@ -195,6 +211,12 @@ def _dataset_signature() -> Dict[str, Dict[str, int]]:
     for path in sorted(DATASET_DIR.glob("*.csv")):
         stat = path.stat()
         signature[path.name] = {
+            "size": int(stat.st_size),
+            "mtime_ns": int(stat.st_mtime_ns),
+        }
+    for path in sorted(DATASET_DIR.glob("*.pdf")):
+        stat = path.stat()
+        signature[f"pdf:{path.name}"] = {
             "size": int(stat.st_size),
             "mtime_ns": int(stat.st_mtime_ns),
         }
@@ -261,6 +283,7 @@ def _rank_hospital(row: Dict[str, Any], aliases: List[str]) -> tuple:
 
 @lru_cache(maxsize=1)
 def _load_census_rows() -> List[Dict[str, Any]]:
+    t0 = time.time()
     path = DATASET_DIR / "Census.csv"
     rows: List[Dict[str, Any]] = []
     with open(path, encoding="utf-8-sig", newline="") as file:
@@ -268,31 +291,41 @@ def _load_census_rows() -> List[Dict[str, Any]]:
         for row in reader:
             district = row.get("District", "").strip()
             state = row.get("State", "").strip()
+            state_norm = _normalize(state)
+            if state_norm not in _RELEVANT_STATE_NORMS:
+                continue
             literacy = row.get("Literacy", "").strip()
             rows.append(
                 {
                     "district": district,
                     "district_norm": _normalize(district),
                     "state": state,
-                    "state_norm": _normalize(state),
+                    "state_norm": state_norm,
                     "literacy": float(literacy) if literacy else 0.0,
                 }
             )
+    logger.info("Census: kept %d rows (%.1fs)", len(rows), time.time() - t0)
     return rows
 
 
 @lru_cache(maxsize=1)
 def _load_hospital_rows() -> List[Dict[str, Any]]:
+    t0 = time.time()
     path = DATASET_DIR / "hospital_directory.csv"
     rows: List[Dict[str, Any]] = []
+    skipped = 0
     with open(path, encoding="utf-8-sig", newline="") as file:
         reader = csv.DictReader(file)
         for raw in reader:
+            state_norm = _normalize(raw.get("State"))
+            if state_norm not in _RELEVANT_STATE_NORMS:
+                skipped += 1
+                continue
             rows.append(
                 {
                     "hospital_name": (raw.get("Hospital_Name") or "").strip(),
                     "state": (raw.get("State") or "").strip(),
-                    "state_norm": _normalize(raw.get("State")),
+                    "state_norm": state_norm,
                     "district": (raw.get("District") or "").strip(),
                     "district_norm": _normalize(raw.get("District")),
                     "town": _normalize(raw.get("Town")),
@@ -308,18 +341,26 @@ def _load_hospital_rows() -> List[Dict[str, Any]]:
                     "website": (raw.get("Website") or "").strip(),
                 }
             )
+    logger.info(
+        "Hospitals: kept %d rows, skipped %d irrelevant-state rows (%.1fs)",
+        len(rows), skipped, time.time() - t0,
+    )
     return rows
 
 
 @lru_cache(maxsize=1)
 def _load_udise_teacher_map() -> Dict[str, Dict[str, int]]:
+    t0 = time.time()
+    relevant = _relevant_pseudocodes()
     teacher_map: Dict[str, Dict[str, int]] = {}
+    skipped = 0
     for path in _dataset_paths("*_tch.csv"):
         with open(path, encoding="utf-8-sig", newline="") as file:
             reader = csv.DictReader(file)
             for row in reader:
                 pseudocode = row.get("pseudocode", "").strip()
-                if not pseudocode:
+                if not pseudocode or pseudocode not in relevant:
+                    skipped += 1
                     continue
                 teacher_map[pseudocode] = {
                     "total_teachers": _as_int(row.get("total_tch")),
@@ -327,11 +368,17 @@ def _load_udise_teacher_map() -> Dict[str, Dict[str, int]]:
                     "trained_teachers": _as_int(row.get("trained_comp")),
                     "postgraduate_teachers": _as_int(row.get("post_graduate_and_above")),
                 }
+    logger.info(
+        "UDISE teachers: kept %d rows, skipped %d (%.1fs)",
+        len(teacher_map), skipped, time.time() - t0,
+    )
     return teacher_map
 
 
 @lru_cache(maxsize=1)
 def _load_udise_enrollment_map() -> Dict[str, Dict[str, int]]:
+    t0 = time.time()
+    relevant = _relevant_pseudocodes()
     enrollment_map: Dict[str, Dict[str, int]] = defaultdict(
         lambda: {
             "social_enrollment_estimate": 0,
@@ -339,12 +386,14 @@ def _load_udise_enrollment_map() -> Dict[str, Dict[str, int]]:
             "row_count": 0,
         }
     )
+    skipped = 0
     for path in _dataset_paths("*_enr1.csv"):
         with open(path, encoding="utf-8-sig", newline="") as file:
             reader = csv.DictReader(file)
             for row in reader:
                 pseudocode = row.get("pseudocode", "").strip()
-                if not pseudocode:
+                if not pseudocode or pseudocode not in relevant:
+                    skipped += 1
                     continue
                 total = _sum_numeric_columns(row, {"pseudocode", "item_group", "item_id"})
                 item_group = row.get("item_group", "").strip()
@@ -353,23 +402,33 @@ def _load_udise_enrollment_map() -> Dict[str, Dict[str, int]]:
                 elif item_group == "5":
                     enrollment_map[pseudocode]["minority_enrollment_estimate"] += total
                 enrollment_map[pseudocode]["row_count"] += 1
+    logger.info(
+        "UDISE enrollment: kept %d pseudocodes, skipped %d rows (%.1fs)",
+        len(enrollment_map), skipped, time.time() - t0,
+    )
     return dict(enrollment_map)
 
 
 @lru_cache(maxsize=1)
 def _load_udise_profile_rows() -> List[Dict[str, Any]]:
+    t0 = time.time()
     rows_by_pseudocode: Dict[str, Dict[str, Any]] = {}
+    skipped = 0
     for path in _dataset_paths("*_prof1.csv"):
         with open(path, encoding="utf-8-sig", newline="") as file:
             reader = csv.DictReader(file)
             for raw in reader:
+                state_norm = _normalize(raw.get("state"))
+                if state_norm not in _RELEVANT_STATE_NORMS:
+                    skipped += 1
+                    continue
                 pseudocode = (raw.get("pseudocode") or "").strip()
                 if not pseudocode:
                     continue
                 rows_by_pseudocode[pseudocode] = {
                     "pseudocode": pseudocode,
                     "state": (raw.get("state") or "").strip(),
-                    "state_norm": _normalize(raw.get("state")),
+                    "state_norm": state_norm,
                     "district": (raw.get("district") or "").strip(),
                     "district_norm": _normalize(raw.get("district")),
                     "block_norm": _normalize(raw.get("block")),
@@ -383,7 +442,36 @@ def _load_udise_profile_rows() -> List[Dict[str, Any]]:
                     "school_category": (raw.get("school_category") or "").strip(),
                     "school_type": (raw.get("school_type") or "").strip(),
                 }
-    return list(rows_by_pseudocode.values())
+    rows = list(rows_by_pseudocode.values())
+    logger.info(
+        "UDISE profile: kept %d rows, skipped %d irrelevant-state rows (%.1fs)",
+        len(rows), skipped, time.time() - t0,
+    )
+    return rows
+
+
+@lru_cache(maxsize=1)
+def _relevant_pseudocodes() -> frozenset:
+    """Pseudocodes that matched our relevant states in the profile file."""
+    return frozenset(row["pseudocode"] for row in _load_udise_profile_rows())
+
+
+@lru_cache(maxsize=1)
+def _udise_profile_by_state() -> Dict[str, List[Dict[str, Any]]]:
+    """Index profile rows by state_norm for O(1) state-level lookups."""
+    index: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for row in _load_udise_profile_rows():
+        index[row["state_norm"]].append(row)
+    return dict(index)
+
+
+@lru_cache(maxsize=1)
+def _hospital_by_state() -> Dict[str, List[Dict[str, Any]]]:
+    """Index hospital rows by state_norm for O(1) state-level lookups."""
+    index: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for row in _load_hospital_rows():
+        index[row["state_norm"]].append(row)
+    return dict(index)
 
 
 @lru_cache(maxsize=1)
@@ -418,9 +506,8 @@ def _district_label(mapping: Dict[str, Any], rows: List[Dict[str, Any]]) -> str:
 def _match_profile_rows(mapping: Dict[str, Any]) -> List[Dict[str, Any]]:
     district_rows: List[Dict[str, Any]] = []
     alias_rows: List[Dict[str, Any]] = []
-    for row in _load_udise_profile_rows():
-        if row["state_norm"] != mapping["state_norm"]:
-            continue
+    state_rows = _udise_profile_by_state().get(mapping["state_norm"], [])
+    for row in state_rows:
         district_hit = row["district_norm"] in mapping["districts"]
         alias_hit = any(
             alias and (alias in row["ulb_norm"] or alias in row["block_norm"])
@@ -436,9 +523,8 @@ def _match_profile_rows(mapping: Dict[str, Any]) -> List[Dict[str, Any]]:
 def _match_hospital_rows(mapping: Dict[str, Any]) -> List[Dict[str, Any]]:
     district_rows: List[Dict[str, Any]] = []
     alias_rows: List[Dict[str, Any]] = []
-    for row in _load_hospital_rows():
-        if row["state_norm"] != mapping["state_norm"]:
-            continue
+    state_rows = _hospital_by_state().get(mapping["state_norm"], [])
+    for row in state_rows:
         district_hit = row["district_norm"] in mapping["districts"]
         alias_hit = any(
             alias and alias in " ".join([row["town"], row["subtown"], row["location"]])
@@ -803,7 +889,7 @@ def _build_live_geography_section(city_name: str, state: str) -> Dict[str, Any] 
         "key_factors": [
             "Elevation and climate are now API-backed rather than placeholder text.",
             "Terrain labels are inferred from nearby coastline, river, hill, and lake features.",
-            "Climate summaries are derived from aggregated monthly Open-Meteo data for the requested date range.",
+            "Climate summaries are derived from Open-Meteo archive daily data rolled up to monthly averages.",
         ],
         "sources": _source_lines(rows),
     }
@@ -820,6 +906,28 @@ def _build_communities_section(city_name: str, state: str) -> Dict[str, Any]:
     district_label = _district_label(mapping, census_rows or profile_rows)
 
     if not census_rows:
+        religion_only = get_religion_snippet_for_district(state, mapping["districts"])
+        if religion_only:
+            return {
+                "demographics": f"No Census.csv district match for {city_name}, {state}; religion line from PDF only.",
+                "description": (
+                    f"{religion_only} A row-level match in the local religion/census PDF was found for this district mapping, "
+                    f"but district literacy from Census.csv is still unmatched for {city_name}."
+                ),
+                "highlights": [
+                    religion_only,
+                    "Census.csv literacy row not matched for this city alias yet",
+                    "Refine CITY_MAPPING or district labels if this looks wrong",
+                ],
+                "key_factors": [
+                    "Religion percentages are extracted from your PDF bundle via PyMuPDF + Gemini.",
+                    "Literacy still requires a Census.csv district match.",
+                    "Verify figures against the official census publication.",
+                ],
+                "sources": [
+                    "Local religion/census PDF — PyMuPDF text extraction + Google Gemini structuring",
+                ],
+            }
         return {
             "demographics": f"No district-level census match was found yet for {city_name}, {state}",
             "description": (
@@ -828,13 +936,13 @@ def _build_communities_section(city_name: str, state: str) -> Dict[str, Any]:
             ),
             "highlights": [
                 "The current Census file only contains district literacy values",
-                "Religion and language tables are still missing from the local dataset bundle",
+                "Add a religion/census PDF under backend/dataset with 'religion' in the filename for faith composition",
                 "City-to-district mapping needs refinement for this location",
             ],
             "key_factors": [
                 "Community composition needs richer Census tables than the current literacy extract.",
                 "District literacy alone is useful but not enough for a full demographics narrative.",
-                "Religion and language splits should be added later for a stronger communities section.",
+                "Religion PDFs can be ingested when named with religion/census keywords.",
             ],
             "sources": [
                 "Census.csv - district literacy extract loaded locally but no confident city match found",
@@ -851,79 +959,67 @@ def _build_communities_section(city_name: str, state: str) -> Dict[str, Any]:
         else "No matching UDISE+ school-profile rows were found for this city in the current dataset batch, so the civic reading here comes only from the Census literacy file. "
     )
 
+    religion_snip = get_religion_snippet_for_district(state, mapping["districts"])
+    religion_sentence = (
+        f" {religion_snip}" if religion_snip else ""
+    )
+    desc_core = (
+        f"For the district footprint used to represent {city_name}, the literacy value is {_format_pct(literacy)}. "
+        f"{school_context_sentence}"
+    )
+    if religion_snip:
+        desc_tail = (
+            " Religion composition from your local census/religion PDF (extracted with PyMuPDF and structured by Gemini) "
+            "supplements the literacy-only CSV extract."
+        )
+    else:
+        desc_tail = (
+            " Religion composition from PDF is not available yet — add a PDF under backend/dataset with 'religion' in the filename."
+        )
+
+    highlights = [
+        f"District literacy in the current Census extract: {_format_pct(literacy)}",
+        f"Matched school footprint: {school_count:,} schools linked to this district/city mapping",
+        f"Urban school share from the UDISE+ profile extract: {_format_pct(urban_pct)}",
+    ]
+    if religion_snip:
+        highlights.insert(0, religion_snip)
+
+    sources = [
+        "Census.csv - district literacy values from the local Census extract",
+        "UDISE+ School Basic Profile and Location Related Data (0812_prof1.csv) - urban versus rural school footprint used as a civic-context proxy",
+    ]
+    if religion_snip:
+        sources.append(
+            "Local religion/census PDF — PyMuPDF text extraction + Google Gemini structuring"
+        )
+
+    key_factors = [
+        "This section is district-backed, not neighborhood-backed.",
+        "Literacy comes from Census.csv; religion shares come from PDF when provided.",
+        "Verify PDF-derived percentages against official census publications.",
+    ]
+
     return {
         "demographics": (
             f"{city_name} is currently mapped to the {district_label} district footprint in {state}; "
             f"the provided Census extract reports literacy of {_format_pct(literacy)} for that district context."
+            f"{religion_sentence}"
         ),
         "description": (
-            f"The current local Census dataset is limited to district literacy, so this section focuses on civic-development context rather than religion or language composition. "
-            f"For the district footprint used to represent {city_name}, the literacy value is {_format_pct(literacy)}. "
-            f"{school_context_sentence}"
-            "This is useful for relocation planning, but it is not yet a full demographic profile because religion and language tables have not been added to the local evidence bundle."
+            f"The local Census CSV supplies district literacy; UDISE+ adds school-context texture.{religion_sentence} "
+            f"{desc_core}"
+            f"{desc_tail}"
         ),
-        "highlights": [
-            f"District literacy in the current Census extract: {_format_pct(literacy)}",
-            f"Matched school footprint: {school_count:,} schools linked to this district/city mapping",
-            f"Urban school share from the UDISE+ profile extract: {_format_pct(urban_pct)}",
-        ],
-        "key_factors": [
-            "This section is district-backed, not neighborhood-backed.",
-            "The available Census extract supports literacy analysis but not religion/language splits.",
-            "Community interpretation will improve once fuller Census community tables are added.",
-        ],
-        "sources": [
-            "Census.csv - district literacy values from the local Census extract",
-            "UDISE+ School Basic Profile and Location Related Data (0812_prof1.csv) - urban versus rural school footprint used as a civic-context proxy",
-        ],
+        "highlights": highlights,
+        "key_factors": key_factors,
+        "sources": sources,
     }
-
-
-def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    radius_km = 6371.0
-    lat1_rad = math.radians(lat1)
-    lon1_rad = math.radians(lon1)
-    lat2_rad = math.radians(lat2)
-    lon2_rad = math.radians(lon2)
-    dlat = lat2_rad - lat1_rad
-    dlon = lon2_rad - lon1_rad
-    a = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2
-    )
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return round(radius_km * c, 1)
-
-
-def _nearest_metro(city_name: str) -> Dict[str, Any]:
-    metro_names = ["Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata", "Hyderabad"]
-    city_record = get_city_by_name(city_name)
-    if not city_record:
-        return {"city_name": "Unavailable", "distance_km": 0}
-    if city_name in metro_names:
-        return {"city_name": city_name, "distance_km": 0}
-    candidates = []
-    for metro_name in metro_names:
-        metro_record = get_city_by_name(metro_name)
-        if not metro_record:
-            continue
-        candidates.append(
-            {
-                "city_name": metro_name,
-                "distance_km": _haversine_km(
-                    city_record["latitude"],
-                    city_record["longitude"],
-                    metro_record["latitude"],
-                    metro_record["longitude"],
-                ),
-            }
-        )
-    return min(candidates, key=lambda item: item["distance_km"]) if candidates else {"city_name": "Unavailable", "distance_km": 0}
 
 
 def _build_generic_sections(city_name: str, state: str, has_children: bool, has_elderly: bool) -> Dict[str, Any]:
     city_record = get_city_by_name(city_name) or {}
-    nearest_metro = _nearest_metro(city_name)
+    nearest_metro = {"city_name": "Pending AI connectivity", "distance_km": 0.0}
     aqi = city_record.get("current_aqi")
     avg_rent = city_record.get("avg_rent")
 
@@ -953,19 +1049,18 @@ def _build_generic_sections(city_name: str, state: str, has_children: bool, has_
         "connectivity": {
             "nearest_metro": nearest_metro["city_name"],
             "distance_km": nearest_metro["distance_km"],
-            "transport_options": "Dataset-backed rail, road, and airport sources are still pending integration",
+            "transport_options": "Filled at request time by Gemini (see live city description).",
             "description": (
-                f"The current local evidence layer estimates the nearest major metro to {city_name} as {nearest_metro['city_name']} "
-                f"at roughly {nearest_metro['distance_km']} km by straight-line distance using the app's city coordinates. "
-                "This is a useful orientation signal, but proper connectivity scoring still needs dedicated rail, airport, and road datasets."
+                f"Connectivity for {city_name} is resolved when you open the city description: "
+                "Gemini infers the nearest major hub and approximate road distance (optionally with search grounding)."
             ),
             "key_factors": [
-                "Nearest-metro distance is computed from the internal city coordinate dataset.",
-                "Travel convenience is not yet backed by train, airport, or highway feeds.",
-                "This section will improve once connectivity datasets are added.",
+                "Placeholder until the live Gemini connectivity layer runs for this request.",
+                "No fixed metro list is embedded in code.",
+                "Set GEMINI_API_KEY for model-backed connectivity.",
             ],
             "sources": [
-                "Internal city coordinate dataset (backend/app/services/city_data.py) - city coordinates and metro-distance estimate",
+                "Google Gemini — nearest metro / distance (requested live)",
             ],
         },
         "geography": {
@@ -1000,11 +1095,22 @@ def _build_uncached_city_description(
     has_elderly: bool = False,
 ) -> Dict[str, Any]:
     generic_sections = _build_generic_sections(city_name, state, has_children, has_elderly)
+    family_notes: List[str] = []
+    if has_children:
+        family_notes.append("family context includes children")
+    if has_elderly:
+        family_notes.append("family context includes elderly members")
+    family_note = ", ".join(family_notes) if family_notes else "general relocation context"
+    mapping = _get_mapping(city_name, state)
+    crime_from_pdf = get_crime_section_for_city(
+        city_name, state, mapping["districts"], family_note
+    )
+    crime_rate = crime_from_pdf or generic_sections["crime_rate"]
     return {
         "city_name": city_name,
         "state": state,
         "generated": True,
-        "crime_rate": generic_sections["crime_rate"],
+        "crime_rate": crime_rate,
         "education": _build_education_section(city_name, state),
         "communities": _build_communities_section(city_name, state),
         "connectivity": generic_sections["connectivity"],
@@ -1050,6 +1156,51 @@ def warm_city_description_cache() -> Dict[str, Dict[str, Any]]:
     return _load_cached_city_descriptions()
 
 
+def _enrich_with_live_sections(result: Dict[str, Any], city_name: str, state: str) -> None:
+    """Best-effort enrichment with live external data; never blocks on failure."""
+    import concurrent.futures
+
+    def _fetch_hospitals():
+        return _build_live_hospitals_section(city_name, state)
+
+    def _fetch_geography():
+        return _build_live_geography_section(city_name, state)
+
+    def _fetch_connectivity():
+        city_record = get_city_by_name(city_name) or {}
+        lat = city_record.get("latitude")
+        lon = city_record.get("longitude")
+        if lat is None or lon is None:
+            return None
+        return get_live_connectivity(city_name, state, float(lat), float(lon))
+
+    _LIVE_TIMEOUT = 15
+
+    t0 = time.time()
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=3)
+    fut_hosp = pool.submit(_fetch_hospitals)
+    fut_geo = pool.submit(_fetch_geography)
+    fut_conn = pool.submit(_fetch_connectivity)
+
+    for label, fut, key in [
+        ("hospitals", fut_hosp, "hospitals"),
+        ("geography", fut_geo, "geography"),
+        ("connectivity", fut_conn, "connectivity"),
+    ]:
+        remaining = max(0.1, _LIVE_TIMEOUT - (time.time() - t0))
+        try:
+            data = fut.result(timeout=remaining)
+            if data:
+                result[key] = data
+        except concurrent.futures.TimeoutError:
+            logger.warning("Live %s timed out for %s", label, city_name)
+            fut.cancel()
+        except Exception as exc:
+            logger.warning("Live %s failed for %s: %s", label, city_name, exc)
+
+    pool.shutdown(wait=False, cancel_futures=True)
+
+
 def build_city_description_from_local_evidence(
     city_name: str,
     state: str,
@@ -1061,12 +1212,7 @@ def build_city_description_from_local_evidence(
         result = deepcopy(cached)
         result["city_name"] = city_name
         result["state"] = state
-        live_hospitals = _build_live_hospitals_section(city_name, state)
-        if live_hospitals:
-            result["hospitals"] = live_hospitals
-        live_geography = _build_live_geography_section(city_name, state)
-        if live_geography:
-            result["geography"] = live_geography
+        _enrich_with_live_sections(result, city_name, state)
         return result
 
     result = _build_uncached_city_description(
@@ -1075,10 +1221,5 @@ def build_city_description_from_local_evidence(
         has_children=has_children,
         has_elderly=has_elderly,
     )
-    live_hospitals = _build_live_hospitals_section(city_name, state)
-    if live_hospitals:
-        result["hospitals"] = live_hospitals
-    live_geography = _build_live_geography_section(city_name, state)
-    if live_geography:
-        result["geography"] = live_geography
+    _enrich_with_live_sections(result, city_name, state)
     return result

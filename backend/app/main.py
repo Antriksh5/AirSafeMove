@@ -1,8 +1,11 @@
+import logging
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(name)s  %(message)s")
 
 # Load .env BEFORE importing routers to ensure env vars are available to any module-level code
 _env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -38,6 +41,30 @@ app.include_router(advisory.router, prefix="/api/advisory", tags=["Advisory"])
 app.include_router(report.router, prefix="/api/report", tags=["Report"])
 app.include_router(user.router, prefix="/api/user", tags=["User"])
 app.include_router(city_explore.router, prefix="/api/city-explore", tags=["City Explore"])
+
+
+logger = logging.getLogger(__name__)
+
+
+@app.on_event("startup")
+def _warm_dataset_caches() -> None:
+    try:
+        from app.services.pdf_evidence_service import warm_pdf_evidence_cache
+
+        logger.info("Warming PDF evidence caches (crime + religion)…")
+        warm_pdf_evidence_cache()
+        logger.info("PDF evidence caches ready.")
+    except Exception as exc:
+        logger.error("PDF evidence cache warming failed: %s", exc, exc_info=True)
+
+    try:
+        from app.services.city_evidence_service import warm_city_description_cache
+
+        logger.info("Warming city description cache…")
+        warm_city_description_cache()
+        logger.info("City description cache ready.")
+    except Exception as exc:
+        logger.error("City description cache warming failed: %s", exc, exc_info=True)
 
 
 @app.get("/")
