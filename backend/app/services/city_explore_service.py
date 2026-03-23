@@ -26,7 +26,7 @@ def _get_model():
         return None
     genai.configure(api_key=api_key)
     return genai.GenerativeModel(
-        "gemini-2.0-flash-lite",
+        "gemini-2.5-flash",
         generation_config=genai.types.GenerationConfig(
             temperature=0.5,
             max_output_tokens=4096,

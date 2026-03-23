@@ -53,7 +53,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Libre Franklin', sans-serif;
+  --font-serif: 'Libre Baskerville', serif;
 }
 
 * {
@@ -63,9 +64,13 @@
 body {
   background: transparent;
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Libre Franklin', sans-serif;
   margin: 0;
   padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
 }
 
 /* Gradient Backgrounds - now transparent for video */

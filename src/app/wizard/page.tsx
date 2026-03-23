@@ -249,7 +249,7 @@ export default function WizardPage() {
                     <div style={{ minHeight: 400, paddingBottom: 48 }}>
                         {currentStep === 0 && (
                             <div>
-                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: 'Georgia, serif', color: '#5C4A2A', marginBottom: 8 }}>Tell us about yourself</h2>
+                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 8 }}>Tell us about yourself</h2>
                                 <p style={{ color: '#8B7355', marginBottom: 40, fontSize: 15 }}>We'll use this to personalize your city recommendations.</p>
                                 
                                 <div style={{ marginBottom: 32 }}>
@@ -260,7 +260,7 @@ export default function WizardPage() {
                                 <div style={{ marginBottom: 32 }}>
                                     <label style={labelStyle}>Age</label>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                                        <div style={{ fontSize: 24, fontFamily: 'Georgia, serif', color: '#5C4A2A', minWidth: 40 }}>{formData.age}</div>
+                                        <div style={{ fontSize: 24, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', minWidth: 40 }}>{formData.age}</div>
                                         <div style={{ flex: 1, position: 'relative' }}>
                                             <input type="range" min="18" max="80" value={formData.age} onChange={(e) => handleInputChange('age', parseInt(e.target.value))} 
                                                 style={{ 
@@ -305,7 +305,7 @@ export default function WizardPage() {
 
                         {currentStep === 1 && (
                             <div>
-                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: 'Georgia, serif', color: '#5C4A2A', marginBottom: 8 }}>Migrating from</h2>
+                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 8 }}>Migrating from</h2>
                                 <p style={{ color: '#8B7355', marginBottom: 40, fontSize: 15 }}>Tell us where your current baseline is.</p>
                                 
                                 <div style={{ marginBottom: 32 }}>
@@ -320,7 +320,7 @@ export default function WizardPage() {
 
                         {currentStep === 2 && (
                             <div>
-                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: 'Georgia, serif', color: '#5C4A2A', marginBottom: 8 }}>Your family</h2>
+                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 8 }}>Your family</h2>
                                 <p style={{ color: '#8B7355', marginBottom: 40, fontSize: 15 }}>Configure your household to get accurate recommendations.</p>
 
                                 <div style={{ marginBottom: 32 }}>
@@ -367,11 +367,11 @@ export default function WizardPage() {
 
                         {currentStep === 3 && (
                             <div>
-                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: 'Georgia, serif', color: '#5C4A2A', marginBottom: 8 }}>Final Preferences</h2>
+                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 8 }}>Final Preferences</h2>
                                 <p style={{ color: '#8B7355', marginBottom: 40, fontSize: 15 }}>Fine-tuning constraints for the AI engine.</p>
                                 
                                 <div style={{ marginBottom: 40 }}>
-                                    <label style={labelStyle}>Maximum Search Distance: <span style={{ fontFamily: 'Georgia, serif', textTransform: 'none', fontSize: 18, color: '#5C4A2A' }}>{formData.maxDistance} km</span></label>
+                                    <label style={labelStyle}>Maximum Search Distance: <span style={{ fontFamily: "'Libre Baskerville', serif", textTransform: 'none', fontSize: 18, color: '#5C4A2A' }}>{formData.maxDistance} km</span></label>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                                         <div style={{ flex: 1, position: 'relative' }}>
                                             <input type="range" min="100" max="2500" step="50" value={formData.maxDistance} onChange={(e) => handleInputChange('maxDistance', parseInt(e.target.value))} 

@@ -42,13 +42,13 @@ export default function Hero() {
                             color: '#1A1208',
                             margin: '0 0 24px',
                             letterSpacing: '-1.5px',
-                            fontFamily: 'Georgia, "Times New Roman", serif',
+                            fontFamily: "'Libre Baskerville', serif",
                         }}>
                             Find your next{' '}
                             <em style={{
                                 fontStyle: 'italic',
                                 color: '#8B6914',
-                                fontFamily: 'Georgia, "Times New Roman", serif',
+                                fontFamily: "'Libre Baskerville', serif",
                             }}>clean-air{' '}
                             city</em>{' '}— with{' '}confidence.
                         </h1>
@@ -108,7 +108,7 @@ export default function Hero() {
                                 { value: '100%', label: 'Free to Use' },
                             ].map((stat) => (
                                 <div key={stat.label}>
-                                    <div style={{ fontSize: 26, fontWeight: 800, color: '#1A1208', letterSpacing: '-0.5px', fontFamily: 'Georgia, serif' }}>
+                                    <div style={{ fontSize: 26, fontWeight: 800, color: '#1A1208', letterSpacing: '-0.5px', fontFamily: "'Libre Baskerville', serif" }}>
                                         {stat.value}
                                     </div>
                                     <div style={{ fontSize: 13, color: '#8B7355', marginTop: 4, fontWeight: 500 }}>

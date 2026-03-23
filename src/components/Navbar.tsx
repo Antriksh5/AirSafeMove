@@ -34,22 +34,15 @@ export default function Navbar() {
         }}>
             {/* Logo */}
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-                <div style={{
-                    width: 32,
-                    height: 32,
-                    background: '#5C4A2A',
-                    borderRadius: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 16,
-                    color: '#F5EFE0',
-                }}>
-                    🌬️
-                </div>
-                <span style={{ fontWeight: 700, fontSize: 16, color: '#2C1F0E', letterSpacing: '-0.3px' }}>
-                    AirSafe Move
-                </span>
+                <img 
+                    src="/Logo.png" 
+                    alt="AI शहरें" 
+                    style={{ 
+                        height: 165, 
+                        width: 'auto',
+                        objectFit: 'contain'
+                    }} 
+                />
             </Link>
 
             {/* Desktop Navigation */}

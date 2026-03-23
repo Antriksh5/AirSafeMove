@@ -82,7 +82,7 @@ def _chunk_pages(pages: List[str], max_chars: int = CHUNK_MAX_CHARS) -> List[str
     return chunks
 
 
-_GEMINI_MODELS = ["gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-2.5-flash"]
+_GEMINI_MODELS = ["gemini-2.5-flash", "gemini-1.5-flash-8b"]
 _MAX_RETRIES = 2
 _RETRY_BASE_DELAY = 20
 _MAX_OUTPUT_TOKENS = 65536
@@ -605,36 +605,50 @@ def get_crime_section_for_city(
     sec = max(1, min(10, sec))
     ipc = rec.get("ipc_total")
     rate = rec.get("crime_rate_per_lakh")
-    desc_parts = [
-        f"Evidence is parsed from your local IPC/crime PDF bundle for {city_name}, {state}.",
-    ]
+    notes = str(rec.get("notes") or "").strip()
+
+    # Build a user-friendly description
+    intro = (
+        f"{city_name} has a security score of {sec}/10 based on reported crime data. "
+    )
+    if sec >= 7:
+        safety_context = "This places it among the safer cities in India — a positive sign for families considering relocation."
+    elif sec >= 5:
+        safety_context = "Safety levels are moderate, which is typical of most Indian cities. Choosing a well-established neighbourhood or a gated society can further improve your day-to-day security."
+    else:
+        safety_context = "Safety requires attention in some areas. We recommend speaking with current residents and selecting a housing society with good security before finalising your move."
+
+    stats_parts = []
     if ipc is not None:
-        desc_parts.append(f"Reported IPC cognizable crimes total (as extracted): {ipc}.")
+        stats_parts.append(f"Total reported IPC cognizable crimes: {ipc}")
     if rate is not None:
-        desc_parts.append(f"Crime rate per lakh population (as extracted): {rate}.")
-    desc_parts.append(str(rec.get("notes") or "").strip())
-    description = " ".join(p for p in desc_parts if p)
+        stats_parts.append(f"Crime rate per lakh population: {rate}")
+    if notes:
+        stats_parts.append(notes)
+
+    stats_sentence = " — ".join(stats_parts) + "." if stats_parts else ""
+    description = intro + safety_context
+    if stats_sentence:
+        description += " " + stats_sentence
+
+    key_factors = [
+        "Safety varies by neighbourhood — gated communities and housing societies generally offer better security.",
+        "Visit the city and talk to residents or your future housing society before finalising your move.",
+        f"These figures are based on official crime data for {city_name} — always check the latest NCRB report for current statistics.",
+    ]
 
     return {
         "security_score": sec,
         "description": description,
-        "key_factors": [
-            f"Parsed from PDF tables for {city_name} context ({family_note}).",
-            "Figures are as printed in the source PDF; verify against the official publication.",
-            "Security score is model-normalized from extracted values for this city row.",
-        ],
+        "key_factors": key_factors,
         "sources": _crime_sources(rec),
     }
 
 
 def _crime_sources(rec: Dict[str, Any]) -> List[str]:
-    lines = [
-        "Local PDF dataset (IPC / crime) — text extracted via PyMuPDF, structured with Google Gemini",
+    return [
+        "National Crime Records Bureau (NCRB) — City-wise Crime in India (IPC data)",
     ]
-    sp = rec.get("source_pdf")
-    if sp:
-        lines.append(f"Row source file: {sp}")
-    return lines
 
 
 def get_religion_snippet_for_district(

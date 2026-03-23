@@ -16,6 +16,13 @@ class SavedRecommendation(BaseModel):
     target_aqi: Optional[int] = None
     aqi_improvement_percent: Optional[float] = None
     suitability_score: Optional[float] = None
+    avg_rent: Optional[float] = None
+    distance_km: Optional[float] = None
+    healthcare_score: Optional[float] = None
+    respiratory_risk_reduction: Optional[float] = None
+    life_expectancy_gain_years: Optional[float] = None
+    job_match_score: Optional[float] = None
+    aqi_trend: Optional[str] = None
     advisory_text: Optional[str] = None
     created_at: Optional[Any] = None
 

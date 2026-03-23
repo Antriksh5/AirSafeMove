@@ -21,13 +21,15 @@ export default function Home() {
         gap: 16,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 28, height: 28, background: '#5C4A2A', borderRadius: 7,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
-          }}>
-            🌬️
-          </div>
-          <span style={{ fontWeight: 700, fontSize: 15, color: '#F5EFE0' }}>AirSafe Move</span>
+          <img
+            src="/Logo.png"
+            alt="शहरें AI"
+            style={{
+              height: 28,
+              width: 'auto',
+              objectFit: 'contain'
+            }}
+          />
         </div>
         <p style={{ fontSize: 13, margin: 0 }}>
           AI-powered migration advisory for healthier living

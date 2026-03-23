@@ -1,6 +1,6 @@
 """
 Google Gemini AI Advisory Service for personalized migration explanations.
-Uses gemini-2.0-flash-lite model for human-readable insights.
+Uses gemini-2.5-flash model for human-readable insights.
 """
 
 import logging
@@ -25,7 +25,7 @@ def get_gemini_model(system_instruction: str = None, temperature: float = 0.7, m
         raise ValueError("GEMINI_API_KEY environment variable not set")
     genai.configure(api_key=api_key)
     return genai.GenerativeModel(
-        "gemini-2.0-flash-lite",
+        "gemini-2.5-flash",
         system_instruction=system_instruction,
         generation_config=genai.types.GenerationConfig(
             temperature=temperature,

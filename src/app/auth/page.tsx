@@ -65,17 +65,15 @@ export default function AuthPage() {
             {/* Header */}
             <header className="nav-header">
                 <Link href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
-                    <div style={{
-                        background: '#7c3aed',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontSize: 16
-                    }}>
-                        🌬️
-                    </div>
-                    <span>AirSafe Move</span>
+                    <img 
+                        src="/Logo.png" 
+                        alt="AI शहरें" 
+                        style={{ 
+                            height: 32, 
+                            width: 'auto',
+                            objectFit: 'contain'
+                        }} 
+                    />
                 </Link>
             </header>
 

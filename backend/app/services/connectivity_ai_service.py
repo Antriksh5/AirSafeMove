@@ -59,12 +59,7 @@ def _build_model():
 
         tools = [
             genai_protos.Tool(
-                google_search_retrieval=genai_protos.GoogleSearchRetrieval(
-                    dynamic_retrieval_config=genai_protos.DynamicRetrievalConfig(
-                        mode=genai_protos.DynamicRetrievalConfig.Mode.MODE_DYNAMIC,
-                        dynamic_threshold=0.3,
-                    )
-                )
+                google_search=genai_protos.Tool.GoogleSearch()
             )
         ]
     except Exception:
@@ -77,11 +72,11 @@ def _build_model():
     )
     if tools:
         return genai.GenerativeModel(
-            "gemini-2.0-flash-lite",
+            "gemini-2.5-flash",
             tools=tools,
             generation_config=config,
         )
-    return genai.GenerativeModel("gemini-2.0-flash-lite", generation_config=config)
+    return genai.GenerativeModel("gemini-2.5-flash", generation_config=config)
 
 
 def get_live_connectivity(
@@ -137,7 +132,7 @@ Rules:
 
             genai.configure(api_key=_gemini_api_key())
             plain = genai.GenerativeModel(
-                "gemini-2.0-flash-lite",
+                "gemini-2.5-flash",
                 generation_config=genai.types.GenerationConfig(
                     temperature=0.3,
                     max_output_tokens=2048,

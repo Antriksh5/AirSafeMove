@@ -78,6 +78,13 @@ export interface SavedRecommendation {
     target_aqi?: number | null;
     aqi_improvement_percent?: number | null;
     suitability_score?: number | null;
+    avg_rent?: number | null;
+    distance_km?: number | null;
+    healthcare_score?: number | null;
+    respiratory_risk_reduction?: number | null;
+    life_expectancy_gain_years?: number | null;
+    job_match_score?: number | null;
+    aqi_trend?: string | null;
     advisory_text?: string | null;
     created_at: string;
 }

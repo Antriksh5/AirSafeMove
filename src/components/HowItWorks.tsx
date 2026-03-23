@@ -122,7 +122,7 @@ export default function HowItWorks() {
                     <h2 style={{
                         fontSize: 'clamp(28px, 3.5vw, 44px)',
                         fontWeight: 800, color: '#1A1208', letterSpacing: '-1px',
-                        fontFamily: 'Georgia, serif', marginBottom: 16, maxWidth: 560,
+                        fontFamily: "'Libre Baskerville', serif", marginBottom: 16, maxWidth: 560,
                         opacity: isStepsVisible ? 1 : 0,
                         animation: isStepsVisible ? 'fadeUp 0.6s ease 0.1s forwards' : 'none',
                     }}>
@@ -204,7 +204,7 @@ export default function HowItWorks() {
                     <h2 style={{
                         fontSize: 'clamp(28px, 3.5vw, 44px)',
                         fontWeight: 800, color: '#F5EFE0', letterSpacing: '-1px',
-                        fontFamily: 'Georgia, serif', marginBottom: 16, maxWidth: 600,
+                        fontFamily: "'Libre Baskerville', serif", marginBottom: 16, maxWidth: 600,
                         opacity: isFeaturesVisible ? 1 : 0,
                         animation: isFeaturesVisible ? 'fadeUp 0.6s ease 0.1s forwards' : 'none',
                     }}>
@@ -277,7 +277,7 @@ export default function HowItWorks() {
                         <h2 style={{
                             fontSize: 'clamp(32px, 4vw, 52px)',
                             fontWeight: 800, color: '#1A1208', letterSpacing: '-1.5px',
-                            fontFamily: 'Georgia, serif', lineHeight: 1.1, marginBottom: 20,
+                            fontFamily: "'Libre Baskerville', serif", lineHeight: 1.1, marginBottom: 20,
                         }}>
                             Ready to find<br />
                             where you{' '}
