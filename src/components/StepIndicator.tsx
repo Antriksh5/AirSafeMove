@@ -14,6 +14,7 @@ export default function StepIndicator({ currentStep, steps }: StepIndicatorProps
             gap: 0,
             marginBottom: 48,
             width: '100%',
+
         }}>
             {steps.map((step, index) => {
                 const isCompleted = index < currentStep;
@@ -32,11 +33,11 @@ export default function StepIndicator({ currentStep, steps }: StepIndicatorProps
                             alignItems: 'center',
                             gap: 12,
                             position: 'relative',
-                            width: 80, // fixed width for centering
+                            width: 60, // fixed width for centering
                         }}>
                             <div style={{
-                                width: 48,
-                                height: 48,
+                                width: 40,
+                                height: 40,
                                 borderRadius: '50%',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -48,20 +49,20 @@ export default function StepIndicator({ currentStep, steps }: StepIndicatorProps
                                 zIndex: 2,
                             }}>
                                 {/* Render the react node icon */}
-                                <div style={{ width: 20, height: 20 }}>
+                                <div style={{ width: 18, height: 18 }}>
                                     {step.icon}
                                 </div>
                             </div>
 
                             <span style={{
-                                fontSize: 13,
+                                fontSize: 12,
                                 fontWeight: 500,
                                 color: isActive || isCompleted ? '#5C4A2A' : '#8B7355',
                                 whiteSpace: 'nowrap',
                                 position: 'absolute',
-                                top: 60,
+                                top: 48,
                                 textAlign: 'center',
-                                width: 120, // wider than circle to prevent text wrap
+                                width: 100, // wider than circle to prevent text wrap
                             }}>
                                 {step.label}
                             </span>
@@ -75,7 +76,7 @@ export default function StepIndicator({ currentStep, steps }: StepIndicatorProps
                                 background: isCompleted ? '#E5E0D8' : '#E5E0D8',
                                 margin: '0 8px',
                                 position: 'relative',
-                                top: -14, // align with centers of the 48px circles
+                                top: -8, // align with centers of the 40px circles
                             }} />
                         )}
                     </div>

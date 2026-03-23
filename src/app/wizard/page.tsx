@@ -8,20 +8,20 @@ import { fetchCityNames, fetchProfessions, getRecommendations, getAdvisory } fro
 import { useAuth } from '../../context/AuthContext';
 
 const steps = [
-    { 
-        label: 'Personal info', 
+    {
+        label: 'Personal info',
         icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
     },
-    { 
-        label: 'Location', 
+    {
+        label: 'Location',
         icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
     },
-    { 
-        label: 'Family & health', 
+    {
+        label: 'Family & health',
         icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
     },
-    { 
-        label: 'Preferences', 
+    {
+        label: 'Preferences',
         icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
     }
 ];
@@ -115,7 +115,7 @@ export default function WizardPage() {
                     newData.totalMembers = 2; newData.children = 0;
                     if (prev.elderly > 2) newData.elderly = 2;
                 } else if (value === 'Nuclear Family') {
-                    newData.elderly = 0; 
+                    newData.elderly = 0;
                     if (prev.totalMembers < 2) newData.totalMembers = 3;
                 }
             }
@@ -227,69 +227,68 @@ export default function WizardPage() {
     }
 
     // Custom Stepper + Pill styles
-    const labelStyle = { fontSize: 13, fontWeight: 600, letterSpacing: 1, color: '#8B7355', textTransform: 'uppercase' as any, marginBottom: 12, display: 'block' };
-    const inputStyle = { width: '100%', background: '#333333', color: '#FFFFFF', border: 'none', borderRadius: 8, padding: '16px 20px', fontSize: 16 };
-    const outlineBtnStyle = { border: '1.5px solid #F0EEE4', background: 'transparent', color: '#8B7355', borderRadius: 12, padding: '12px 32px', fontSize: 15, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' };
+    const labelStyle = { fontSize: 12, fontWeight: 600, letterSpacing: 1, color: '#8B7355', textTransform: 'uppercase' as any, marginBottom: 8, display: 'block' };
+    const inputStyle = { width: '100%', background: '#ffffff', color: '#000000', border: '1px solid #F0EEE4', borderRadius: 8, padding: '12px 16px', fontSize: 14 };
+    const outlineBtnStyle = { border: '1.5px solid #F0EEE4', background: 'transparent', color: '#8B7355', borderRadius: 12, padding: '10px 24px', fontSize: 14, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' };
     const pillStyle = (selected: boolean, disabled: boolean) => ({
         border: '1.5px solid',
         borderColor: selected ? '#5C4A2A' : '#F0EEE4',
         background: selected ? 'rgba(92,74,42,0.06)' : 'transparent',
         color: selected ? '#5C4A2A' : disabled ? '#D4CFC5' : '#1A1208',
-        padding: '10px 20px', borderRadius: 24, fontSize: 14, fontWeight: 500,
+        padding: '8px 16px', borderRadius: 24, fontSize: 13, fontWeight: 500,
         cursor: disabled ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s'
     });
 
     return (
-        <div style={{ minHeight: '100vh', background: '#F5EFE0', padding: '60px 20px' }}>
-            <div style={{ maxWidth: 680, margin: '0 auto' }}>
-                <div style={{ background: '#FFFFFF', borderRadius: 24, padding: '48px', paddingBottom: 0, boxShadow: '0 40px 80px rgba(92, 74, 42, 0.08)', overflow: 'hidden' }}>
+        <div style={{ minHeight: '100vh', background: '#F5EFE0', padding: '32px 20px' }}>
+            <div style={{ maxWidth: 600, margin: '0 auto' }}>
+                <div style={{ background: '#FFFFFF', borderRadius: 24, padding: '32px', paddingBottom: 0, boxShadow: '0 40px 80px rgba(92, 74, 42, 0.08)', overflow: 'hidden' }}>
                     <StepIndicator currentStep={currentStep} steps={steps} />
 
-                    <div style={{ minHeight: 400, paddingBottom: 48 }}>
+                    <div style={{ minHeight: 320, paddingBottom: 32 }}>
                         {currentStep === 0 && (
                             <div>
-                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 8 }}>Tell us about yourself</h2>
-                                <p style={{ color: '#8B7355', marginBottom: 40, fontSize: 15 }}>We'll use this to personalize your city recommendations.</p>
-                                
-                                <div style={{ marginBottom: 32 }}>
+                                <h2 style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 20 }}>Tell us about yourself</h2>
+
+                                <div style={{ marginBottom: 24}}>
                                     <label style={labelStyle}>Full Name</label>
                                     <input type="text" style={inputStyle} placeholder="Enter full name" value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} />
                                 </div>
-                                
-                                <div style={{ marginBottom: 32 }}>
+
+                                <div style={{ marginBottom: 24 }}>
                                     <label style={labelStyle}>Age</label>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                                        <div style={{ fontSize: 24, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', minWidth: 40 }}>{formData.age}</div>
+                                        <div style={{ fontSize: 20, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', minWidth: 40 }}>{formData.age}</div>
                                         <div style={{ flex: 1, position: 'relative' }}>
-                                            <input type="range" min="18" max="80" value={formData.age} onChange={(e) => handleInputChange('age', parseInt(e.target.value))} 
-                                                style={{ 
-                                                    width: '100%', height: 4, outline: 'none', appearance: 'none', borderRadius: 2, position: 'relative', zIndex: 1,
+                                            <input type="range" min="18" max="80" value={formData.age} onChange={(e) => handleInputChange('age', parseInt(e.target.value))}
+                                                style={{
+                                                    width: '100%', height: 3, outline: 'none', appearance: 'none', borderRadius: 2, position: 'relative', zIndex: 1,
                                                     background: `linear-gradient(to right, #8B6914 ${(formData.age - 18) / (80 - 18) * 100}%, #E5E0D8 ${(formData.age - 18) / (80 - 18) * 100}%)`
                                                 }} />
                                             <style>{`
-                                                input[type=range]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #FFF; border: 3px solid #8B6914; cursor: pointer; transform: translateY(-8px); position: relative; zIndex: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-                                                input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #FFF; border: 3px solid #8B6914; cursor: pointer; transform: translateY(-8px); position: relative; zIndex: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-                                                input[type=range]::-webkit-slider-runnable-track { height: 4px; background: transparent; border-radius: 2px; }
+                                                input[type=range]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #FFF; border: 3px solid #8B6914; cursor: pointer; transform: translateY(-6.5px); position: relative; zIndex: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                                                input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #FFF; border: 3px solid #8B6914; cursor: pointer; transform: translateY(-6.5px); position: relative; zIndex: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                                                input[type=range]::-webkit-slider-runnable-track { height: 3px; background: transparent; border-radius: 1.5px; }
                                             `}</style>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div style={{ marginBottom: 32 }}>
+                                <div style={{ marginBottom: 24 }}>
                                     <label style={labelStyle}>Earning Members In Family</label>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 8 }}>
                                         <button onClick={() => handleInputChange('earningMembers', Math.max(1, formData.earningMembers - 1))}
-                                            style={{ width: 48, height: 48, background: '#FFFFFF', border: '1.5px solid #F0EEE4', borderRight: 'none', borderTopLeftRadius: 12, borderBottomLeftRadius: 12, color: '#D4CFC5', fontSize: 20, cursor: 'pointer' }}>-</button>
-                                        <div style={{ width: 64, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', borderTop: '1.5px solid #F0EEE4', borderBottom: '1.5px solid #F0EEE4', fontSize: 16, color: '#1A1208', fontWeight: 500 }}>{formData.earningMembers}</div>
+                                            style={{ width: 40, height: 40, background: '#FFFFFF', border: '1.5px solid #F0EEE4', borderRight: 'none', borderTopLeftRadius: 10, borderBottomLeftRadius: 10, color: '#D4CFC5', fontSize: 18, cursor: 'pointer' }}>-</button>
+                                        <div style={{ width: 56, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderTop: '1.5px solid #F0EEE4', borderBottom: '1.5px solid #F0EEE4', fontSize: 14, color: '#1A1208', fontWeight: 500 }}>{formData.earningMembers}</div>
                                         <button onClick={() => handleInputChange('earningMembers', Math.min(10, formData.earningMembers + 1))}
-                                            style={{ width: 48, height: 48, background: '#FFFFFF', border: '1.5px solid #F0EEE4', borderLeft: 'none', borderTopRightRadius: 12, borderBottomRightRadius: 12, color: '#D4CFC5', fontSize: 20, cursor: 'pointer' }}>+</button>
+                                            style={{ width: 40, height: 40, background: '#FFFFFF', border: '1.5px solid #F0EEE4', borderLeft: 'none', borderTopRightRadius: 10, borderBottomRightRadius: 10, color: '#D4CFC5', fontSize: 18, cursor: 'pointer' }}>+</button>
                                     </div>
                                     <p style={{ fontSize: 13, color: '#8B7355' }}>You can select up to {formData.earningMembers} profession{formData.earningMembers > 1 ? 's' : ''} below.</p>
                                 </div>
 
                                 <div>
-                                    <label style={{...labelStyle, textTransform: 'uppercase', marginBottom: 12}}>Profession(s) <span style={{ textTransform: 'none', color: '#B5AFA4', fontWeight: 400 }}>— select up to {formData.earningMembers}</span></label>
+                                    <label style={{ ...labelStyle, textTransform: 'uppercase', marginBottom: 12 }}>Profession(s) <span style={{ textTransform: 'none', color: '#B5AFA4', fontWeight: 400 }}>— select up to {formData.earningMembers}</span></label>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                                         {professions.length > 0 ? professions.map(prof => {
                                             const isSelected = formData.professions.includes(prof);
@@ -305,10 +304,10 @@ export default function WizardPage() {
 
                         {currentStep === 1 && (
                             <div>
-                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 8 }}>Migrating from</h2>
-                                <p style={{ color: '#8B7355', marginBottom: 40, fontSize: 15 }}>Tell us where your current baseline is.</p>
-                                
-                                <div style={{ marginBottom: 32 }}>
+                                <h2 style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 4 }}>Migrating from</h2>
+                                <p style={{ color: '#8B7355', marginBottom: 24, fontSize: 14 }}>Tell us where your current baseline is.</p>
+
+                                <div style={{ marginBottom: 24 }}>
                                     <label style={labelStyle}>Current City</label>
                                     <select style={{ ...inputStyle, appearance: 'none', background: '#333333 url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23FFFFFF\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E") no-repeat right 20px center' }} value={formData.currentCity} onChange={(e) => handleInputChange('currentCity', e.target.value)}>
                                         <option value="">Select your current city</option>
@@ -320,10 +319,10 @@ export default function WizardPage() {
 
                         {currentStep === 2 && (
                             <div>
-                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 8 }}>Your family</h2>
-                                <p style={{ color: '#8B7355', marginBottom: 40, fontSize: 15 }}>Configure your household to get accurate recommendations.</p>
+                                <h2 style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 4 }}>Your family</h2>
+                                <p style={{ color: '#8B7355', marginBottom: 24, fontSize: 14 }}>Configure your household to get accurate recommendations.</p>
 
-                                <div style={{ marginBottom: 32 }}>
+                                <div style={{ marginBottom: 24 }}>
                                     <label style={labelStyle}>Family Type</label>
                                     <select style={{ ...inputStyle, appearance: 'none', background: '#333333 url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23FFFFFF\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E") no-repeat right 20px center' }} value={formData.familyType} onChange={(e) => handleInputChange('familyType', e.target.value)}>
                                         {familyTypes.map(type => <option key={type} value={type}>{type}</option>)}
@@ -340,13 +339,13 @@ export default function WizardPage() {
                                         const disabled = isFieldDisabled(field);
                                         return (
                                             <div key={field}>
-                                                <label style={{...labelStyle, fontSize: 11}}>{label}</label>
+                                                <label style={{ ...labelStyle, fontSize: 11 }}>{label}</label>
                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                                     <button disabled={disabled} onClick={() => handleInputChange(field, Math.max(0, val - 1))}
-                                                        style={{ flex: 1, padding: '12px 0', background: '#FFFFFF', border: '1.5px solid #F0EEE4', borderRight: 'none', borderTopLeftRadius: 12, borderBottomLeftRadius: 12, color: disabled ? '#F0EEE4' : '#8B7355', cursor: disabled ? 'not-allowed' : 'pointer' }}>-</button>
-                                                    <div style={{ flex: 1.5, padding: '12px 0', textAlign: 'center', borderTop: '1.5px solid #F0EEE4', borderBottom: '1.5px solid #F0EEE4', fontSize: 14, color: disabled ? '#8B7355' : '#1A1208', opacity: disabled ? 0.5 : 1 }}>{val}</div>
+                                                        style={{ flex: 1, padding: '8px 0', background: '#FFFFFF', border: '1.5px solid #F0EEE4', borderRight: 'none', borderTopLeftRadius: 10, borderBottomLeftRadius: 10, color: disabled ? '#F0EEE4' : '#8B7355', cursor: disabled ? 'not-allowed' : 'pointer' }}>-</button>
+                                                    <div style={{ flex: 1.5, padding: '8px 0', textAlign: 'center', borderTop: '1.5px solid #F0EEE4', borderBottom: '1.5px solid #F0EEE4', fontSize: 13, color: disabled ? '#8B7355' : '#1A1208', opacity: disabled ? 0.5 : 1 }}>{val}</div>
                                                     <button disabled={disabled} onClick={() => handleInputChange(field, Math.min(max, val + 1))}
-                                                        style={{ flex: 1, padding: '12px 0', background: '#FFFFFF', border: '1.5px solid #F0EEE4', borderLeft: 'none', borderTopRightRadius: 12, borderBottomRightRadius: 12, color: disabled ? '#F0EEE4' : '#8B7355', cursor: disabled ? 'not-allowed' : 'pointer' }}>+</button>
+                                                        style={{ flex: 1, padding: '8px 0', background: '#FFFFFF', border: '1.5px solid #F0EEE4', borderLeft: 'none', borderTopRightRadius: 10, borderBottomRightRadius: 10, color: disabled ? '#F0EEE4' : '#8B7355', cursor: disabled ? 'not-allowed' : 'pointer' }}>+</button>
                                                 </div>
                                             </div>
                                         )
@@ -354,7 +353,7 @@ export default function WizardPage() {
                                 </div>
 
                                 <div>
-                                    <label style={{...labelStyle, marginBottom: 16}}>Health Conditions</label>
+                                    <label style={{ ...labelStyle, marginBottom: 16 }}>Health Conditions</label>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                                         {healthConditions.map(condition => {
                                             const isSelected = formData.healthConditions.includes(condition.id);
@@ -367,24 +366,24 @@ export default function WizardPage() {
 
                         {currentStep === 3 && (
                             <div>
-                                <h2 style={{ fontSize: 32, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 8 }}>Final Preferences</h2>
-                                <p style={{ color: '#8B7355', marginBottom: 40, fontSize: 15 }}>Fine-tuning constraints for the AI engine.</p>
-                                
+                                <h2 style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Libre Baskerville', serif", color: '#5C4A2A', marginBottom: 4 }}>Final Preferences</h2>
+                                <p style={{ color: '#8B7355', marginBottom: 24, fontSize: 14 }}>Fine-tuning constraints for the AI engine.</p>
+
                                 <div style={{ marginBottom: 40 }}>
                                     <label style={labelStyle}>Maximum Search Distance: <span style={{ fontFamily: "'Libre Baskerville', serif", textTransform: 'none', fontSize: 18, color: '#5C4A2A' }}>{formData.maxDistance} km</span></label>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                                         <div style={{ flex: 1, position: 'relative' }}>
-                                            <input type="range" min="100" max="2500" step="50" value={formData.maxDistance} onChange={(e) => handleInputChange('maxDistance', parseInt(e.target.value))} 
-                                                style={{ 
-                                                    width: '100%', height: 4, outline: 'none', appearance: 'none', borderRadius: 2, position: 'relative', zIndex: 1,
+                                            <input type="range" min="100" max="2500" step="50" value={formData.maxDistance} onChange={(e) => handleInputChange('maxDistance', parseInt(e.target.value))}
+                                                style={{
+                                                    width: '100%', height: 3, outline: 'none', appearance: 'none', borderRadius: 2, position: 'relative', zIndex: 1,
                                                     background: `linear-gradient(to right, #8B6914 ${((formData.maxDistance - 100) / (2500 - 100)) * 100}%, #E5E0D8 ${((formData.maxDistance - 100) / (2500 - 100)) * 100}%)`
                                                 }} />
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#B5AFA4', marginTop: 8 }}><span>100 km</span><span>2500 km</span></div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#B5AFA4', marginTop: 8 }}><span>100 km</span><span>2500 km</span></div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div style={{ marginBottom: 32 }}>
+                                <div style={{ marginBottom: 24 }}>
                                     <label style={labelStyle}>Monthly Rent Budget (Optional)</label>
                                     <input type="text" style={inputStyle} placeholder="₹ 20,000" value={formData.monthlyBudget} onChange={(e) => handleInputChange('monthlyBudget', e.target.value.replace(/\D/g, ''))} />
                                 </div>
@@ -393,12 +392,12 @@ export default function WizardPage() {
                     </div>
 
                     {/* Footer Row exactly matching the screenshot bottom section pattern */}
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'space-between', 
-                        padding: '24px 48px', 
-                        margin: '0 -48px', // offset card padding to fill bottom
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '20px 32px',
+                        margin: '0 -32px', // offset card padding to fill bottom
                         background: '#FAF7F0',
                         borderTop: '1px solid #F0EEE4'
                     }}>
@@ -407,7 +406,7 @@ export default function WizardPage() {
                         ) : (
                             <button onClick={handlePrevious} style={outlineBtnStyle}>Previous</button>
                         )}
-                        
+
                         <div style={{ fontSize: 14, color: '#8B7355', fontWeight: 500 }}>
                             Step {currentStep + 1} of {steps.length}
                         </div>

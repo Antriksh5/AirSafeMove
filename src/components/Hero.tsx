@@ -18,7 +18,7 @@ export default function Hero() {
                 pointerEvents: 'none',
             }} />
 
-            <div style={{ maxWidth: 1160, margin: '0 auto', position: 'relative' }}>
+            <div style={{ maxWidth: 1160, margin: '0 55px', position: 'relative' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}>
 
                     {/* ── Left Content ── */}

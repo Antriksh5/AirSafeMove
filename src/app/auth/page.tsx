@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect } from 'react';
+import Navbar from '../../components/Navbar';
 
 export default function AuthPage() {
     const router = useRouter();
@@ -61,21 +62,11 @@ export default function AuthPage() {
     };
 
     return (
+        <>
+        < Navbar />
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
-            <header className="nav-header">
-                <Link href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
-                    <img 
-                        src="/Logo.png" 
-                        alt="AI शहरें" 
-                        style={{ 
-                            height: 32, 
-                            width: 'auto',
-                            objectFit: 'contain'
-                        }} 
-                    />
-                </Link>
-            </header>
+            
 
             {/* Auth Form */}
             <div style={{
@@ -84,6 +75,7 @@ export default function AuthPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '40px 16px',
+                backgroundColor: '#F5EFE0',
             }}>
                 <div className="card" style={{
                     maxWidth: 440,
@@ -99,7 +91,7 @@ export default function AuthPage() {
                         left: 0,
                         right: 0,
                         height: 4,
-                        background: '#7c3aed',
+                        background: 'var(--primary-teal)',
                     }} />
 
                     {/* Icon */}
@@ -108,14 +100,15 @@ export default function AuthPage() {
                         <h1 style={{
                             fontSize: 28,
                             fontWeight: 700,
-                            color: '#FFFFFF',
+                            color: 'var(--text-primary)',
                             margin: '0 0 8px 0',
+                            fontFamily: 'var(--font-serif)'
                         }}>
                             {isSignUp ? 'Create Account' : 'Welcome Back'}
                         </h1>
-                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, margin: 0 }}>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: 15, margin: 0 }}>
                             {isSignUp
-                                ? 'Join AirSafe Move for personalized migration insights'
+                                ? ''
                                 : 'Sign in to access your saved recommendations'}
                         </p>
                     </div>
@@ -156,7 +149,7 @@ export default function AuthPage() {
                                     display: 'block',
                                     fontWeight: 600,
                                     marginBottom: 8,
-                                    color: '#FFFFFF',
+                                    color: 'var(--text-primary)',
                                     fontSize: 14,
                                 }}>
                                     Full Name
@@ -178,7 +171,7 @@ export default function AuthPage() {
                                 display: 'block',
                                 fontWeight: 600,
                                 marginBottom: 8,
-                                color: '#FFFFFF',
+                                color: 'var(--text-primary)',
                                 fontSize: 14,
                             }}>
                                 Email Address
@@ -199,7 +192,7 @@ export default function AuthPage() {
                                 display: 'block',
                                 fontWeight: 600,
                                 marginBottom: 8,
-                                color: '#FFFFFF',
+                                color: 'var(--text-primary)',
                                 fontSize: 14,
                             }}>
                                 Password
@@ -216,14 +209,17 @@ export default function AuthPage() {
                             />
                         </div>
 
+                            <div style={{justifyContent: 'center', display: 'flex'}}>
                         <button
                             type="submit"
                             className="btn-primary"
                             disabled={isSubmitting}
                             id="auth-submit"
                             style={{
-                                width: '100%',
-                                padding: '14px 24px',
+                                justifyContent: 'center',
+                                display: 'flex',
+                                width: '9rem',
+                                padding: '14px 12px',
                                 fontSize: 16,
                                 fontWeight: 600,
                                 opacity: isSubmitting ? 0.7 : 1,
@@ -233,20 +229,21 @@ export default function AuthPage() {
                             {isSubmitting
                                 ? '⏳ Processing...'
                                 : isSignUp
-                                    ? '🚀 Create Account'
-                                    : '→ Sign In'}
+                                    ? 'Create Account'
+                                    : 'Sign In'}
                         </button>
+                    </div>
                     </form>
-
                     {/* Toggle */}
                     <div style={{
                         textAlign: 'center',
                         marginTop: 24,
                         paddingTop: 24,
-                        borderTop: '1px solid rgba(255,255,255,0.1)',
+                        borderTop: '1px solid var(--glass-border)',
                     }}>
-                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, margin: 0 }}>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: 14, margin: 0 }}>
                             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+                            
                             <button
                                 type="button"
                                 onClick={() => {
@@ -258,7 +255,8 @@ export default function AuthPage() {
                                 style={{
                                     background: 'none',
                                     border: 'none',
-                                    color: '#7c3aed',
+                                    color: 'var(--primary-teal)',
+                                    justifyContent: 'center',
                                     fontWeight: 600,
                                     cursor: 'pointer',
                                     fontSize: 14,
@@ -273,5 +271,6 @@ export default function AuthPage() {
                 </div>
             </div>
         </div>
+        </>
     );
 }

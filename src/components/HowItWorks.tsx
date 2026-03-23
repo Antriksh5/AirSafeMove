@@ -109,7 +109,7 @@ export default function HowItWorks() {
                 ref={stepSectionRef}
                 style={{ background: '#FDFAF4', padding: '100px 48px' }}
             >
-                <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+                <div style={{ maxWidth: 1160, margin: '0 55px' }}>
                     {/* Section label */}
                     <p style={{
                         fontSize: 12, fontWeight: 700, letterSpacing: 2,
@@ -191,7 +191,7 @@ export default function HowItWorks() {
                 ref={featureSectionRef}
                 style={{ background: '#2D2010', padding: '100px 48px' }}
             >
-                <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+                <div style={{ maxWidth: 1160, margin: '0 55px' }}>
                     {/* Section label */}
                     <p style={{
                         fontSize: 12, fontWeight: 700, letterSpacing: 2,
