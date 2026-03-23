@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Logo from '../app/logo.png'
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
@@ -11,13 +10,8 @@ export default function Navbar() {
     const { user, profile, signOut, loading } = useAuth();
     const router = useRouter();
 
-    const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
-    };
-
-    const closeMobileMenu = () => {
-        setIsMobileMenuOpen(false);
-    };
+    const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+    const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
     const handleSignOut = async () => {
         await signOut();
@@ -26,104 +20,91 @@ export default function Navbar() {
     };
 
     return (
-        <header className="nav-header">
-            <Link href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
+        <header style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 48px',
+            height: 64,
+            background: '#F5EFE0',
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+            borderBottom: '1px solid rgba(0,0,0,0.06)',
+        }}>
+            {/* Logo */}
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                 <div style={{
                     width: 32,
                     height: 32,
-                    background: 'linear-gradient(135deg, #fff 0%, #fff 100%)',
+                    background: '#5C4A2A',
                     borderRadius: 8,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'white',
-                    fontSize: 16
+                    fontSize: 16,
+                    color: '#F5EFE0',
                 }}>
-                    <img
-                        src={Logo.src}
-                        alt="AirSafe Move logo"
-                        style={{ width: 20, height: 20, objectFit: 'contain', display: 'block' }}
-                    />
+                    🌬️
                 </div>
-                <span>AirSafe Move</span>
+                <span style={{ fontWeight: 700, fontSize: 16, color: '#2C1F0E', letterSpacing: '-0.3px' }}>
+                    AirSafe Move
+                </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="nav-links">
-                <a href="#how-it-works" className="nav-link">How it Works</a>
-                <a href="#features" className="nav-link">Features</a>
-                {loading ? (
-                    <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
-                        Loading...
-                    </span>
-                ) : user ? (
+            <nav style={{ display: 'flex', alignItems: 'center', gap: 36 }}>
+                <a href="#how-it-works" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15, fontWeight: 500 }}>
+                    How it Works
+                </a>
+                <a href="#features" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15, fontWeight: 500 }}>
+                    Features
+                </a>
+                {loading ? null : user ? (
                     <>
                         <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            padding: '6px 14px',
-                            borderRadius: 8,
-                            backgroundColor: 'rgba(124, 58, 237, 0.15)',
-                            border: '1px solid rgba(124, 58, 237, 0.3)',
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '6px 14px', borderRadius: 8,
+                            backgroundColor: 'rgba(92,74,42,0.12)',
+                            border: '1px solid rgba(92,74,42,0.2)',
                         }}>
                             <div style={{
-                                width: 28,
-                                height: 28,
-                                borderRadius: '50%',
-                                background: '#7c3aed',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'white',
-                                fontSize: 12,
-                                fontWeight: 700,
+                                width: 28, height: 28, borderRadius: '50%',
+                                background: '#8B6914', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', color: 'white', fontSize: 12, fontWeight: 700,
                             }}>
                                 {(profile?.name || user.email || '?')[0].toUpperCase()}
                             </div>
-
-                            <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>
+                            <span style={{ fontSize: 14, fontWeight: 500, color: '#2C1F0E' }}>
                                 {profile?.name || user.email?.split('@')[0]}
                             </span>
                         </div>
-
-                        <Link href="/wizard" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }}>
+                        <Link href="/wizard" style={{
+                            background: '#5C4A2A', color: '#F5EFE0',
+                            padding: '10px 22px', borderRadius: 8,
+                            fontSize: 14, fontWeight: 600, textDecoration: 'none',
+                            transition: 'all 0.2s',
+                        }}>
                             Start Planning
                         </Link>
-
-                        <button
-                            onClick={handleSignOut}
-                            id="navbar-signout"
-                            style={{
-                                background: 'none',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                padding: '8px 16px',
-                                borderRadius: 8,
-                                fontSize: 14,
-                                color: 'rgba(255, 255, 255, 0.7)',
-                                cursor: 'pointer',
-                                fontWeight: 500,
-                                transition: 'all 0.2s',
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.borderColor = '#EF4444';
-                                e.currentTarget.style.color = '#EF4444';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
-                            }}
-                        >
+                        <button onClick={handleSignOut} style={{
+                            background: 'none', border: '1px solid rgba(92,74,42,0.3)',
+                            padding: '8px 16px', borderRadius: 8, fontSize: 14,
+                            color: '#5C4A2A', cursor: 'pointer', fontWeight: 500,
+                        }}>
                             Sign Out
                         </button>
                     </>
                 ) : (
                     <>
-                        <Link href="/auth" className="nav-link" style={{ fontWeight: 500 }}>
+                        <Link href="/auth" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15, fontWeight: 500 }}>
                             Login
                         </Link>
-
-                        <Link href="/wizard" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }}>
+                        <Link href="/wizard" style={{
+                            background: '#5C4A2A', color: '#F5EFE0',
+                            padding: '10px 22px', borderRadius: 8,
+                            fontSize: 14, fontWeight: 600, textDecoration: 'none',
+                        }}>
                             Start Planning
                         </Link>
                     </>
@@ -135,74 +116,38 @@ export default function Navbar() {
                 className="mobile-menu-btn"
                 onClick={toggleMobileMenu}
                 aria-label="Toggle navigation menu"
-                aria-expanded={isMobileMenuOpen}
+                style={{ color: '#2C1F0E' }}
             >
                 {isMobileMenuOpen ? '✕' : '☰'}
             </button>
 
             {/* Mobile Navigation */}
-            <nav className={`nav-links-mobile ${isMobileMenuOpen ? 'open' : ''}`}>
-                <a href="#how-it-works" className="nav-link" onClick={closeMobileMenu}>How it Works</a>
-                <a href="#features" className="nav-link" onClick={closeMobileMenu}>Features</a>
-                {!loading && (
-                    user ? (
-                        <>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 8,
-                                padding: '8px 0',
-                                color: '#FFFFFF',
-                                fontSize: 14,
-                                fontWeight: 500,
-                            }}>
-                                <div style={{
-                                    width: 28,
-                                    height: 28,
-                                    borderRadius: '50%',
-                                    background: '#7c3aed',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: 'white',
-                                    fontSize: 12,
-                                    fontWeight: 700,
-                                }}>
-                                    {(profile?.name || user.email || '?')[0].toUpperCase()}
-                                </div>
-                                {profile?.name || user.email?.split('@')[0]}
-                            </div>
-                            <Link href="/wizard" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14, textAlign: 'center' }} onClick={closeMobileMenu}>
-                                Start Planning
-                            </Link>
-                            <button
-                                onClick={handleSignOut}
-                                style={{
-                                    background: 'none',
-                                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                                    padding: '10px 16px',
-                                    borderRadius: 8,
-                                    fontSize: 14,
-                                    color: '#EF4444',
-                                    cursor: 'pointer',
-                                    fontWeight: 500,
-                                    textAlign: 'center',
-                                }}
-                            >
-                                Sign Out
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <Link href="/auth" className="nav-link" style={{ fontWeight: 500 }} onClick={closeMobileMenu}>
-                                Login
-                            </Link>
-                            <Link href="/wizard" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14, textAlign: 'center' }} onClick={closeMobileMenu}>
-                                Start Planning
-                            </Link>
-                        </>
-                    )
-                )}
+            <nav className={`nav-links-mobile ${isMobileMenuOpen ? 'open' : ''}`} style={{
+                background: '#F5EFE0',
+                borderTop: '1px solid rgba(0,0,0,0.08)',
+            }}>
+                <a href="#how-it-works" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15 }} onClick={closeMobileMenu}>How it Works</a>
+                <a href="#features" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15 }} onClick={closeMobileMenu}>Features</a>
+                {!loading && (user ? (
+                    <>
+                        <Link href="/wizard" onClick={closeMobileMenu} style={{
+                            background: '#5C4A2A', color: '#F5EFE0', padding: '12px 20px',
+                            borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center'
+                        }}>Start Planning</Link>
+                        <button onClick={handleSignOut} style={{
+                            background: 'none', border: '1px solid rgba(92,74,42,0.3)',
+                            padding: '10px 16px', borderRadius: 8, fontSize: 14, color: '#8B1A1A', cursor: 'pointer',
+                        }}>Sign Out</button>
+                    </>
+                ) : (
+                    <>
+                        <Link href="/auth" onClick={closeMobileMenu} style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15 }}>Login</Link>
+                        <Link href="/wizard" onClick={closeMobileMenu} style={{
+                            background: '#5C4A2A', color: '#F5EFE0', padding: '12px 20px',
+                            borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center'
+                        }}>Start Planning</Link>
+                    </>
+                ))}
             </nav>
         </header>
     );

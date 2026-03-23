@@ -1,251 +1,329 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 const steps = [
     {
         number: '01',
         icon: '👤',
-        title: 'Enter Your Profile',
-        description: 'Tell us about yourself - your current city, profession, age, and migration preferences.'
+        title: 'Build your profile',
+        description: 'Your city preferences, lifestyle, age, health conditions and career details.',
     },
     {
         number: '02',
-        icon: '⚙️',
-        title: 'Set Constraints',
-        description: 'Define your maximum distance, budget, and food preferences for personalized filtering.'
+        icon: '📋',
+        title: 'Set your preferences',
+        description: 'Define your maximum distance, budget, and housing preferences.',
     },
     {
         number: '03',
         icon: '✨',
-        title: 'AI Analysis',
-        description: 'Our ML model analyzes AQI data, costs, and career opportunities to score cities.'
+        title: 'AI analyses cities',
+        description: 'Our model scores all cities weighing AQI, cost of living, job market and utilities.',
     },
     {
         number: '04',
-        icon: '📋',
-        title: 'Get Report',
-        description: 'Receive top 5 city recommendations with detailed migration readiness report.'
-    }
+        icon: '📊',
+        title: 'Get your report',
+        description: 'You receive a personalised city report with detailed migration breakdown.',
+    },
 ];
 
 const features = [
     {
         icon: '📊',
-        title: 'Real-time AQI Data',
-        description: 'Access 5-year historical and current air quality data for 25+ Indian cities.'
+        title: 'Air quality data',
+        description: 'Live and historical AQI trends. 5 years of data across 25+ Indian cities.',
     },
     {
-        icon: '📍',
-        title: 'Distance Optimization',
-        description: 'Find the best cities within your preferred migration distance using Haversine formula.'
+        icon: '🏘️',
+        title: 'Housing & utilities',
+        description: 'Compare rent, electricity, LPG rates, water charges and cost-of-living city by city.',
     },
     {
         icon: '💼',
-        title: 'Profession Matching',
-        description: 'Get recommendations based on job opportunities in your field across cities.'
+        title: 'Career matching',
+        description: 'Job openings aligned to your profile, industry demand and top support for your sector.',
     },
     {
-        icon: '₹',
-        title: 'Cost Analysis',
-        description: 'Compare housing costs and find cities that match your budget requirements.'
+        icon: '🔍',
+        title: 'Distance-aware search',
+        description: 'Filter by max distance and find locations that are home to people like you.',
     },
     {
-        icon: '👥',
-        title: 'Community Insights',
-        description: 'Understand cultural compatibility and community profiles of recommended cities.'
+        icon: '🏫',
+        title: 'Schools & healthcare',
+        description: 'Top-rated schools, hospitals and clinics scored near your potential new home.',
     },
     {
-        icon: '🤖',
-        title: 'AI Advisory',
-        description: 'Receive personalized migration advice with explainable AI recommendations.'
-    }
+        icon: '🌏',
+        title: 'AI migration advice',
+        description: 'Personalised recommendations with plain-language explanations for each condition.',
+    },
 ];
 
 export default function HowItWorks() {
-    // Refs for scroll detection
-    const stepSectionRef = useRef(null);
-    const featureSectionRef = useRef(null);
-
-    // Visibility states
+    const stepSectionRef = useRef<HTMLElement>(null);
+    const featureSectionRef = useRef<HTMLElement>(null);
+    const ctaSectionRef = useRef<HTMLElement>(null);
     const [isStepsVisible, setIsStepsVisible] = useState(false);
     const [isFeaturesVisible, setIsFeaturesVisible] = useState(false);
+    const [isCtaVisible, setIsCtaVisible] = useState(false);
 
     useEffect(() => {
-        const observerOptions = { threshold: 0.15 };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    if (entry.target === stepSectionRef.current) setIsStepsVisible(true);
-                    if (entry.target === featureSectionRef.current) setIsFeaturesVisible(true);
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        if (entry.target === stepSectionRef.current) setIsStepsVisible(true);
+                        if (entry.target === featureSectionRef.current) setIsFeaturesVisible(true);
+                        if (entry.target === ctaSectionRef.current) setIsCtaVisible(true);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.1 }
+        );
         if (stepSectionRef.current) observer.observe(stepSectionRef.current);
         if (featureSectionRef.current) observer.observe(featureSectionRef.current);
-
+        if (ctaSectionRef.current) observer.observe(ctaSectionRef.current);
         return () => observer.disconnect();
     }, []);
 
     return (
         <>
-            <style jsx>{`
-                @keyframes float {
-                    0% { transform: translateY(0px); }
-                    50% { transform: translateY(-8px); }
-                    100% { transform: translateY(0px); }
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(32px); }
+                    to   { opacity: 1; transform: translateY(0); }
                 }
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(40px); }
-                    to { opacity: 1; transform: translateY(0px); }
-                }
-                .fade-in-header {
-                    opacity: 0;
-                    transform: translateY(20px);
-                    transition: all 0.8s ease-out;
-                }
-                .fade-in-header.visible {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                /* Hover effect for Feature Cards */
-                .feature-card {
-                    transition: transform 0.3s ease, box-shadow 0.3s ease;
-                }
-                .feature-card:hover {
-                    transform: translateY(-8px);
-                    box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.3);
-                    border-color: rgba(45, 212, 191, 0.4);
-                }
+                .step-card-hover:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(92,74,42,0.12); }
+                .feature-card-warm:hover { transform: translateY(-4px); }
+                .cta-input:focus { outline: none; border-color: #5C4A2A; box-shadow: 0 0 0 3px rgba(92,74,42,0.15); }
             `}</style>
 
-            {/* --- SECTION 1: HOW IT WORKS --- */}
+            {/* ────── HOW IT WORKS ────── */}
             <section
                 id="how-it-works"
                 ref={stepSectionRef}
-                style={{
-                    position: 'relative',
-                    padding: '100px 32px 80px 32px',
-                    background: 'transparent'
-                }}
+                style={{ background: '#FDFAF4', padding: '100px 48px' }}
             >
-                {/* SVG Wave */}
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0 }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: 60 }}>
-                        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="rgba(255,255,255,0.03)"></path>
-                    </svg>
-                </div>
+                <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+                    {/* Section label */}
+                    <p style={{
+                        fontSize: 12, fontWeight: 700, letterSpacing: 2,
+                        color: '#8B6914', textTransform: 'uppercase', marginBottom: 16,
+                        opacity: isStepsVisible ? 1 : 0,
+                        animation: isStepsVisible ? 'fadeUp 0.6s ease forwards' : 'none',
+                    }}>
+                        HOW IT WORKS
+                    </p>
+                    <h2 style={{
+                        fontSize: 'clamp(28px, 3.5vw, 44px)',
+                        fontWeight: 800, color: '#1A1208', letterSpacing: '-1px',
+                        fontFamily: 'Georgia, serif', marginBottom: 16, maxWidth: 560,
+                        opacity: isStepsVisible ? 1 : 0,
+                        animation: isStepsVisible ? 'fadeUp 0.6s ease 0.1s forwards' : 'none',
+                    }}>
+                        Four steps to your ideal city
+                    </h2>
+                    <p style={{
+                        fontSize: 16, color: '#6B5B3A', lineHeight: 1.7, marginBottom: 60, maxWidth: 520,
+                        opacity: isStepsVisible ? 1 : 0,
+                        animation: isStepsVisible ? 'fadeUp 0.6s ease 0.2s forwards' : 'none',
+                    }}>
+                        We go beyond just metrics. Just answer a few questions and let the data do the work.
+                    </p>
 
-                <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 10 }}>
-                    <div className={`fade-in-header ${isStepsVisible ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 60 }}>
-                        <h2 className="section-title">
-                            How AirSafe Move Works
-                        </h2>
-                        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }}>
-                            Four simple steps to find your ideal clean-air destination
-                        </p>
-                    </div>
-
-                    <div className="steps-grid">
-                        {steps.map((step, index) => (
-                            <div key={index} style={{
-                                position: 'relative',
-                                opacity: isStepsVisible ? 1 : 0,
-                                animation: isStepsVisible ? `fadeInUp 0.8s ease-out forwards ${index * 0.2}s` : 'none'
-                            }}>
-                                <div style={{ height: '100%', animation: isStepsVisible ? `float 5s ease-in-out infinite` : 'none', animationDelay: `${index * 0.5}s` }}>
-                                    <div style={{ position: 'absolute', top: -12, left: 16, background: '#7c3aed', color: 'white', padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, zIndex: 1, boxShadow: '0 4px 6px -1px rgba(124, 58, 237, 0.3)' }}>
-                                        {step.number}
-                                    </div>
-                                    <div className="card" style={{ paddingTop: 32, paddingBottom: 24, paddingLeft: 20, paddingRight: 20, height: '100%', position: 'relative' }}>
-                                        <div className="icon-circle" style={{ marginBottom: 16, fontSize: 32 }}>{step.icon}</div>
-                                        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#FFFFFF', marginBottom: 8 }}>{step.title}</h3>
-                                        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{step.description}</p>
-                                    </div>
-                                    {index < steps.length - 1 && (
-                                        <div className="step-arrow">▶</div>
-                                    )}
+                    {/* Steps grid */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, 1fr)',
+                        gap: 24,
+                    }}>
+                        {steps.map((step, i) => (
+                            <div
+                                key={i}
+                                className="step-card-hover"
+                                style={{
+                                    background: '#FFFBF2',
+                                    border: '1px solid rgba(92,74,42,0.1)',
+                                    borderRadius: 16,
+                                    padding: '28px 24px',
+                                    position: 'relative',
+                                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                                    opacity: isStepsVisible ? 1 : 0,
+                                    animation: isStepsVisible ? `fadeUp 0.6s ease ${0.1 + i * 0.1}s forwards` : 'none',
+                                }}
+                            >
+                                {/* Step number */}
+                                <div style={{
+                                    fontSize: 11, fontWeight: 700, color: '#8B6914',
+                                    letterSpacing: 1, marginBottom: 20, opacity: 0.8,
+                                }}>
+                                    {step.number}
                                 </div>
+                                {/* Icon */}
+                                <div style={{
+                                    width: 44, height: 44, borderRadius: 12,
+                                    background: 'rgba(139,105,20,0.1)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: 22, marginBottom: 16,
+                                }}>
+                                    {step.icon}
+                                </div>
+                                <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1208', marginBottom: 8 }}>
+                                    {step.title}
+                                </h3>
+                                <p style={{ fontSize: 13, color: '#6B5B3A', lineHeight: 1.65 }}>
+                                    {step.description}
+                                </p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* --- SECTION 2: FEATURES --- */}
+            {/* ────── FEATURES ────── */}
             <section
                 id="features"
                 ref={featureSectionRef}
-                style={{
-                    padding: '100px 32px',
-                    background: 'transparent'
-                }}
+                style={{ background: '#2D2010', padding: '100px 48px' }}
             >
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-                    <div className={`fade-in-header ${isFeaturesVisible ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 60 }}>
-                        <h2 className="section-title">
-                            Comprehensive Migration Intelligence
-                        </h2>
-                        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', maxWidth: 600, margin: '0 auto' }}>
-                            Our AI analyzes multiple factors to give you the most suitable city
-                            recommendations for a healthier, happier life.
-                        </p>
-                    </div>
+                <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+                    {/* Section label */}
+                    <p style={{
+                        fontSize: 12, fontWeight: 700, letterSpacing: 2,
+                        color: '#C9A84C', textTransform: 'uppercase', marginBottom: 16,
+                        opacity: isFeaturesVisible ? 1 : 0,
+                        animation: isFeaturesVisible ? 'fadeUp 0.6s ease forwards' : 'none',
+                    }}>
+                        EVERY FACTOR COVERED
+                    </p>
+                    <h2 style={{
+                        fontSize: 'clamp(28px, 3.5vw, 44px)',
+                        fontWeight: 800, color: '#F5EFE0', letterSpacing: '-1px',
+                        fontFamily: 'Georgia, serif', marginBottom: 16, maxWidth: 600,
+                        opacity: isFeaturesVisible ? 1 : 0,
+                        animation: isFeaturesVisible ? 'fadeUp 0.6s ease 0.1s forwards' : 'none',
+                    }}>
+                        Every factor that matters for your move
+                    </h2>
+                    <p style={{
+                        fontSize: 16, color: 'rgba(245,239,224,0.65)', lineHeight: 1.7,
+                        marginBottom: 60, maxWidth: 540,
+                        opacity: isFeaturesVisible ? 1 : 0,
+                        animation: isFeaturesVisible ? 'fadeUp 0.6s ease 0.2s forwards' : 'none',
+                    }}>
+                        We go beyond just rent — every necessity, compared across cities in one place.
+                    </p>
 
-                    <div className="features-grid">
-                        {features.map((feature, index) => (
+                    {/* Features grid */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: 20,
+                    }}>
+                        {features.map((feature, i) => (
                             <div
-                                key={index}
-                                className="feature-card card"
+                                key={i}
+                                className="feature-card-warm"
                                 style={{
-                                    padding: 32,
-                                    borderRadius: 24,
-                                    // Animation Control
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: '1px solid rgba(255,255,255,0.08)',
+                                    borderRadius: 16, padding: '28px 24px',
+                                    transition: 'transform 0.3s ease',
                                     opacity: isFeaturesVisible ? 1 : 0,
-                                    animation: isFeaturesVisible ? `fadeInUp 0.6s ease-out forwards ${index * 0.1}s` : 'none'
+                                    animation: isFeaturesVisible ? `fadeUp 0.6s ease ${0.1 + i * 0.1}s forwards` : 'none',
                                 }}
                             >
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
-                                    {/* Animated Floating Icon */}
-                                    <div style={{
-                                        minWidth: 56,
-                                        height: 56,
-                                        borderRadius: 16,
-                                        background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(14, 165, 233, 0.2) 100%)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: 28,
-                                        animation: isFeaturesVisible ? `float 4s ease-in-out infinite` : 'none',
-                                        animationDelay: `${index * 0.3}s`
-                                    }}>
-                                        {feature.icon}
-                                    </div>
-
-                                    <div>
-                                        <h3 style={{
-                                            fontSize: 18,
-                                            fontWeight: 700,
-                                            color: '#FFFFFF',
-                                            marginBottom: 8,
-                                            marginTop: 4
-                                        }}>
-                                            {feature.title}
-                                        </h3>
-                                        <p style={{
-                                            fontSize: 15,
-                                            color: 'rgba(255,255,255,0.6)',
-                                            lineHeight: 1.6
-                                        }}>
-                                            {feature.description}
-                                        </p>
-                                    </div>
+                                <div style={{
+                                    width: 46, height: 46, borderRadius: 12,
+                                    background: 'rgba(201,168,76,0.15)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: 22, marginBottom: 16,
+                                }}>
+                                    {feature.icon}
                                 </div>
+                                <h3 style={{ fontSize: 15, fontWeight: 700, color: '#F5EFE0', marginBottom: 8 }}>
+                                    {feature.title}
+                                </h3>
+                                <p style={{ fontSize: 13, color: 'rgba(245,239,224,0.6)', lineHeight: 1.65 }}>
+                                    {feature.description}
+                                </p>
                             </div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ────── CTA SECTION ────── */}
+            <section
+                ref={ctaSectionRef}
+                style={{
+                    background: '#F5EFE0',
+                    padding: '100px 48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <div style={{ maxWidth: 680, width: '100%', textAlign: 'left' }}>
+                    <div style={{
+                        opacity: isCtaVisible ? 1 : 0,
+                        animation: isCtaVisible ? 'fadeUp 0.7s ease forwards' : 'none',
+                    }}>
+                        <h2 style={{
+                            fontSize: 'clamp(32px, 4vw, 52px)',
+                            fontWeight: 800, color: '#1A1208', letterSpacing: '-1.5px',
+                            fontFamily: 'Georgia, serif', lineHeight: 1.1, marginBottom: 20,
+                        }}>
+                            Ready to find<br />
+                            where you{' '}
+                            <em style={{ color: '#8B6914', fontStyle: 'italic' }}>belong?</em>
+                        </h2>
+                        <p style={{ fontSize: 16, color: '#6B5B3A', lineHeight: 1.7, marginBottom: 36 }}>
+                            Join thousands of Indians moving smarter. Get data-driven recommendations with full data and AI-powered guidance.
+                        </p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 380 }}>
+                            <input
+                                type="text"
+                                placeholder="Your current city"
+                                className="cta-input"
+                                style={{
+                                    padding: '14px 18px', borderRadius: 10, fontSize: 15,
+                                    border: '1.5px solid rgba(92,74,42,0.25)',
+                                    background: '#FFFBF2', color: '#1A1208',
+                                    width: '100%', boxSizing: 'border-box',
+                                    transition: 'all 0.2s',
+                                }}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Your profession"
+                                className="cta-input"
+                                style={{
+                                    padding: '14px 18px', borderRadius: 10, fontSize: 15,
+                                    border: '1.5px solid rgba(92,74,42,0.25)',
+                                    background: '#FFFBF2', color: '#1A1208',
+                                    width: '100%', boxSizing: 'border-box',
+                                    transition: 'all 0.2s',
+                                }}
+                            />
+                            <Link href="/wizard" style={{
+                                background: '#5C4A2A', color: '#F5EFE0',
+                                padding: '15px 28px', borderRadius: 10,
+                                fontSize: 15, fontWeight: 700, textDecoration: 'none',
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                gap: 8, marginTop: 4,
+                                boxShadow: '0 4px 16px rgba(92,74,42,0.3)',
+                                transition: 'all 0.2s',
+                            }}>
+                                Find my city →
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>

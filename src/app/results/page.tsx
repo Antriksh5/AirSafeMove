@@ -64,7 +64,7 @@ function ScoreBar({ score, maxScore = 10, color }: { score: number; maxScore?: n
             <div style={{
                 flex: 1,
                 height: 8,
-                backgroundColor: 'rgba(255,255,255,0.15)',
+                backgroundColor: 'rgba(92,74,42,0.1)',
                 borderRadius: 4,
                 overflow: 'hidden'
             }}>
@@ -86,7 +86,7 @@ function renderListSection(title: string, items?: string[]) {
 
     return (
         <div style={{ marginTop: 20 }}>
-            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
+            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: '#6B5B3A' }}>
                 {title}
             </h5>
             <ul style={{ margin: 0, paddingLeft: 20, color: 'rgba(255,255,255,0.72)' }}>
@@ -233,7 +233,7 @@ export default function ResultsPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'transparent'
+                background: '#F5EFE0'
             }}>
                 <div className="loading-pulse" style={{ color: 'rgba(255,255,255,0.7)' }}>Loading...</div>
             </div>
@@ -249,7 +249,7 @@ export default function ResultsPage() {
                     <div style={{
                         width: 32,
                         height: 32,
-                        background: '#7c3aed',
+                        background: '#5C4A2A',
                         borderRadius: 8,
                         display: 'flex',
                         alignItems: 'center',
@@ -274,19 +274,19 @@ export default function ResultsPage() {
                     <h1 className="results-title">
                         Migration Readiness Report
                     </h1>
-                    <p style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    <p style={{ color: '#6B5B3A' }}>
                         Personalized recommendations for {data.userName}
                     </p>
                 </div>
 
                 <div style={{ marginBottom: 24, padding: 32, textAlign: 'center' }}>
-                    <div className="score-value" style={{ color: '#7c3aed', fontSize: 48, marginBottom: 8 }}>
+                    <div className="score-value" style={{ color: '#5C4A2A', fontSize: 48, marginBottom: 8 }}>
                         {data.readiness_score.toFixed(0)}%
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16 }}>Migration Readiness Score</div>
+                    <div style={{ color: '#6B5B3A', fontSize: 16 }}>Migration Readiness Score</div>
                 </div>
 
-                <h2 style={{ fontSize: 24, fontWeight: 600, color: '#FFFFFF', marginBottom: 16 }}>
+                <h2 style={{ fontSize: 24, fontWeight: 600, color: '#1A1208', marginBottom: 16 }}>
                     Top 5 Recommended Cities
                 </h2>
 
@@ -304,7 +304,7 @@ export default function ResultsPage() {
                                     width: 40,
                                     height: 40,
                                     borderRadius: 8,
-                                    background: index === 0 ? '#7c3aed' : 'rgba(255,255,255,0.1)',
+                                    background: index === 0 ? '#5C4A2A' : 'rgba(92,74,42,0.08)',
                                     color: index === 0 ? 'white' : 'rgba(255,255,255,0.6)',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -316,12 +316,12 @@ export default function ResultsPage() {
                                 </div>
 
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 600, color: '#FFFFFF', fontSize: 18 }}>
+                                    <div style={{ fontWeight: 600, color: '#1A1208', fontSize: 18 }}>
                                         {rec.city_name}
                                         {index === 0 && (
                                             <span style={{
                                                 marginLeft: 8,
-                                                background: '#7C3AED',
+                                                background: '#5C4A2A',
                                                 color: 'white',
                                                 padding: '2px 8px',
                                                 borderRadius: 4,
@@ -332,35 +332,35 @@ export default function ResultsPage() {
                                             </span>
                                         )}
                                     </div>
-                                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
+                                    <div style={{ color: '#6B5B3A', fontSize: 14 }}>
                                         {rec.state} • {getAqiCategory(rec.target_aqi)}
                                     </div>
                                 </div>
 
                                 <div className="rec-scores">
                                     <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#7c3aed' }}>
+                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#5C4A2A' }}>
                                             {rec.aqi_improvement_percent.toFixed(0)}%
                                         </div>
-                                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>AQI Improve</div>
+                                        <div style={{ fontSize: 11, color: '#8B7355' }}>AQI Improve</div>
                                     </div>
                                     <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF' }}>
+                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#1A1208' }}>
                                             {rec.distance_km.toFixed(0)} km
                                         </div>
-                                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Distance</div>
+                                        <div style={{ fontSize: 11, color: '#8B7355' }}>Distance</div>
                                     </div>
                                     <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF' }}>
+                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#1A1208' }}>
                                             ₹{rec.avg_rent.toLocaleString()}
                                         </div>
-                                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Avg Rent</div>
+                                        <div style={{ fontSize: 11, color: '#8B7355' }}>Avg Rent</div>
                                     </div>
                                     <div style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#7c3aed' }}>
+                                        <div style={{ fontSize: 20, fontWeight: 700, color: '#5C4A2A' }}>
                                             {rec.suitability_score.toFixed(0)}
                                         </div>
-                                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Score</div>
+                                        <div style={{ fontSize: 11, color: '#8B7355' }}>Score</div>
                                     </div>
                                 </div>
 
@@ -380,8 +380,8 @@ export default function ResultsPage() {
                                             cursor: savedCities.has(rec.city_name) ? 'default' : 'pointer',
                                             background: savedCities.has(rec.city_name)
                                                 ? 'rgba(16, 185, 129, 0.1)'
-                                                : 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)',
-                                            color: savedCities.has(rec.city_name) ? '#7c3aed' : 'white',
+                                                : 'linear-gradient(135deg, #5C4A2A 0%, #8B5CF6 100%)',
+                                            color: savedCities.has(rec.city_name) ? '#5C4A2A' : 'white',
                                             transition: 'all 0.2s',
                                             whiteSpace: 'nowrap',
                                             opacity: savingCity === rec.city_name ? 0.7 : 1,
@@ -399,31 +399,31 @@ export default function ResultsPage() {
                                 <div className="expanded-grid" style={{
                                     marginTop: 20,
                                     paddingTop: 20,
-                                    borderTop: '1px dashed rgba(255,255,255,0.15)'
+                                    borderTop: '1px dashed rgba(92,74,42,0.1)'
                                 }}>
                                     <div className="card" style={{ padding: 16, textAlign: 'center', background: 'rgba(16, 185, 129, 0.05)' }}>
-                                        <div style={{ fontSize: 24, fontWeight: 700, color: '#7c3aed' }}>
+                                        <div style={{ fontSize: 24, fontWeight: 700, color: '#5C4A2A' }}>
                                             {rec.respiratory_risk_reduction.toFixed(1)}%
                                         </div>
-                                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Respiratory Risk ↓</div>
+                                        <div style={{ fontSize: 12, color: '#8B7355' }}>Respiratory Risk ↓</div>
                                     </div>
                                     <div className="card" style={{ padding: 16, textAlign: 'center', background: 'rgba(124, 58, 237, 0.05)' }}>
-                                        <div style={{ fontSize: 24, fontWeight: 700, color: '#7c3aed' }}>
+                                        <div style={{ fontSize: 24, fontWeight: 700, color: '#5C4A2A' }}>
                                             +{rec.life_expectancy_gain_years} yrs
                                         </div>
-                                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Life Expectancy</div>
+                                        <div style={{ fontSize: 12, color: '#8B7355' }}>Life Expectancy</div>
                                     </div>
                                     <div className="card" style={{ padding: 16, textAlign: 'center', background: 'rgba(59, 130, 246, 0.05)' }}>
                                         <div style={{ fontSize: 24, fontWeight: 700, color: '#3B82F6' }}>
                                             {rec.job_match_score}/100
                                         </div>
-                                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Job Match</div>
+                                        <div style={{ fontSize: 12, color: '#8B7355' }}>Job Match</div>
                                     </div>
                                     <div className="card" style={{ padding: 16, textAlign: 'center', background: 'rgba(139, 92, 246, 0.05)' }}>
                                         <div style={{ fontSize: 24, fontWeight: 700, color: '#8B5CF6' }}>
                                             {rec.healthcare_score}/100
                                         </div>
-                                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Healthcare</div>
+                                        <div style={{ fontSize: 12, color: '#8B7355' }}>Healthcare</div>
                                     </div>
                                 </div>
                         </div>
@@ -445,7 +445,7 @@ export default function ResultsPage() {
                             }}>
                                 ⭐
                             </div>
-                            <h2 style={{ fontSize: 24, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+                            <h2 style={{ fontSize: 24, fontWeight: 700, color: '#1A1208', margin: 0 }}>
                                 Saved Recommendations
                             </h2>
                         </div>
@@ -477,10 +477,10 @@ export default function ResultsPage() {
                                     }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <div>
-                                            <div style={{ fontWeight: 700, fontSize: 20, color: '#FFFFFF' }}>
+                                            <div style={{ fontWeight: 700, fontSize: 20, color: '#1A1208' }}>
                                                 {rec.target_city}
                                             </div>
-                                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 500, marginTop: 2 }}>
+                                            <div style={{ color: '#6B5B3A', fontSize: 13, fontWeight: 500, marginTop: 2 }}>
                                                 {rec.target_state || 'India'}
                                             </div>
                                         </div>
@@ -521,7 +521,7 @@ export default function ResultsPage() {
                                                     borderRadius: 6,
                                                     background: 'rgba(124, 58, 237, 0.08)',
                                                     border: '1px solid rgba(124, 58, 237, 0.2)',
-                                                    color: '#7C3AED',
+                                                    color: '#5C4A2A',
                                                     fontSize: 12,
                                                     fontWeight: 600,
                                                 }}>
@@ -532,16 +532,16 @@ export default function ResultsPage() {
                                     )}
 
                                     {rec.suitability_score != null && (
-                                        <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                                        <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid rgba(92,74,42,0.08)' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>Suitability Score</span>
-                                                <span style={{ fontSize: 15, fontWeight: 700, color: '#FFFFFF' }}>{rec.suitability_score.toFixed(1)}</span>
+                                                <span style={{ fontSize: 13, color: '#6B5B3A' }}>Suitability Score</span>
+                                                <span style={{ fontSize: 15, fontWeight: 700, color: '#1A1208' }}>{rec.suitability_score.toFixed(1)}</span>
                                             </div>
-                                            <div style={{ height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, marginTop: 8, overflow: 'hidden' }}>
+                                            <div style={{ height: 6, background: 'rgba(92,74,42,0.08)', borderRadius: 3, marginTop: 8, overflow: 'hidden' }}>
                                                 <div style={{
                                                     height: '100%',
                                                     width: `${rec.suitability_score}%`,
-                                                    background: '#7c3aed',
+                                                    background: '#5C4A2A',
                                                     borderRadius: 3
                                                 }} />
                                             </div>
@@ -558,7 +558,7 @@ export default function ResultsPage() {
                         <div style={{
                             width: 40,
                             height: 40,
-                            background: 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)',
+                            background: 'linear-gradient(135deg, #5C4A2A 0%, #8B5CF6 100%)',
                             borderRadius: 8,
                             display: 'flex',
                             alignItems: 'center',
@@ -568,7 +568,7 @@ export default function ResultsPage() {
                         }}>
                             🤖
                         </div>
-                        <h3 style={{ fontSize: 20, fontWeight: 600, color: '#FFFFFF', margin: 0 }}>
+                        <h3 style={{ fontSize: 20, fontWeight: 600, color: '#1A1208', margin: 0 }}>
                             AI Migration Advisory
                         </h3>
                     </div>
@@ -583,28 +583,28 @@ export default function ResultsPage() {
                 </div>
 
                 <div className="card" style={{ marginBottom: 32, padding: 24 }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 600, color: '#FFFFFF', marginBottom: 16 }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1A1208', marginBottom: 16 }}>
                         Assessment Summary
                     </h3>
                     <div className="summary-grid">
                         <div>
-                            <div style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Profile</div>
+                            <div style={{ color: '#8B7355', marginBottom: 4 }}>Profile</div>
                             <div style={{ fontWeight: 500 }}>{data.userProfile.name}, {data.userProfile.age} years</div>
-                            <div style={{ color: 'rgba(255,255,255,0.5)' }}>{data.userProfile.profession}</div>
+                            <div style={{ color: '#8B7355' }}>{data.userProfile.profession}</div>
                         </div>
                         <div>
-                            <div style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Family</div>
+                            <div style={{ color: '#8B7355', marginBottom: 4 }}>Family</div>
                             <div style={{ fontWeight: 500 }}>{data.familyHealth.familyType}</div>
-                            <div style={{ color: 'rgba(255,255,255,0.5)' }}>
+                            <div style={{ color: '#8B7355' }}>
                                 {data.familyHealth.totalMembers} members
                                 {data.familyHealth.children > 0 && `, ${data.familyHealth.children} children`}
                                 {data.familyHealth.elderly > 0 && `, ${data.familyHealth.elderly} elderly`}
                             </div>
                         </div>
                         <div>
-                            <div style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Constraints</div>
+                            <div style={{ color: '#8B7355', marginBottom: 4 }}>Constraints</div>
                             <div style={{ fontWeight: 500 }}>Max {data.location.maxDistance} km</div>
-                            <div style={{ color: 'rgba(255,255,255,0.5)' }}>
+                            <div style={{ color: '#8B7355' }}>
                                 {data.location.monthlyBudget ? `Budget: ₹${parseInt(data.location.monthlyBudget).toLocaleString()}` : 'No budget limit'}
                             </div>
                         </div>
@@ -651,7 +651,7 @@ export default function ResultsPage() {
                                     <h3 className="modal-city-title">
                                         {selectedCity.city_name}
                                     </h3>
-                                    <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
+                                    <p style={{ margin: 0, color: '#6B5B3A', fontSize: 14 }}>
                                         {selectedCity.state} • {getAqiCategory(selectedCity.target_aqi)}
                                     </p>
                                 </div>
@@ -662,7 +662,7 @@ export default function ResultsPage() {
                                     style={{
                                         padding: '10px 20px',
                                         borderRadius: 8,
-                                        background: 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)',
+                                        background: 'linear-gradient(135deg, #5C4A2A 0%, #8B5CF6 100%)',
                                         color: 'white',
                                         fontSize: 14,
                                         fontWeight: 600,
@@ -679,7 +679,7 @@ export default function ResultsPage() {
                                         height: 40,
                                         borderRadius: 8,
                                         border: 'none',
-                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        backgroundColor: 'rgba(92,74,42,0.08)',
                                         cursor: 'pointer',
                                         fontSize: 20,
                                         display: 'flex',
@@ -694,7 +694,7 @@ export default function ResultsPage() {
 
                         <div style={{
                             display: 'flex',
-                            borderBottom: '1px solid rgba(255,255,255,0.1)',
+                            borderBottom: '1px solid rgba(92,74,42,0.08)',
                             overflowX: 'auto',
                             padding: '0 16px'
                         }}>
@@ -716,8 +716,8 @@ export default function ResultsPage() {
                                         cursor: 'pointer',
                                         fontSize: 14,
                                         fontWeight: activeTab === tab.id ? 600 : 400,
-                                        color: activeTab === tab.id ? '#7c3aed' : 'rgba(255,255,255,0.6)',
-                                        borderBottom: activeTab === tab.id ? '2px solid #7c3aed' : '2px solid transparent',
+                                        color: activeTab === tab.id ? '#5C4A2A' : 'rgba(255,255,255,0.6)',
+                                        borderBottom: activeTab === tab.id ? '2px solid #5C4A2A' : '2px solid transparent',
                                         whiteSpace: 'nowrap'
                                     }}
                                 >
@@ -731,7 +731,7 @@ export default function ResultsPage() {
                                 <div style={{
                                     textAlign: 'center',
                                     padding: 60,
-                                    color: 'rgba(255,255,255,0.6)'
+                                    color: '#6B5B3A'
                                 }}>
                                     <div className="loading-pulse" style={{ fontSize: 18 }}>
                                         🤖 AI is gathering information about {selectedCity.city_name}...
@@ -745,12 +745,12 @@ export default function ResultsPage() {
                                     {activeTab === 'security' && (
                                         <div>
                                             <div style={{ marginBottom: 24 }}>
-                                                <h4 style={{ margin: 0, marginBottom: 12, fontSize: 16, color: '#FFFFFF' }}>
+                                                <h4 style={{ margin: 0, marginBottom: 12, fontSize: 16, color: '#1A1208' }}>
                                                     Security Score
                                                 </h4>
                                                 <ScoreBar
                                                     score={cityDescription.crime_rate.security_score}
-                                                    color={cityDescription.crime_rate.security_score >= 7 ? '#7c3aed' : cityDescription.crime_rate.security_score >= 5 ? '#F59E0B' : '#EF4444'}
+                                                    color={cityDescription.crime_rate.security_score >= 7 ? '#5C4A2A' : cityDescription.crime_rate.security_score >= 5 ? '#F59E0B' : '#EF4444'}
                                                 />
                                             </div>
                                             <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 8 }}>
@@ -764,7 +764,7 @@ export default function ResultsPage() {
                                     {activeTab === 'education' && (
                                         <div>
                                             <div style={{ marginBottom: 24 }}>
-                                                <h4 style={{ margin: 0, marginBottom: 12, fontSize: 16, color: '#FFFFFF' }}>
+                                                <h4 style={{ margin: 0, marginBottom: 12, fontSize: 16, color: '#1A1208' }}>
                                                     Education Score
                                                 </h4>
                                                 <ScoreBar
@@ -775,7 +775,7 @@ export default function ResultsPage() {
                                             <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
                                                 {cityDescription.education.description}
                                             </div>
-                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
+                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: '#6B5B3A' }}>
                                                 Education Highlights
                                             </h5>
                                             <ul style={{ margin: 0, paddingLeft: 20, color: 'rgba(255,255,255,0.7)' }}>
@@ -790,7 +790,7 @@ export default function ResultsPage() {
 
                                     {activeTab === 'communities' && (
                                         <div>
-                                            <h4 style={{ margin: 0, marginBottom: 16, fontSize: 16, color: '#FFFFFF' }}>
+                                            <h4 style={{ margin: 0, marginBottom: 16, fontSize: 16, color: '#1A1208' }}>
                                                 Demographics & Communities
                                             </h4>
                                             <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
@@ -801,7 +801,7 @@ export default function ResultsPage() {
                                                     {cityDescription.communities.description}
                                                 </div>
                                             )}
-                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
+                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: '#6B5B3A' }}>
                                                 Community Highlights
                                             </h5>
                                             <ul style={{ margin: 0, paddingLeft: 20, color: 'rgba(255,255,255,0.7)' }}>
@@ -818,10 +818,10 @@ export default function ResultsPage() {
                                         <div>
                                             <div className="connectivity-grid">
                                                 <div className="card" style={{ padding: 20, textAlign: 'center' }}>
-                                                    <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed' }}>
+                                                    <div style={{ fontSize: 28, fontWeight: 700, color: '#5C4A2A' }}>
                                                         {cityDescription.connectivity.nearest_metro}
                                                     </div>
-                                                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+                                                    <div style={{ fontSize: 12, color: '#8B7355' }}>
                                                         Nearest Metro City
                                                     </div>
                                                 </div>
@@ -829,7 +829,7 @@ export default function ResultsPage() {
                                                     <div style={{ fontSize: 28, fontWeight: 700, color: '#3B82F6' }}>
                                                         {cityDescription.connectivity.distance_km} km
                                                     </div>
-                                                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+                                                    <div style={{ fontSize: 12, color: '#8B7355' }}>
                                                         Distance
                                                     </div>
                                                 </div>
@@ -837,7 +837,7 @@ export default function ResultsPage() {
                                             <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 12 }}>
                                                 {cityDescription.connectivity.description}
                                             </div>
-                                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
+                                            <div style={{ color: '#6B5B3A', fontSize: 14 }}>
                                                 <strong>Transport Options:</strong> {cityDescription.connectivity.transport_options}
                                             </div>
                                             {renderListSection('Key Factors', cityDescription.connectivity.key_factors)}
@@ -848,7 +848,7 @@ export default function ResultsPage() {
                                     {activeTab === 'hospitals' && (
                                         <div>
                                             <div style={{ marginBottom: 24 }}>
-                                                <h4 style={{ margin: 0, marginBottom: 12, fontSize: 16, color: '#FFFFFF' }}>
+                                                <h4 style={{ margin: 0, marginBottom: 12, fontSize: 16, color: '#1A1208' }}>
                                                     Healthcare Score
                                                 </h4>
                                                 <ScoreBar
@@ -859,7 +859,7 @@ export default function ResultsPage() {
                                             <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
                                                 {cityDescription.hospitals.description}
                                             </div>
-                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
+                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: '#6B5B3A' }}>
                                                 Major Healthcare Facilities
                                             </h5>
                                             <ul style={{ margin: 0, paddingLeft: 20, color: 'rgba(255,255,255,0.7)' }}>
@@ -876,30 +876,30 @@ export default function ResultsPage() {
                                         <div>
                                             <div className="geography-grid">
                                                 <div className="card" style={{ padding: 16, textAlign: 'center' }}>
-                                                    <div style={{ fontSize: 16, fontWeight: 600, color: '#7c3aed' }}>
+                                                    <div style={{ fontSize: 16, fontWeight: 600, color: '#5C4A2A' }}>
                                                         {cityDescription.geography.terrain}
                                                     </div>
-                                                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Terrain</div>
+                                                    <div style={{ fontSize: 11, color: '#8B7355' }}>Terrain</div>
                                                 </div>
                                                 <div className="card" style={{ padding: 16, textAlign: 'center' }}>
                                                     <div style={{ fontSize: 16, fontWeight: 600, color: '#3B82F6' }}>
                                                         {cityDescription.geography.climate}
                                                     </div>
-                                                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Climate</div>
+                                                    <div style={{ fontSize: 11, color: '#8B7355' }}>Climate</div>
                                                 </div>
                                                 {cityDescription.geography.elevation_m > 0 && (
                                                     <div className="card" style={{ padding: 16, textAlign: 'center' }}>
                                                         <div style={{ fontSize: 16, fontWeight: 600, color: '#8B5CF6' }}>
                                                             {cityDescription.geography.elevation_m}m
                                                         </div>
-                                                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Elevation</div>
+                                                        <div style={{ fontSize: 11, color: '#8B7355' }}>Elevation</div>
                                                     </div>
                                                 )}
                                             </div>
                                             <div style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 20 }}>
                                                 {cityDescription.geography.description}
                                             </div>
-                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
+                                            <h5 style={{ margin: 0, marginBottom: 12, fontSize: 14, color: '#6B5B3A' }}>
                                                 Natural Features
                                             </h5>
                                             <ul style={{ margin: 0, paddingLeft: 20, color: 'rgba(255,255,255,0.7)' }}>
@@ -918,7 +918,7 @@ export default function ResultsPage() {
                                     <div style={{ color: '#EF4444', fontSize: 16, fontWeight: 600, marginBottom: 8 }}>
                                         Failed to load city information
                                     </div>
-                                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 20 }}>
+                                    <p style={{ color: '#8B7355', fontSize: 14, marginBottom: 20 }}>
                                         The AI service may be temporarily unavailable. Please try again.
                                     </p>
                                     <button
@@ -930,7 +930,7 @@ export default function ResultsPage() {
                                     </button>
                                 </div>
                             ) : (
-                                <div style={{ textAlign: 'center', padding: 40, color: 'rgba(255,255,255,0.5)' }}>
+                                <div style={{ textAlign: 'center', padding: 40, color: '#8B7355' }}>
                                     Select a tab to view city information.
                                 </div>
                             )}

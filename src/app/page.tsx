@@ -4,51 +4,35 @@ import HowItWorks from '../components/HowItWorks';
 
 export default function Home() {
   return (
-    <main>
+    <main style={{ background: '#F5EFE0' }}>
       <Navbar />
       <Hero />
       <HowItWorks />
 
       {/* Footer */}
       <footer style={{
-        background: 'rgba(15, 23, 42, 0.5)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        color: 'white',
-        padding: '40px 16px',
-        textAlign: 'center',
-        borderTop: '1px solid rgba(255,255,255,0.08)'
+        background: '#2D2010',
+        color: 'rgba(245,239,224,0.6)',
+        padding: '32px 48px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 16,
       }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 10,
-            marginBottom: 16
+            width: 28, height: 28, background: '#5C4A2A', borderRadius: 7,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
           }}>
-            <div style={{
-              width: 32,
-              height: 32,
-              background: '#7c3aed',
-              borderRadius: 8,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 16,
-              flexShrink: 0
-            }}>
-              🌬️
-            </div>
-            <span style={{ fontWeight: 600, fontSize: 18 }}>AirSafe Move</span>
+            🌬️
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 8, padding: '0 16px' }}>
-            AI-powered migration advisory for healthier living
-          </p>
-          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>
-            © AirSafe Move.
-          </p>
+          <span style={{ fontWeight: 700, fontSize: 15, color: '#F5EFE0' }}>AirSafe Move</span>
         </div>
+        <p style={{ fontSize: 13, margin: 0 }}>
+          AI-powered migration advisory for healthier living
+        </p>
+        <p style={{ fontSize: 12, margin: 0 }}>© {new Date().getFullYear()} AirSafe Move</p>
       </footer>
     </main>
   );

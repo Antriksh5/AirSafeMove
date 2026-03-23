@@ -2,17 +2,17 @@
 
 :root {
   /* Primary Colors */
-  --primary-teal: #7c3aed;
-  --primary-teal-light: #9333ea;
-  --primary-teal-dark: #6d28d9;
+  --primary-teal: #5C4A2A;
+  --primary-teal-light: #8B6914;
+  --primary-teal-dark: #2C1F0E;
 
   /* Secondary Colors */
   --secondary-blue: #1E3A5F;
   --secondary-blue-light: #2C4F7C;
 
   /* Accent Colors */
-  --accent-cyan: #7c3aed;
-  --accent-green: #7c3aed;
+  --accent-cyan: #705833;
+  --accent-green: #8B6914;
 
   /* Neutral Colors */
   --gray-50: #F8FAFC;
@@ -32,22 +32,22 @@
   --aqi-unhealthy: #F97316;
   --aqi-hazardous: #EF4444;
 
-  /* Glass Theme */
-  --glass-bg: rgba(255, 255, 255, 0.07);
-  --glass-bg-strong: rgba(255, 255, 255, 0.12);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-border-strong: rgba(255, 255, 255, 0.2);
-  --glass-blur: blur(16px);
-  --glass-blur-strong: blur(24px);
+  /* Glass Theme / Now Warm Layout */
+  --glass-bg: #FFFBF2;
+  --glass-bg-strong: #F5EFE0;
+  --glass-border: rgba(92, 74, 42, 0.15);
+  --glass-border-strong: rgba(92, 74, 42, 0.25);
+  --glass-blur: blur(0px);
+  --glass-blur-strong: blur(0px);
 
-  /* Text Colors for dark theme */
-  --text-primary: #FFFFFF;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-muted: rgba(255, 255, 255, 0.5);
+  /* Text Colors for light theme */
+  --text-primary: #1A1208;
+  --text-secondary: #6B5B3A;
+  --text-muted: #8B7355;
 
   /* Background */
-  --background: transparent;
-  --foreground: #FFFFFF;
+  --background: #F5EFE0;
+  --foreground: #1A1208;
 }
 
 @theme inline {
@@ -82,7 +82,7 @@ body {
 /* Button Styles */
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-teal) 0%, var(--accent-cyan) 100%);
-  color: white;
+  color: var(--background);
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -98,7 +98,7 @@ body {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 4px 20px rgba(92, 74, 42, 0.4);
 }
 
 .btn-secondary {
@@ -183,7 +183,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: white;
+  background: var(--background);
   border: 3px solid var(--primary-teal);
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -193,7 +193,7 @@ input[type="range"]::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: white;
+  background: var(--background);
   border: 3px solid var(--primary-teal);
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -206,7 +206,7 @@ input[type="range"]::-moz-range-thumb {
   border: 1px solid var(--glass-border-strong);
   border-radius: 8px;
   font-size: 16px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--background);
   color: var(--text-primary);
   transition: border-color 0.2s ease;
 }
@@ -214,7 +214,7 @@ input[type="range"]::-moz-range-thumb {
 .form-input:focus {
   outline: none;
   border-color: var(--primary-teal);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+  box-shadow: 0 0 0 3px rgba(92, 74, 42, 0.2);
 }
 
 .form-input::placeholder {
@@ -227,7 +227,7 @@ input[type="range"]::-moz-range-thumb {
   border: 1px solid var(--glass-border-strong);
   border-radius: 8px;
   font-size: 16px;
-  background: rgba(255, 255, 255, 0.08) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 16px center;
+  background: var(--background) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231A1208' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 16px center;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -241,8 +241,8 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .form-select option {
-  background: #1E293B;
-  color: white;
+  background: var(--background);
+  color: var(--text-primary);
 }
 
 /* Checkbox Card Styles */
@@ -255,17 +255,17 @@ input[type="range"]::-moz-range-thumb {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(92, 74, 42, 0.04);
 }
 
 .checkbox-card:hover {
   border-color: var(--primary-teal);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(92, 74, 42, 0.08);
 }
 
 .checkbox-card.selected {
   border-color: var(--primary-teal);
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(92, 74, 42, 0.1);
 }
 
 .checkbox-card input[type="checkbox"] {
@@ -291,7 +291,7 @@ input[type="range"]::-moz-range-thumb {
 
 .checkbox-card.selected .checkbox-circle::after {
   content: "✓";
-  color: white;
+  color: var(--background);
   font-size: 12px;
   font-weight: 700;
 }
@@ -1250,6 +1250,62 @@ input[type="range"]::-moz-range-thumb {
 
   .connectivity-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   WARM LANDING PAGE — RESPONSIVE
+   ============================================ */
+
+/* Body / root background override for landing */
+body {
+  background: #F5EFE0;
+}
+
+/* Hero two-column → single column on tablet/mobile */
+@media (max-width: 900px) {
+  [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Steps grid: 4-col → 2-col → 1-col */
+@media (max-width: 1024px) {
+  [style*="repeat(4, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 600px) {
+  [style*="repeat(4, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Features grid: 3-col → 2-col → 1-col */
+@media (max-width: 900px) {
+  [style*="repeat(3, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 600px) {
+  [style*="repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Section padding on mobile */
+@media (max-width: 768px) {
+  section[style*="padding: 100px 48px"],
+  section[style*="padding: '100px 48px'"] {
+    padding: 64px 24px !important;
+  }
+  header[style*="padding: '0 48px'"] {
+    padding: 0 20px !important;
+  }
+  footer[style*="padding: '32px 48px'"] {
+    padding: 28px 24px !important;
+    flex-direction: column !important;
+    text-align: center !important;
   }
 }
 
