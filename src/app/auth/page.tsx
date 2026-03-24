@@ -64,49 +64,23 @@ export default function AuthPage() {
     return (
         <>
         < Navbar />
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div className="min-h-screen flex flex-col">
             {/* Header */}
             
 
             {/* Auth Form */}
-            <div style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '40px 16px',
-                backgroundColor: '#F5EFE0',
-            }}>
-                <div className="card" style={{
-                    maxWidth: 440,
-                    width: '100%',
-                    padding: '48px 40px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                }}>
+            <div className="flex-1 flex items-center justify-center py-10 px-4 bg-[#F5EFE0]">
+                <div className="card max-w-[440px] w-full py-12 px-10 relative overflow-hidden">
                     {/* Decorative gradient bar */}
-                    <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: 4,
-                        background: 'var(--primary-teal)',
-                    }} />
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-[var(--primary-teal)]" />
 
                     {/* Icon */}
-                    <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                    <div className="text-center mb-6">
 
-                        <h1 style={{
-                            fontSize: 28,
-                            fontWeight: 700,
-                            color: 'var(--text-primary)',
-                            margin: '0 0 8px 0',
-                            fontFamily: 'var(--font-serif)'
-                        }}>
+                        <h1 className="text-[28px] font-bold text-[var(--text-primary)] mb-2 font-[var(--font-serif)]">
                             {isSignUp ? 'Create Account' : 'Welcome Back'}
                         </h1>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: 15, margin: 0 }}>
+                        <p className="text-[var(--text-secondary)] text-[15px] m-0">
                             {isSignUp
                                 ? ''
                                 : 'Sign in to access your saved recommendations'}
@@ -115,28 +89,12 @@ export default function AuthPage() {
 
                     {/* Error/Success Messages */}
                     {error && (
-                        <div style={{
-                            padding: '12px 16px',
-                            borderRadius: 8,
-                            backgroundColor: 'rgba(239, 68, 68, 0.08)',
-                            border: '1px solid rgba(239, 68, 68, 0.2)',
-                            color: '#DC2626',
-                            fontSize: 14,
-                            marginBottom: 20,
-                        }}>
+                        <div className="px-4 py-3 rounded-lg bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] text-[#DC2626] text-[14px] mb-5">
                             ⚠️ {error}
                         </div>
                     )}
                     {successMessage && (
-                        <div style={{
-                            padding: '12px 16px',
-                            borderRadius: 8,
-                            backgroundColor: 'rgba(16, 185, 129, 0.08)',
-                            border: '1px solid rgba(16, 185, 129, 0.2)',
-                            color: '#059669',
-                            fontSize: 14,
-                            marginBottom: 20,
-                        }}>
+                        <div className="px-4 py-3 rounded-lg bg-[rgba(16,185,129,0.08)] border border-[rgba(16,185,129,0.2)] text-[#059669] text-[14px] mb-5">
                             ✅ {successMessage}
                         </div>
                     )}
@@ -144,14 +102,8 @@ export default function AuthPage() {
                     {/* Form */}
                     <form onSubmit={handleSubmit}>
                         {isSignUp && (
-                            <div style={{ marginBottom: 20 }}>
-                                <label style={{
-                                    display: 'block',
-                                    fontWeight: 600,
-                                    marginBottom: 8,
-                                    color: 'var(--text-primary)',
-                                    fontSize: 14,
-                                }}>
+                            <div className="mb-5">
+                                <label className="block font-semibold mb-2 text-[var(--text-primary)] text-[14px]">
                                     Full Name
                                 </label>
                                 <input
@@ -166,14 +118,8 @@ export default function AuthPage() {
                             </div>
                         )}
 
-                        <div style={{ marginBottom: 20 }}>
-                            <label style={{
-                                display: 'block',
-                                fontWeight: 600,
-                                marginBottom: 8,
-                                color: 'var(--text-primary)',
-                                fontSize: 14,
-                            }}>
+                        <div className="mb-5">
+                            <label className="block font-semibold mb-2 text-[var(--text-primary)] text-[14px]">
                                 Email Address
                             </label>
                             <input
@@ -187,14 +133,8 @@ export default function AuthPage() {
                             />
                         </div>
 
-                        <div style={{ marginBottom: 28 }}>
-                            <label style={{
-                                display: 'block',
-                                fontWeight: 600,
-                                marginBottom: 8,
-                                color: 'var(--text-primary)',
-                                fontSize: 14,
-                            }}>
+                        <div className="mb-7">
+                            <label className="block font-semibold mb-2 text-[var(--text-primary)] text-[14px]">
                                 Password
                             </label>
                             <input
@@ -209,22 +149,12 @@ export default function AuthPage() {
                             />
                         </div>
 
-                            <div style={{justifyContent: 'center', display: 'flex'}}>
+                            <div className="flex justify-center">
                         <button
                             type="submit"
-                            className="btn-primary"
+                            className={`btn-primary flex justify-center w-[9rem] py-[14px] px-3 text-[16px] font-semibold ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                             disabled={isSubmitting}
                             id="auth-submit"
-                            style={{
-                                justifyContent: 'center',
-                                display: 'flex',
-                                width: '9rem',
-                                padding: '14px 12px',
-                                fontSize: 16,
-                                fontWeight: 600,
-                                opacity: isSubmitting ? 0.7 : 1,
-                                cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                            }}
                         >
                             {isSubmitting
                                 ? '⏳ Processing...'
@@ -235,13 +165,8 @@ export default function AuthPage() {
                     </div>
                     </form>
                     {/* Toggle */}
-                    <div style={{
-                        textAlign: 'center',
-                        marginTop: 24,
-                        paddingTop: 24,
-                        borderTop: '1px solid var(--glass-border)',
-                    }}>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: 14, margin: 0 }}>
+                    <div className="text-center mt-6 pt-6 border-t border-[var(--glass-border)]">
+                        <p className="text-[var(--text-secondary)] text-[14px] m-0">
                             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
                             
                             <button
@@ -252,17 +177,7 @@ export default function AuthPage() {
                                     setSuccessMessage('');
                                 }}
                                 id="auth-toggle"
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--primary-teal)',
-                                    justifyContent: 'center',
-                                    fontWeight: 600,
-                                    cursor: 'pointer',
-                                    fontSize: 14,
-                                    textDecoration: 'underline',
-                                    textUnderlineOffset: 2,
-                                }}
+                                className="bg-transparent border-none text-[var(--primary-teal)] font-semibold cursor-pointer text-[14px] underline underline-offset-2"
                             >
                                 {isSignUp ? 'Sign In' : 'Create Account'}
                             </button>
