@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../../context/AuthContext';
+import { CityDescription, fetchCityDescription, CityRecommendation } from '../../../lib/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
@@ -43,8 +44,6 @@ interface CityExploreData {
     };
 }
 
-type TabId = 'areas' | 'education' | 'healthcare' | 'food' | 'urban';
-
 export default function CityExplorePage() {
     const params = useParams();
     const searchParams = useSearchParams();
@@ -55,9 +54,12 @@ export default function CityExplorePage() {
     const state = searchParams.get('state') || '';
 
     const [data, setData] = useState<CityExploreData | null>(null);
+    const [descData, setDescData] = useState<CityDescription | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<TabId>('areas');
+
+    const [userProfession, setUserProfession] = useState<string>('your profession');
+    const [nextCity, setNextCity] = useState<CityRecommendation | null>(null);
 
     useEffect(() => {
         if (!authLoading && !user) router.push('/auth');
@@ -69,12 +71,39 @@ export default function CityExplorePage() {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch(
-                    `${API_URL}/api/city-explore/${encodeURIComponent(cityName)}?state=${encodeURIComponent(state)}`
-                );
-                if (!res.ok) throw new Error('Failed to fetch city explore data');
-                const json = await res.json();
-                setData(json.data);
+                // Read from session storage
+                const storedResults = sessionStorage.getItem('airsafe_results');
+                let hasChildren = false;
+                let hasElderly = false;
+                
+                if (storedResults) {
+                    const parsedResults = JSON.parse(storedResults);
+                    hasChildren = parsedResults?.familyHealth?.children > 0;
+                    hasElderly = parsedResults?.familyHealth?.elderly > 0;
+                    setUserProfession(parsedResults?.userProfile?.profession || 'your profession');
+                    
+                    const recommendations: CityRecommendation[] = parsedResults?.recommendations || [];
+                    const currentIndex = recommendations.findIndex(r => r.city_name === cityName);
+                    if (currentIndex >= 0 && currentIndex < recommendations.length - 1) {
+                        setNextCity(recommendations[currentIndex + 1]);
+                    }
+                }
+
+                // Fetch both API endpoints concurrently
+                const [exploreRes, descRes] = await Promise.all([
+                    fetch(`${API_URL}/api/city-explore/${encodeURIComponent(cityName)}?state=${encodeURIComponent(state)}`),
+                    fetchCityDescription(cityName, hasChildren, hasElderly).catch(e => {
+                        console.error("Failed to fetch CityDescription", e);
+                        return null;
+                    })
+                ]);
+                
+                if (!exploreRes.ok) throw new Error('Failed to fetch city explore data');
+                const exploreJson = await exploreRes.json();
+                
+                setData(exploreJson.data);
+                if (descRes) setDescData(descRes);
+
             } catch (e: any) {
                 setError(e.message || 'Something went wrong.');
             } finally {
@@ -84,233 +113,361 @@ export default function CityExplorePage() {
         fetchData();
     }, [cityName, state, authLoading, user]);
 
-    const tabs: { id: TabId; label: string; emoji: string }[] = [
-        { id: 'areas', label: 'Best Areas', emoji: '🏘️' },
-        { id: 'education', label: 'Education', emoji: '📚' },
-        { id: 'healthcare', label: 'Healthcare', emoji: '🏥' },
-        { id: 'food', label: 'Hotels & Food', emoji: '🍽️' },
-        { id: 'urban', label: 'Urban Life', emoji: '🌆' },
-    ];
-
     if (authLoading || loading) {
         return (
-            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, background: '#FDFBF7' }}>
                 <div style={{ fontSize: 40 }}>🔍</div>
-                <div className="loading-pulse" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }}>
+                <div className="loading-pulse" style={{ fontSize: 18, color: '#4A3B2A', fontFamily: "'Libre Franklin', sans-serif" }}>
                     AIrSafe AI is exploring {cityName}...
                 </div>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>Gathering areas, schools, hospitals & more</p>
+                <p style={{ color: '#8B7355', fontSize: 14, fontFamily: "'Libre Franklin', sans-serif" }}>Gathering city details & areas...</p>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, background: '#FDFBF7' }}>
                 <div style={{ fontSize: 40 }}>⚠️</div>
-                <div style={{ color: '#EF4444', fontSize: 18 }}>{error}</div>
-                <button onClick={() => router.back()} style={{ marginTop: 16, padding: '10px 24px', background: '#7c3aed', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>
+                <div style={{ color: '#EF4444', fontSize: 18, fontFamily: "'Libre Franklin', sans-serif" }}>{error}</div>
+                <button onClick={() => router.back()} style={{ marginTop: 16, padding: '10px 24px', background: '#2C4C3B', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontFamily: "'Libre Franklin', sans-serif" }}>
                     ← Go Back
                 </button>
             </div>
         );
     }
 
+    const sectionTitleStyle: React.CSSProperties = {
+        fontSize: 24, 
+        fontWeight: 600, 
+        color: '#4A3B2A', 
+        marginBottom: 20, 
+        borderBottom: '1px solid #EAE6DF', 
+        paddingBottom: 12,
+        fontFamily: "'Libre Baskerville', serif"
+    };
+
+    const cardStyle: React.CSSProperties = {
+        background: 'white',
+        border: '1px solid #EAE6DF',
+        borderRadius: 12,
+        padding: 24,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+    };
+
+    const textStyle: React.CSSProperties = {
+        color: '#4A3B2A', 
+        fontSize: 15, 
+        lineHeight: 1.7, 
+        margin: 0,
+        fontFamily: "'Libre Franklin', sans-serif"
+    };
+
+    const mapPlaceholderStyle: React.CSSProperties = {
+        height: 350, 
+        marginTop: 24, 
+        background: '#FAF8F5', 
+        border: '1px dashed #D6CFC4', 
+        borderRadius: 16, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center'
+    };
+
     return (
-        <div style={{ minHeight: '100vh' }}>
+        <div style={{ minHeight: '100vh', paddingBottom: 100, background: '#FDFBF7', fontFamily: "'Libre Franklin', sans-serif", color: '#4A3B2A' }}>
             {/* Header */}
-            <header className="nav-header">
-                <Link href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
-                    <div style={{ width: 32, height: 32, background: '#7c3aed', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 16 }}>🌬️</div>
-                    <span>AirSafe Move</span>
+            <header style={{ padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #EAE6DF' }}>
+                <Link href="/" style={{ textDecoration: 'none' }}>
+                    <img 
+                        src="/Logo.png" 
+                        alt="AirSafe Move" 
+                        style={{ height: 32, width: 'auto', objectFit: 'contain' }} 
+                    />
                 </Link>
-                <button onClick={() => router.back()} className="btn-secondary">
+                <button onClick={() => router.back()} style={{ background: 'transparent', padding: '10px 20px', border: '1px solid rgba(139,115,85,0.2)', borderRadius: 8, color: '#4A3B2A', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: "'Libre Franklin', sans-serif" }}>
                     ← Back to Results
                 </button>
             </header>
 
-            <div className="results-container">
+            <div style={{ maxWidth: 900, margin: '0 auto', paddingTop: 60, paddingLeft: 20, paddingRight: 20 }}>
                 {/* Hero */}
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <div className="badge badge-teal" style={{ marginBottom: 16 }}>🤖 AI City Guide</div>
-                    <h1 className="results-title" style={{ marginBottom: 8 }}>Explore {cityName}</h1>
-                    {state && <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, margin: 0 }}>{state}</p>}
+                <div style={{ textAlign: 'center', marginBottom: 60 }}>
+                    <div style={{ display: 'inline-block', background: '#F2EDE4', color: '#8B7355', padding: '6px 16px', borderRadius: 20, fontSize: 12, fontWeight: 600, letterSpacing: 0.5, marginBottom: 16, fontFamily: "'Libre Franklin', sans-serif" }}>
+                        ✧ AI CITY GUIDE ✧
+                    </div>
+                    <h1 style={{ fontSize: 40, fontWeight: 700, color: '#4A3B2A', margin: '0 0 12px 0', fontFamily: "'Libre Baskerville', serif" }}>
+                        Explore {cityName}
+                    </h1>
+                    {state && <p style={{ color: '#8B7355', fontSize: 18, margin: 0, fontFamily: "'Libre Franklin', sans-serif" }}>{state}</p>}
                 </div>
 
-                {/* Tabs */}
-                <div style={{ display: 'flex', gap: 8, marginBottom: 32, overflowX: 'auto', paddingBottom: 4 }}>
-                    {tabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            style={{
-                                padding: '10px 20px',
-                                borderRadius: 40,
-                                border: activeTab === tab.id ? '2px solid #7c3aed' : '1px solid rgba(255,255,255,0.15)',
-                                background: activeTab === tab.id ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.04)',
-                                color: activeTab === tab.id ? '#a78bfa' : 'rgba(255,255,255,0.6)',
-                                fontWeight: activeTab === tab.id ? 700 : 500,
-                                fontSize: 14,
-                                cursor: 'pointer',
-                                whiteSpace: 'nowrap',
+                {/* 1) About */}
+                <section style={{ marginBottom: 60 }}>
+                    <h2 style={sectionTitleStyle}>1. About {cityName}</h2>
+                    <p style={textStyle}>
+                        {descData?.geography?.description || `Discover the unique lifestyle, communities, and opportunities waiting for you in ${cityName}. Let our AI-driven insights guide your relocation.`}
+                    </p>
+                </section>
+
+                {/* 2) Housing and Accommodation */}
+                {(data?.best_areas && data.best_areas.length > 0) && (
+                    <section style={{ marginBottom: 60 }}>
+                        <h2 style={sectionTitleStyle}>2. Housing and Accomodation</h2>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            {data.best_areas.map((area, i) => (
+                                <div key={i} style={{ ...cardStyle, borderLeft: i === 0 ? '4px solid #8B7355' : '1px solid #EAE6DF' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: i === 0 ? '#8B7355' : '#F2EDE4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: i === 0 ? 'white' : '#8B7355' }}>#{i + 1}</div>
+                                        <div style={{ fontWeight: 600, fontSize: 18, color: '#4A3B2A', fontFamily: "'Libre Baskerville', serif" }}>{area.name}</div>
+                                    </div>
+                                    <p style={{ ...textStyle, marginBottom: 16, color: '#6A5C4A' }}>{area.description}</p>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                        {area.highlights.map((h, j) => (
+                                            <span key={j} style={{ padding: '6px 14px', borderRadius: 20, background: '#F8F5F0', border: '1px solid #EAE6DF', color: '#8B7355', fontSize: 12, fontWeight: 500, fontFamily: "'Libre Franklin', sans-serif" }}>✓ {h}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        {/* Map Placeholder */}
+                        <div style={mapPlaceholderStyle}>
+                            <span style={{ fontSize: 32, marginBottom: 8 }}>🗺️</span>
+                            <span style={{ color: '#8B7355', fontSize: 14, fontWeight: 500 }}>Map Integration Placeholder - Housing</span>
+                        </div>
+                    </section>
+                )}
+
+                {/* 3) Profession */}
+                <section style={{ marginBottom: 60 }}>
+                    <h2 style={sectionTitleStyle}>3. Profession</h2>
+                    <div style={cardStyle}>
+                        <h3 style={{ fontSize: 18, color: '#4A3B2A', marginBottom: 12, fontWeight: 600, fontFamily: "'Libre Baskerville', serif" }}>Job Market Analysis for {userProfession}</h3>
+                        <p style={{ ...textStyle, color: '#6A5C4A' }}>
+                            {cityName} offers a growing ecosystem for professionals in the <strong>{userProfession}</strong> sector. With the expanding local infrastructure and connectivity, finding matching career opportunities is highly favorable in this region.
+                        </p>
+                    </div>
+                </section>
+
+                {/* 4) Healthcare */}
+                {(data?.hospitals && data.hospitals.length > 0) && (
+                    <section style={{ marginBottom: 60 }}>
+                        <h2 style={sectionTitleStyle}>4. Healthcare</h2>
+                        
+                        {descData?.hospitals?.description && (
+                            <p style={{ ...textStyle, marginBottom: 24, padding: '16px 24px', background: 'white', borderRadius: 12, border: '1px solid #EAE6DF' }}>
+                                💡 {descData.hospitals.description}
+                            </p>
+                        )}
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                            {data.hospitals.map((h, i) => (
+                                <div key={i} style={cardStyle}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                                        <div style={{ fontWeight: 600, fontSize: 16, color: '#4A3B2A', flex: 1, fontFamily: "'Libre Baskerville', serif" }}>{h.name}</div>
+                                        {h.specialty && (
+                                            <span style={{ padding: '4px 10px', borderRadius: 12, background: '#E8F5E9', border: '1px solid #C8E6C9', color: '#2E7D32', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', marginLeft: 8 }}>{h.specialty}</span>
+                                        )}
+                                    </div>
+                                    <p style={{ ...textStyle, fontSize: 14, lineHeight: 1.6, color: '#6A5C4A' }}>{h.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                        {/* Map Placeholder */}
+                        <div style={mapPlaceholderStyle}>
+                            <span style={{ fontSize: 32, marginBottom: 8 }}>🗺️</span>
+                            <span style={{ color: '#8B7355', fontSize: 14, fontWeight: 500 }}>Map Integration Placeholder - Healthcare</span>
+                        </div>
+                    </section>
+                )}
+
+                {/* 5) Education */}
+                {(data?.schools && data.schools.length > 0) && (
+                    <section style={{ marginBottom: 60 }}>
+                        <h2 style={sectionTitleStyle}>5. Education</h2>
+                        
+                        {descData?.education?.description && (
+                            <p style={{ ...textStyle, marginBottom: 24, padding: '16px 24px', background: 'white', borderRadius: 12, border: '1px solid #EAE6DF' }}>
+                                💡 {descData.education.description}
+                            </p>
+                        )}
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                            {data.schools.map((s, i) => (
+                                <div key={i} style={cardStyle}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                                        <div style={{ fontWeight: 600, fontSize: 16, color: '#4A3B2A', flex: 1, fontFamily: "'Libre Baskerville', serif" }}>{s.name}</div>
+                                        {s.type && (
+                                            <span style={{ padding: '4px 10px', borderRadius: 12, background: '#E3F2FD', border: '1px solid #BBDEFB', color: '#1565C0', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', marginLeft: 8 }}>{s.type}</span>
+                                        )}
+                                    </div>
+                                    <p style={{ ...textStyle, fontSize: 14, lineHeight: 1.6, color: '#6A5C4A' }}>{s.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                        {/* Map Placeholder */}
+                        <div style={mapPlaceholderStyle}>
+                            <span style={{ fontSize: 32, marginBottom: 8 }}>🗺️</span>
+                            <span style={{ color: '#8B7355', fontSize: 14, fontWeight: 500 }}>Map Integration Placeholder - Education</span>
+                        </div>
+                    </section>
+                )}
+
+                {/* 6) Connectivity */}
+                {descData?.connectivity && (
+                    <section style={{ marginBottom: 60 }}>
+                        <h2 style={sectionTitleStyle}>6. Connectivity</h2>
+                        <div style={cardStyle}>
+                            <p style={{ ...textStyle, marginBottom: 24, color: '#6A5C4A' }}>
+                                {descData.connectivity.description}
+                            </p>
+                            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+                                <div style={{ background: '#F8F5F0', padding: '16px 24px', borderRadius: 12, flex: '1 1 200px' }}>
+                                    <div style={{ fontSize: 12, color: '#8B7355', textTransform: 'uppercase', marginBottom: 6, fontWeight: 600, letterSpacing: 0.5 }}>Nearest Metro</div>
+                                    <div style={{ fontWeight: 600, color: '#4A3B2A', fontSize: 16 }}>{descData.connectivity.nearest_metro} <span style={{color: '#8B7355', fontSize: 14, fontWeight: 400}}>({descData.connectivity.distance_km} km)</span></div>
+                                </div>
+                                <div style={{ background: '#F8F5F0', padding: '16px 24px', borderRadius: 12, flex: '1 1 200px' }}>
+                                    <div style={{ fontSize: 12, color: '#8B7355', textTransform: 'uppercase', marginBottom: 6, fontWeight: 600, letterSpacing: 0.5 }}>Transport Options</div>
+                                    <div style={{ fontWeight: 600, color: '#4A3B2A', fontSize: 16 }}>{descData.connectivity.transport_options}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* 7) Community */}
+                {descData?.communities && (
+                    <section style={{ marginBottom: 60 }}>
+                        <h2 style={sectionTitleStyle}>7. Community</h2>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                            <div style={{ ...cardStyle }}>
+                                <h3 style={{ fontSize: 16, color: '#8B7355', textTransform: 'uppercase', marginBottom: 16, fontWeight: 600, letterSpacing: 0.5 }}>Demographics</h3>
+                                <p style={{ ...textStyle, color: '#6A5C4A', marginBottom: 20 }}>
+                                    {descData.communities.demographics}
+                                </p>
+                                {descData.communities.description && (
+                                    <p style={{ ...textStyle, color: '#6A5C4A' }}>
+                                        {descData.communities.description}
+                                    </p>
+                                )}
+                            </div>
+                            <div style={cardStyle}>
+                                <h3 style={{ fontSize: 16, color: '#8B7355', textTransform: 'uppercase', marginBottom: 16, fontWeight: 600, letterSpacing: 0.5 }}>Community Highlights</h3>
+                                <ul style={{ margin: 0, paddingLeft: 20, color: '#6A5C4A', fontSize: 15, lineHeight: 1.6, fontFamily: "'Libre Franklin', sans-serif" }}>
+                                    {descData.communities.highlights.map((h, i) => (
+                                        <li key={i} style={{ marginBottom: 12 }}>{h}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* 8) Geography */}
+                {descData?.geography && (
+                    <section style={{ marginBottom: 60 }}>
+                        <h2 style={sectionTitleStyle}>8. Geography</h2>
+                        <div style={cardStyle}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
+                                <div style={{ background: '#F8F5F0', padding: '16px', borderRadius: 12 }}>
+                                    <div style={{ fontSize: 12, color: '#8B7355', textTransform: 'uppercase', marginBottom: 6, fontWeight: 600 }}>Terrain</div>
+                                    <div style={{ fontWeight: 600, color: '#4A3B2A', fontSize: 16 }}>{descData.geography.terrain}</div>
+                                </div>
+                                <div style={{ background: '#F8F5F0', padding: '16px', borderRadius: 12 }}>
+                                    <div style={{ fontSize: 12, color: '#8B7355', textTransform: 'uppercase', marginBottom: 6, fontWeight: 600 }}>Climate</div>
+                                    <div style={{ fontWeight: 600, color: '#4A3B2A', fontSize: 16 }}>{descData.geography.climate}</div>
+                                </div>
+                                <div style={{ background: '#F8F5F0', padding: '16px', borderRadius: 12 }}>
+                                    <div style={{ fontSize: 12, color: '#8B7355', textTransform: 'uppercase', marginBottom: 6, fontWeight: 600 }}>Elevation</div>
+                                    <div style={{ fontWeight: 600, color: '#4A3B2A', fontSize: 16 }}>{descData.geography.elevation_m} meters</div>
+                                </div>
+                            </div>
+                            <h3 style={{ fontSize: 14, color: '#8B7355', textTransform: 'uppercase', marginBottom: 16, fontWeight: 600 }}>Geographical Features</h3>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                                {descData.geography.features.map((f, i) => (
+                                    <span key={i} style={{ padding: '6px 16px', borderRadius: 20, background: 'white', border: '1px solid #EAE6DF', color: '#6A5C4A', fontSize: 13, fontWeight: 500, fontFamily: "'Libre Franklin', sans-serif", boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>{f}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* 9) Security */}
+                {descData?.crime_rate && (
+                    <section style={{ marginBottom: 60 }}>
+                        <h2 style={sectionTitleStyle}>9. Security</h2>
+                        <div style={{ ...cardStyle, borderTop: '4px solid #2C4C3B' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 20 }}>
+                                <div style={{ width: 64, height: 64, borderRadius: 32, background: '#E8F5E9', border: '2px solid #C8E6C9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 700, color: '#2E7D32', fontFamily: "'Libre Baskerville', serif" }}>{descData.crime_rate.security_score}</div>
+                                <div>
+                                    <div style={{ fontSize: 18, color: '#4A3B2A', fontWeight: 600, fontFamily: "'Libre Baskerville', serif" }}>Overall Security Score</div>
+                                    <div style={{ fontSize: 13, color: '#8B7355', marginTop: 4 }}>Based on local crime statistics and reporting</div>
+                                </div>
+                            </div>
+                            <p style={{ ...textStyle, color: '#6A5C4A', padding: '16px', background: '#F8F5F0', borderRadius: 12 }}>
+                                {descData.crime_rate.description}
+                            </p>
+                        </div>
+                    </section>
+                )}
+
+                {/* Action Bar / Next Button */}
+                <div style={{ 
+                    marginTop: 80, 
+                    padding: 40, 
+                    background: 'white', 
+                    border: '1px solid #EAE6DF', 
+                    borderRadius: 16, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 20,
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.04)'
+                }}>
+                    <div>
+                        <h3 style={{ margin: 0, fontSize: 24, color: '#4A3B2A', marginBottom: 8, fontFamily: "'Libre Baskerville', serif" }}>Ready to discover more?</h3>
+                        <p style={{ margin: 0, color: '#8B7355', fontSize: 15 }}>We have more cities tailored perfectly to your profile.</p>
+                    </div>
+                    {nextCity ? (
+                        <Link 
+                            href={`/city/${encodeURIComponent(nextCity.city_name)}?state=${encodeURIComponent(nextCity.state || '')}`}
+                            style={{ 
+                                padding: '14px 32px', 
+                                background: '#2C4C3B', /* Dark Teal Primary Color */
+                                color: 'white', 
+                                textDecoration: 'none', 
+                                borderRadius: 8, 
+                                fontWeight: 600,
+                                fontSize: 16,
                                 transition: 'all 0.2s',
+                                whiteSpace: 'nowrap',
+                                boxShadow: '0 4px 12px rgba(44, 76, 59, 0.2)'
                             }}
                         >
-                            {tab.emoji} {tab.label}
-                        </button>
-                    ))}
+                            Next Recommended City →
+                        </Link>
+                    ) : (
+                        <Link 
+                            href="/results"
+                            style={{ 
+                                padding: '14px 32px', 
+                                background: 'white', 
+                                color: '#4A3B2A', 
+                                border: '1px solid #EAE6DF',
+                                textDecoration: 'none', 
+                                borderRadius: 8, 
+                                fontWeight: 600,
+                                fontSize: 16,
+                                transition: 'all 0.2s',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            ← Back to All Results
+                        </Link>
+                    )}
                 </div>
-
-                {data && (
-                    <>
-                        {/* BEST AREAS */}
-                        {activeTab === 'areas' && (
-                            <div>
-                                <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 20 }}>🏘️ Top 5 Residential Areas</h2>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                                    {data.best_areas.map((area, i) => (
-                                        <div key={i} className="card" style={{ padding: 24, borderLeft: i === 0 ? '3px solid #7c3aed' : undefined }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                                                <div style={{ width: 32, height: 32, borderRadius: 8, background: i === 0 ? '#7c3aed' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: i === 0 ? 'white' : 'rgba(255,255,255,0.6)' }}>#{i + 1}</div>
-                                                <div style={{ fontWeight: 700, fontSize: 18, color: '#fff' }}>{area.name}</div>
-                                            </div>
-                                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.7, margin: '0 0 12px 0' }}>{area.description}</p>
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                                {area.highlights.map((h, j) => (
-                                                    <span key={j} style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.25)', color: '#a78bfa', fontSize: 12, fontWeight: 500 }}>✓ {h}</span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* EDUCATION */}
-                        {activeTab === 'education' && (
-                            <div>
-                                <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 20 }}>📚 Top Educational Institutions</h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                                    {data.schools.map((s, i) => (
-                                        <div key={i} className="card" style={{ padding: 24 }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                                                <div style={{ fontWeight: 700, fontSize: 16, color: '#fff', flex: 1 }}>{s.name}</div>
-                                                {s.type && (
-                                                    <span style={{ padding: '3px 10px', borderRadius: 12, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)', color: '#60a5fa', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', marginLeft: 8 }}>{s.type}</span>
-                                                )}
-                                            </div>
-                                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, lineHeight: 1.6, margin: 0 }}>{s.description}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* HEALTHCARE */}
-                        {activeTab === 'healthcare' && (
-                            <div>
-                                <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 20 }}>🏥 Top Hospitals</h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                                    {data.hospitals.map((h, i) => (
-                                        <div key={i} className="card" style={{ padding: 24 }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                                                <div style={{ fontWeight: 700, fontSize: 16, color: '#fff', flex: 1 }}>{h.name}</div>
-                                                {h.specialty && (
-                                                    <span style={{ padding: '3px 10px', borderRadius: 12, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', marginLeft: 8 }}>{h.specialty}</span>
-                                                )}
-                                            </div>
-                                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, lineHeight: 1.6, margin: 0 }}>{h.description}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* HOTELS & RESTAURANTS */}
-                        {activeTab === 'food' && (
-                            <div>
-                                <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 20 }}>🍽️ Hotels & Restaurants</h2>
-                                <div style={{ marginBottom: 32 }}>
-                                    <h3 style={{ fontSize: 17, fontWeight: 600, color: 'rgba(255,255,255,0.8)', marginBottom: 14 }}>🏨 Hotels</h3>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
-                                        {data.hotels_restaurants.hotels.map((h, i) => (
-                                            <div key={i} className="card" style={{ padding: 20 }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                                                    <div style={{ fontWeight: 700, fontSize: 15, color: '#fff' }}>{h.name}</div>
-                                                    {h.category && <span style={{ padding: '2px 8px', borderRadius: 10, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', color: '#fbbf24', fontSize: 11, marginLeft: 8, whiteSpace: 'nowrap' }}>{h.category}</span>}
-                                                </div>
-                                                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, lineHeight: 1.6, margin: 0 }}>{h.description}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 style={{ fontSize: 17, fontWeight: 600, color: 'rgba(255,255,255,0.8)', marginBottom: 14 }}>🍜 Restaurants</h3>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
-                                        {data.hotels_restaurants.restaurants.map((r, i) => (
-                                            <div key={i} className="card" style={{ padding: 20 }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                                                    <div style={{ fontWeight: 700, fontSize: 15, color: '#fff' }}>{r.name}</div>
-                                                    {r.cuisine && <span style={{ padding: '2px 8px', borderRadius: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: 11, marginLeft: 8, whiteSpace: 'nowrap' }}>{r.cuisine}</span>}
-                                                </div>
-                                                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, lineHeight: 1.6, margin: 0 }}>{r.description}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* URBAN LIFE */}
-                        {activeTab === 'urban' && (
-                            <div>
-                                <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 20 }}>🌆 Urban Life</h2>
-
-                                <div style={{ marginBottom: 28 }}>
-                                    <h3 style={{ fontSize: 17, fontWeight: 600, color: 'rgba(255,255,255,0.8)', marginBottom: 14 }}>🌳 Parks & Gardens</h3>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
-                                        {data.urban_life.parks.map((p, i) => (
-                                            <div key={i} className="card" style={{ padding: 20 }}>
-                                                <div style={{ fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 8 }}>{p.name}</div>
-                                                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, lineHeight: 1.6, margin: 0 }}>{p.description}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div style={{ marginBottom: 28 }}>
-                                    <h3 style={{ fontSize: 17, fontWeight: 600, color: 'rgba(255,255,255,0.8)', marginBottom: 14 }}>🎉 Nightlife & Entertainment</h3>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
-                                        {data.urban_life.nightlife.map((n, i) => (
-                                            <div key={i} className="card" style={{ padding: 20 }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                                                    <div style={{ fontWeight: 700, fontSize: 15, color: '#fff' }}>{n.name}</div>
-                                                    <span style={{ padding: '2px 8px', borderRadius: 10, background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.25)', color: '#a78bfa', fontSize: 11, marginLeft: 8, whiteSpace: 'nowrap' }}>{n.type}</span>
-                                                </div>
-                                                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, lineHeight: 1.6, margin: 0 }}>{n.description}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h3 style={{ fontSize: 17, fontWeight: 600, color: 'rgba(255,255,255,0.8)', marginBottom: 14 }}>🧗 Adventures & Experiences</h3>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
-                                        {data.urban_life.adventures.map((a, i) => (
-                                            <div key={i} className="card" style={{ padding: 20 }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                                                    <div style={{ fontWeight: 700, fontSize: 15, color: '#fff' }}>{a.name}</div>
-                                                    <span style={{ padding: '2px 8px', borderRadius: 10, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399', fontSize: 11, marginLeft: 8, whiteSpace: 'nowrap' }}>{a.type}</span>
-                                                </div>
-                                                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, lineHeight: 1.6, margin: 0 }}>{a.description}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </>
-                )}
             </div>
         </div>
     );
