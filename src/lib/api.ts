@@ -1,3 +1,4 @@
+import type { PlaceCategory, PlacesResponse } from '../types/places';
 // Backend API base URL
 export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://fastapi-backend-44079236102.asia-south1.run.app').replace(/\/$/, '');
 // Temporarily force local backend for testing
@@ -221,6 +222,21 @@ export async function fetchCityDescription(
         console.error('Error fetching city description:', error);
         throw error;
     }
+}
+
+export async function fetchPlaces(city: string, category: PlaceCategory): Promise<PlacesResponse> {
+    const params = new URLSearchParams({
+        city: city.trim(),
+        category,
+    });
+
+    const response = await fetch(`${API_BASE_URL}/api/places?${params.toString()}`);
+    if (!response.ok) {
+        const detail = await response.text().catch(() => '');
+        throw new Error(`Failed to fetch places for ${category} (${response.status})${detail ? `: ${detail}` : ''}`);
+    }
+
+    return response.json();
 }
 
 

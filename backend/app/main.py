@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(name)s  %(messa
 _env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=_env_path)
 
-from app.routers import cities, predictions, recommendations, advisory, report, user, city_explore
+from app.routers import cities, predictions, recommendations, advisory, report, user, city_explore, places
 
 app = FastAPI(
     title="AirSafe Move API",
@@ -25,9 +25,11 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
         "https://nextjs-frontend-44079236102.asia-south1.run.app",
     ],
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origin_regex=r"(https://.*\.vercel\.app|http://localhost:\d+|http://127\.0\.0\.1:\d+)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,6 +43,7 @@ app.include_router(advisory.router, prefix="/api/advisory", tags=["Advisory"])
 app.include_router(report.router, prefix="/api/report", tags=["Report"])
 app.include_router(user.router, prefix="/api/user", tags=["User"])
 app.include_router(city_explore.router, prefix="/api/city-explore", tags=["City Explore"])
+app.include_router(places.router, prefix="/api", tags=["Places"])
 
 
 logger = logging.getLogger(__name__)

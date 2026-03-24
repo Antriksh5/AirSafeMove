@@ -1,10 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useAuth } from '../../../context/AuthContext';
-import { CityDescription, fetchCityDescription, CityRecommendation } from '../../../lib/api';
+import { CityDescription, fetchCityDescription, fetchPlaces, CityRecommendation } from '../../../lib/api';
+import PlacesSidebar from '../../../components/PlacesSidebar';
+import type { MapViewHandle } from '../../../components/MapView';
+import { CATEGORY_CONFIG, PLACE_CATEGORIES, type PlaceCategory, type PlacesResponse } from '../../../types/places';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
@@ -44,6 +48,8 @@ interface CityExploreData {
     };
 }
 
+const DynamicMapView = dynamic(() => import('../../../components/MapView'), { ssr: false }) as any;
+
 export default function CityExplorePage() {
     const params = useParams();
     const searchParams = useSearchParams();
@@ -60,6 +66,29 @@ export default function CityExplorePage() {
 
     const [userProfession, setUserProfession] = useState<string>('your profession');
     const [nextCity, setNextCity] = useState<CityRecommendation | null>(null);
+    const [placesLoading, setPlacesLoading] = useState<boolean>(false);
+    const [placesError, setPlacesError] = useState<string | null>(null);
+    const [placesByCategory, setPlacesByCategory] = useState<Record<PlaceCategory, PlacesResponse | null>>({
+        healthcare: null,
+        education: null,
+        tourism: null,
+        hotels: null,
+        restaurants: null,
+    });
+    const [selectedByCategory, setSelectedByCategory] = useState<Record<PlaceCategory, number | null>>({
+        healthcare: null,
+        education: null,
+        tourism: null,
+        hotels: null,
+        restaurants: null,
+    });
+    const mapRefs = useRef<Record<PlaceCategory, MapViewHandle | null>>({
+        healthcare: null,
+        education: null,
+        tourism: null,
+        hotels: null,
+        restaurants: null,
+    });
 
     useEffect(() => {
         if (!authLoading && !user) router.push('/auth');
@@ -112,6 +141,52 @@ export default function CityExplorePage() {
         };
         fetchData();
     }, [cityName, state, authLoading, user]);
+
+    useEffect(() => {
+        if (authLoading || !user) return;
+        if (!cityName.trim()) return;
+
+        const loadAllCategories = async () => {
+            setPlacesLoading(true);
+            setPlacesError(null);
+
+            try {
+                const responses = await Promise.all(
+                    PLACE_CATEGORIES.map(async (category) => {
+                        const response = await fetchPlaces(cityName, category);
+                        return [category, response] as const;
+                    })
+                );
+
+                const nextState: Record<PlaceCategory, PlacesResponse | null> = {
+                    healthcare: null,
+                    education: null,
+                    tourism: null,
+                    hotels: null,
+                    restaurants: null,
+                };
+
+                responses.forEach(([category, response]) => {
+                    nextState[category] = response;
+                });
+
+                setPlacesByCategory(nextState);
+                setSelectedByCategory({
+                    healthcare: null,
+                    education: null,
+                    tourism: null,
+                    hotels: null,
+                    restaurants: null,
+                });
+            } catch (fetchError: any) {
+                setPlacesError(fetchError?.message || 'Failed to load map places');
+            } finally {
+                setPlacesLoading(false);
+            }
+        };
+
+        loadAllCategories();
+    }, [authLoading, cityName, user]);
 
     if (authLoading || loading) {
         return (
@@ -175,6 +250,64 @@ export default function CityExplorePage() {
         justifyContent: 'center'
     };
 
+    const renderCategoryMapSection = (category: PlaceCategory) => {
+        const categoryMeta = CATEGORY_CONFIG[category];
+        const payload = placesByCategory[category];
+        const places = payload?.places || [];
+        const center = payload?.center || { lat: 20.5937, lon: 78.9629 };
+        const bbox = payload?.bbox || [center.lat - 0.2, center.lon - 0.2, center.lat + 0.2, center.lon + 0.2] as [number, number, number, number];
+
+        if (placesLoading && !payload) {
+            return (
+                <div style={mapPlaceholderStyle}>
+                    <span style={{ color: '#8B7355', fontSize: 14, fontWeight: 500 }}>
+                        Loading {categoryMeta.label.toLowerCase()} places...
+                    </span>
+                </div>
+            );
+        }
+
+        if (placesError && !payload) {
+            return (
+                <div style={{ ...mapPlaceholderStyle, padding: 20 }}>
+                    <span style={{ color: '#B91C1C', fontSize: 14, fontWeight: 500, textAlign: 'center' }}>
+                        Unable to load {categoryMeta.label.toLowerCase()} map. {placesError}
+                    </span>
+                </div>
+            );
+        }
+
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 24 }}>
+                <DynamicMapView
+                    ref={(instance) => { mapRefs.current[category] = instance; }}
+                    places={places}
+                    center={center}
+                    bbox={bbox}
+                    category={category}
+                    onMarkerClick={(index) => {
+                        setSelectedByCategory((prev) => ({ ...prev, [category]: index }));
+                    }}
+                />
+                {places.length > 0 ? (
+                    <PlacesSidebar
+                        places={places}
+                        category={category}
+                        selectedIndex={selectedByCategory[category]}
+                        onPlaceClick={(index, place) => {
+                            setSelectedByCategory((prev) => ({ ...prev, [category]: index }));
+                            mapRefs.current[category]?.flyTo(place.lat, place.lon);
+                        }}
+                    />
+                ) : (
+                    <div className="card" style={{ color: '#8B7355', fontSize: 14 }}>
+                        No {categoryMeta.label.toLowerCase()} places found in {cityName}. Map is centered to city bounds.
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <div style={{ minHeight: '100vh', paddingBottom: 100, background: '#FDFBF7', fontFamily: "'Libre Franklin', sans-serif", color: '#4A3B2A' }}>
             {/* Header */}
@@ -232,10 +365,7 @@ export default function CityExplorePage() {
                             ))}
                         </div>
                         {/* Map Placeholder */}
-                        <div style={mapPlaceholderStyle}>
-                            <span style={{ fontSize: 32, marginBottom: 8 }}>🗺️</span>
-                            <span style={{ color: '#8B7355', fontSize: 14, fontWeight: 500 }}>Map Integration Placeholder - Housing</span>
-                        </div>
+                        {renderCategoryMapSection('hotels')}
                     </section>
                 )}
 
@@ -275,10 +405,7 @@ export default function CityExplorePage() {
                             ))}
                         </div>
                         {/* Map Placeholder */}
-                        <div style={mapPlaceholderStyle}>
-                            <span style={{ fontSize: 32, marginBottom: 8 }}>🗺️</span>
-                            <span style={{ color: '#8B7355', fontSize: 14, fontWeight: 500 }}>Map Integration Placeholder - Healthcare</span>
-                        </div>
+                        {renderCategoryMapSection('healthcare')}
                     </section>
                 )}
 
@@ -307,10 +434,7 @@ export default function CityExplorePage() {
                             ))}
                         </div>
                         {/* Map Placeholder */}
-                        <div style={mapPlaceholderStyle}>
-                            <span style={{ fontSize: 32, marginBottom: 8 }}>🗺️</span>
-                            <span style={{ color: '#8B7355', fontSize: 14, fontWeight: 500 }}>Map Integration Placeholder - Education</span>
-                        </div>
+                        {renderCategoryMapSection('education')}
                     </section>
                 )}
 
