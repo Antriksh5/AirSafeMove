@@ -26,6 +26,8 @@ interface ResultsData {
         name: string;
         age: number;
         profession: string;
+        professions?: string[];
+        earningMembers?: number;
     };
     familyHealth: {
         familyType: string;
@@ -38,6 +40,35 @@ interface ResultsData {
         currentCity: string;
         maxDistance: number;
         monthlyBudget: string;
+    };
+}
+
+function isResultsData(value: unknown): value is ResultsData {
+    if (!value || typeof value !== 'object') return false;
+
+    const candidate = value as Partial<ResultsData>;
+    return Array.isArray(candidate.recommendations)
+        && typeof candidate.current_aqi === 'number'
+        && typeof candidate.readiness_score === 'number'
+        && typeof candidate.health_urgency === 'number'
+        && typeof candidate.health_sensitivity === 'number'
+        && typeof candidate.advisory === 'string';
+}
+
+function normalizeResultsData(value: unknown): ResultsData | null {
+    if (!isResultsData(value)) return null;
+
+    const userProfile = value.userProfile ?? { name: '', age: 0, profession: '' };
+    const normalizedProfession = userProfile.profession
+        || (Array.isArray(userProfile.professions) ? userProfile.professions[0] : '')
+        || '';
+
+    return {
+        ...value,
+        userProfile: {
+            ...userProfile,
+            profession: normalizedProfession,
+        },
     };
 }
 
@@ -227,7 +258,22 @@ export default function ResultsPage() {
         if (!user) return;
         const storedData = sessionStorage.getItem('airsafe_results');
         if (storedData) {
-            setData(JSON.parse(storedData));
+            try {
+                const parsed = JSON.parse(storedData);
+                const normalized = normalizeResultsData(parsed);
+
+                if (!normalized) {
+                    sessionStorage.removeItem('airsafe_results');
+                    router.push('/wizard');
+                    return;
+                }
+
+                setData(normalized);
+            } catch (error) {
+                console.error('Failed to parse stored results:', error);
+                sessionStorage.removeItem('airsafe_results');
+                router.push('/wizard');
+            }
         } else {
             router.push('/wizard');
         }

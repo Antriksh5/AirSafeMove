@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "predev": "node scripts/dev-preflight.mjs",
-    "dev": "next dev",
+    "dev": "next dev --webpack",
+    "dev:turbo": "next dev",
     "stop:dev": "node scripts/stop-dev.mjs",
     "build": "next build",
     "start": "next start",

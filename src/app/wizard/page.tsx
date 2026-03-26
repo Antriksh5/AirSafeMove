@@ -196,7 +196,13 @@ export default function WizardPage() {
                 ...recResponse,
                 advisory: advisoryResponse.advisory,
                 userName: formData.name,
-                userProfile: { name: formData.name, age: formData.age, professions: formData.professions, earningMembers: formData.earningMembers },
+                userProfile: {
+                    name: formData.name,
+                    age: formData.age,
+                    profession: formData.professions[0] || '',
+                    professions: formData.professions,
+                    earningMembers: formData.earningMembers
+                },
                 familyHealth: { familyType: formData.familyType, totalMembers: formData.totalMembers, children: formData.children, elderly: formData.elderly, healthConditions: formData.healthConditions },
                 location: { currentCity: formData.currentCity, maxDistance: formData.maxDistance, monthlyBudget: formData.monthlyBudget }
             };

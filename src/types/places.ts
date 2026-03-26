@@ -1,4 +1,12 @@
-export type PlaceCategory = "healthcare" | "education" | "tourism" | "hotels" | "restaurants";
+export type PlaceCategory =
+  | "healthcare"
+  | "clinics"
+  | "hospitals"
+  | "medicals"
+  | "education"
+  | "tourism"
+  | "hotels"
+  | "restaurants";
 
 export interface Place {
   id: string;
@@ -7,6 +15,7 @@ export interface Place {
   lon: number;
   type: string;
   address: string;
+  distanceKm?: number;
 }
 
 export interface PlacesResponse {
@@ -16,6 +25,12 @@ export interface PlacesResponse {
   };
   bbox: [number, number, number, number];
   places: Place[];
+}
+
+export interface GeocodeResponse {
+  lat: number;
+  lon: number;
+  label: string;
 }
 
 export interface CategoryConfig {
@@ -31,6 +46,24 @@ export const CATEGORY_CONFIG: Record<PlaceCategory, CategoryConfig> = {
     emoji: "🏥",
     tags: ["amenity=hospital", "amenity=clinic", "amenity=pharmacy", "amenity=doctors"],
     label: "Healthcare",
+  },
+  clinics: {
+    color: "#f9a8d4",
+    emoji: "🩺",
+    tags: ["amenity=clinic", "amenity=doctors"],
+    label: "Clinics",
+  },
+  hospitals: {
+    color: "#fb7185",
+    emoji: "🏥",
+    tags: ["amenity=hospital"],
+    label: "Hospitals",
+  },
+  medicals: {
+    color: "#fdba74",
+    emoji: "💊",
+    tags: ["amenity=pharmacy"],
+    label: "Medicals",
   },
   education: {
     color: "#a78bfa",
@@ -60,6 +93,9 @@ export const CATEGORY_CONFIG: Record<PlaceCategory, CategoryConfig> = {
 
 export const PLACE_CATEGORIES: PlaceCategory[] = [
   "healthcare",
+  "clinics",
+  "hospitals",
+  "medicals",
   "education",
   "tourism",
   "hotels",

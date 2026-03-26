@@ -1,8 +1,23 @@
-import type { PlaceCategory, PlacesResponse } from '../types/places';
+import type { GeocodeResponse, PlaceCategory, PlacesResponse } from '../types/places';
 // Backend API base URL
 export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://fastapi-backend-44079236102.asia-south1.run.app').replace(/\/$/, '');
 // Temporarily force local backend for testing
 // export const API_BASE_URL = 'http://127.0.0.1:8000';
+
+function isPlacesResponse(value: unknown): value is PlacesResponse {
+    if (!value || typeof value !== 'object') return false;
+
+    const candidate = value as Partial<PlacesResponse>;
+    const center = candidate.center as { lat?: unknown; lon?: unknown } | undefined;
+
+    return !!center
+        && typeof center.lat === 'number'
+        && typeof center.lon === 'number'
+        && Array.isArray(candidate.bbox)
+        && candidate.bbox.length === 4
+        && Array.isArray(candidate.places);
+}
+
 // Types
 export interface City {
     city_name: string;
@@ -224,16 +239,52 @@ export async function fetchCityDescription(
     }
 }
 
-export async function fetchPlaces(city: string, category: PlaceCategory): Promise<PlacesResponse> {
+interface FetchPlacesOptions {
+    lat?: number;
+    lon?: number;
+    radiusM?: number;
+}
+
+export async function fetchPlaces(city: string, category: PlaceCategory, options: FetchPlacesOptions = {}): Promise<PlacesResponse> {
     const params = new URLSearchParams({
         city: city.trim(),
         category,
     });
 
+    if (typeof options.lat === 'number' && typeof options.lon === 'number') {
+        params.set('lat', String(options.lat));
+        params.set('lon', String(options.lon));
+    }
+
+    if (typeof options.radiusM === 'number') {
+        params.set('radius_m', String(options.radiusM));
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/places?${params.toString()}`);
     if (!response.ok) {
         const detail = await response.text().catch(() => '');
         throw new Error(`Failed to fetch places for ${category} (${response.status})${detail ? `: ${detail}` : ''}`);
+    }
+
+    const payload = await response.json();
+
+    if (!isPlacesResponse(payload)) {
+        throw new Error(`Invalid places response for ${category}`);
+    }
+
+    return payload;
+}
+
+export async function geocodePlace(name: string, city: string): Promise<GeocodeResponse> {
+    const params = new URLSearchParams({
+        name: name.trim(),
+        city: city.trim(),
+    });
+
+    const response = await fetch(`${API_BASE_URL}/api/places/geocode?${params.toString()}`);
+    if (!response.ok) {
+        const detail = await response.text().catch(() => '');
+        throw new Error(`Failed to geocode ${name} (${response.status})${detail ? `: ${detail}` : ''}`);
     }
 
     return response.json();
