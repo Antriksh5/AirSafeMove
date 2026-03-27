@@ -27,6 +27,7 @@ class AdvisoryRequest(BaseModel):
     top_recommendations: List[Dict[str, Any]]
     readiness_score: float
     health_urgency: float
+    language: str = "en"
 
 
 class AdvisoryResponse(BaseModel):
@@ -60,7 +61,8 @@ async def get_advisory(request: AdvisoryRequest) -> AdvisoryResponse:
             health_conditions=request.health_conditions,
             top_recommendations=request.top_recommendations,
             readiness_score=request.readiness_score,
-            health_urgency=request.health_urgency
+            health_urgency=request.health_urgency,
+            language=request.language,
         )
         return AdvisoryResponse(advisory=advisory, generated=True)
     except Exception as e:

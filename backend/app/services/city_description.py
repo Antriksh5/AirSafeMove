@@ -15,6 +15,7 @@ def generate_city_description(
     state: str,
     has_children: bool = False,
     has_elderly: bool = False,
+    language: str = "en",
 ) -> Dict[str, Any]:
     """
     Generate a city description using the local dataset-backed evidence layer.
@@ -24,4 +25,5 @@ def generate_city_description(
         state=state,
         has_children=has_children,
         has_elderly=has_elderly,
+        language=language,
     )

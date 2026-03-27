@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useTranslation } from '../hooks/useTranslation';
 import type { Place, PlaceCategory } from '../types/places';
 import { CATEGORY_CONFIG } from '../types/places';
 
@@ -12,7 +13,9 @@ interface PlacesSidebarProps {
 }
 
 export default function PlacesSidebar({ places, category, selectedIndex, onPlaceClick }: PlacesSidebarProps) {
+  const { t } = useTranslation();
   const meta = CATEGORY_CONFIG[category];
+  const categoryLabel = t(`places.type_${category}`);
   const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
@@ -65,6 +68,7 @@ export default function PlacesSidebar({ places, category, selectedIndex, onPlace
               boxShadow: isSelected ? `0 0 0 2px ${meta.color}33, 0 8px 20px rgba(15, 23, 42, 0.08)` : '0 2px 6px rgba(15, 23, 42, 0.04)',
               transition: 'border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
               outline: 'none',
+              fontFamily: 'var(--app-font-sans)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 6 }}>
@@ -80,19 +84,19 @@ export default function PlacesSidebar({ places, category, selectedIndex, onPlace
                   textTransform: 'capitalize',
                 }}
               >
-                {place.type}
+                {categoryLabel}
               </span>
             </div>
             <div style={{ color: '#8B7355', fontSize: 12, lineHeight: 1.5, marginBottom: 10 }}>
-              {place.address || 'Address unavailable'}
+              {place.address || t('places.address_unavailable')}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
               <div style={{ color: isSelected ? '#4A3B2A' : '#8B7355', fontSize: 11, fontWeight: 600 }}>
                 {typeof place.distanceKm === 'number'
-                  ? `${place.distanceKm.toFixed(1)} km away`
+                  ? `${place.distanceKm.toFixed(1)} ${t('common.km_away')}`
                   : isSelected
-                    ? 'Selected on map'
-                    : 'Click to focus on map'}
+                    ? t('places.selected_on_map')
+                    : t('places.click_to_focus')}
               </div>
               <button
                 type="button"
@@ -111,7 +115,7 @@ export default function PlacesSidebar({ places, category, selectedIndex, onPlace
                   cursor: 'pointer',
                 }}
               >
-                Directions
+                {t('places.directions')}
               </button>
             </div>
           </div>

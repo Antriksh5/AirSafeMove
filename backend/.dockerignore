@@ -1,5 +1,17 @@
 .venv
+venv
 __pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
 .env
+.env.*
 .git
 serviceAccounts*.json
+serviceAccount*.json
+*.pyc
+*.pyo
+*.pyd
+*.log
+dataset/
+dataset_cache/

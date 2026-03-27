@@ -1217,7 +1217,7 @@ def warm_city_description_cache() -> Dict[str, Dict[str, Any]]:
     return _load_cached_city_descriptions()
 
 
-def _enrich_with_live_sections(result: Dict[str, Any], city_name: str, state: str) -> None:
+def _enrich_with_live_sections(result: Dict[str, Any], city_name: str, state: str, language: str = "en") -> None:
     """Best-effort enrichment with live external data; never blocks on failure."""
     import concurrent.futures
 
@@ -1233,7 +1233,7 @@ def _enrich_with_live_sections(result: Dict[str, Any], city_name: str, state: st
         lon = city_record.get("longitude")
         if lat is None or lon is None:
             return None
-        return get_live_connectivity(city_name, state, float(lat), float(lon))
+        return get_live_connectivity(city_name, state, float(lat), float(lon), language=language)
 
     _LIVE_TIMEOUT = 15
 
@@ -1267,13 +1267,14 @@ def build_city_description_from_local_evidence(
     state: str,
     has_children: bool = False,
     has_elderly: bool = False,
+    language: str = "en",
 ) -> Dict[str, Any]:
     cached = _load_cached_city_descriptions().get(_city_key(city_name))
     if cached:
         result = deepcopy(cached)
         result["city_name"] = city_name
         result["state"] = state
-        _enrich_with_live_sections(result, city_name, state)
+        _enrich_with_live_sections(result, city_name, state, language=language)
         return result
 
     result = _build_uncached_city_description(
@@ -1282,5 +1283,5 @@ def build_city_description_from_local_evidence(
         has_children=has_children,
         has_elderly=has_elderly,
     )
-    _enrich_with_live_sections(result, city_name, state)
+    _enrich_with_live_sections(result, city_name, state, language=language)
     return result

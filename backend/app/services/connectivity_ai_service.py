@@ -18,6 +18,14 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
 logger = logging.getLogger(__name__)
+LANGUAGE_NAMES = {
+    "en": "English",
+    "hi": "Hindi",
+    "mr": "Marathi",
+    "gu": "Gujarati",
+    "te": "Telugu",
+    "ta": "Tamil",
+}
 
 
 def _gemini_api_key() -> Optional[str]:
@@ -84,6 +92,7 @@ def get_live_connectivity(
     state: str,
     latitude: float,
     longitude: float,
+    language: str = "en",
 ) -> Optional[Dict[str, Any]]:
     """
     Returns connectivity dict aligned with city description schema, or None if AI is unavailable.
@@ -92,6 +101,8 @@ def get_live_connectivity(
     model = _build_model()
     if not model:
         return None
+
+    language_name = LANGUAGE_NAMES.get(language, "English")
 
     prompt = f"""You are a relocation data assistant for India.
 
@@ -115,6 +126,9 @@ Rules:
   "description" (2-3 sentences for end users),
   "key_factors" (array of 3 short strings),
   "sources" (array of short strings naming what the answer relied on, e.g. "web search summary", "geographic reasoning").
+Respond entirely in {language_name} language.
+If the language is English, respond in English.
+City names, brand names, and proper nouns should remain in their standard English/local form regardless of language.
 """
 
     global _connectivity_cooldown_until

@@ -2,68 +2,24 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-
-const steps = [
-    {
-        number: '01',
-        icon: '👤',
-        title: 'Build your profile',
-        description: 'Your city preferences, lifestyle, age, health conditions and career details.',
-    },
-    {
-        number: '02',
-        icon: '📋',
-        title: 'Set your preferences',
-        description: 'Define your maximum distance, budget, and housing preferences.',
-    },
-    {
-        number: '03',
-        icon: '✨',
-        title: 'AI analyses cities',
-        description: 'Our model scores all cities weighing AQI, cost of living, job market and utilities.',
-    },
-    {
-        number: '04',
-        icon: '📊',
-        title: 'Get your report',
-        description: 'You receive a personalised city report with detailed migration breakdown.',
-    },
-];
-
-const features = [
-    {
-        icon: '📊',
-        title: 'Air quality data',
-        description: 'Live and historical AQI trends. 5 years of data across 25+ Indian cities.',
-    },
-    {
-        icon: '🏘️',
-        title: 'Housing & utilities',
-        description: 'Compare rent, electricity, LPG rates, water charges and cost-of-living city by city.',
-    },
-    {
-        icon: '💼',
-        title: 'Career matching',
-        description: 'Job openings aligned to your profile, industry demand and top support for your sector.',
-    },
-    {
-        icon: '🔍',
-        title: 'Distance-aware search',
-        description: 'Filter by max distance and find locations that are home to people like you.',
-    },
-    {
-        icon: '🏫',
-        title: 'Schools & healthcare',
-        description: 'Top-rated schools, hospitals and clinics scored near your potential new home.',
-    },
-    {
-        icon: '🌏',
-        title: 'AI migration advice',
-        description: 'Personalised recommendations with plain-language explanations for each condition.',
-    },
-];
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function HowItWorks() {
+    const { t } = useTranslation();
+    const steps = [
+        { number: '01', icon: '👤', title: t('marketing.steps.build_profile_title'), description: t('marketing.steps.build_profile_desc') },
+        { number: '02', icon: '📋', title: t('marketing.steps.set_preferences_title'), description: t('marketing.steps.set_preferences_desc') },
+        { number: '03', icon: '✨', title: t('marketing.steps.ai_analyses_title'), description: t('marketing.steps.ai_analyses_desc') },
+        { number: '04', icon: '📊', title: t('marketing.steps.get_report_title'), description: t('marketing.steps.get_report_desc') },
+    ];
+    const features = [
+        { icon: '📊', title: t('marketing.feature_cards.air_quality_title'), description: t('marketing.feature_cards.air_quality_desc') },
+        { icon: '🏘️', title: t('marketing.feature_cards.housing_title'), description: t('marketing.feature_cards.housing_desc') },
+        { icon: '💼', title: t('marketing.feature_cards.career_title'), description: t('marketing.feature_cards.career_desc') },
+        { icon: '🔍', title: t('marketing.feature_cards.distance_title'), description: t('marketing.feature_cards.distance_desc') },
+        { icon: '🏫', title: t('marketing.feature_cards.schools_title'), description: t('marketing.feature_cards.schools_desc') },
+        { icon: '🌏', title: t('marketing.feature_cards.advice_title'), description: t('marketing.feature_cards.advice_desc') },
+    ];
     const stepSectionRef = useRef<HTMLElement>(null);
     const featureSectionRef = useRef<HTMLElement>(null);
     const ctaSectionRef = useRef<HTMLElement>(null);
@@ -103,40 +59,37 @@ export default function HowItWorks() {
                 .cta-input:focus { outline: none; border-color: #5C4A2A; box-shadow: 0 0 0 3px rgba(92,74,42,0.15); }
             `}</style>
 
-            {/* ────── HOW IT WORKS ────── */}
             <section
                 id="how-it-works"
                 ref={stepSectionRef}
                 style={{ background: '#FDFAF4', padding: '100px 48px' }}
             >
                 <div style={{ maxWidth: 1160, margin: '0 55px' }}>
-                    {/* Section label */}
                     <p style={{
                         fontSize: 12, fontWeight: 700, letterSpacing: 2,
                         color: '#8B6914', textTransform: 'uppercase', marginBottom: 16,
                         opacity: isStepsVisible ? 1 : 0,
                         animation: isStepsVisible ? 'fadeUp 0.6s ease forwards' : 'none',
                     }}>
-                        HOW IT WORKS
+                        {t('marketing.how_it_works_label')}
                     </p>
                     <h2 style={{
                         fontSize: 'clamp(28px, 3.5vw, 44px)',
                         fontWeight: 800, color: '#1A1208', letterSpacing: '-1px',
-                        fontFamily: "'Libre Baskerville', serif", marginBottom: 16, maxWidth: 560,
+                        fontFamily: 'var(--app-font-serif)', marginBottom: 16, maxWidth: 560,
                         opacity: isStepsVisible ? 1 : 0,
                         animation: isStepsVisible ? 'fadeUp 0.6s ease 0.1s forwards' : 'none',
                     }}>
-                        Four steps to your ideal city
+                        {t('marketing.how_it_works_title')}
                     </h2>
                     <p style={{
                         fontSize: 16, color: '#6B5B3A', lineHeight: 1.7, marginBottom: 60, maxWidth: 520,
                         opacity: isStepsVisible ? 1 : 0,
                         animation: isStepsVisible ? 'fadeUp 0.6s ease 0.2s forwards' : 'none',
                     }}>
-                        We go beyond just metrics. Just answer a few questions and let the data do the work.
+                        {t('marketing.how_it_works_description')}
                     </p>
 
-                    {/* Steps grid */}
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(4, 1fr)',
@@ -157,14 +110,12 @@ export default function HowItWorks() {
                                     animation: isStepsVisible ? `fadeUp 0.6s ease ${0.1 + i * 0.1}s forwards` : 'none',
                                 }}
                             >
-                                {/* Step number */}
                                 <div style={{
                                     fontSize: 11, fontWeight: 700, color: '#8B6914',
                                     letterSpacing: 1, marginBottom: 20, opacity: 0.8,
                                 }}>
                                     {step.number}
                                 </div>
-                                {/* Icon */}
                                 <div style={{
                                     width: 44, height: 44, borderRadius: 12,
                                     background: 'rgba(139,105,20,0.1)',
@@ -185,30 +136,28 @@ export default function HowItWorks() {
                 </div>
             </section>
 
-            {/* ────── FEATURES ────── */}
             <section
                 id="features"
                 ref={featureSectionRef}
                 style={{ background: '#2D2010', padding: '100px 48px' }}
             >
                 <div style={{ maxWidth: 1160, margin: '0 55px' }}>
-                    {/* Section label */}
                     <p style={{
                         fontSize: 12, fontWeight: 700, letterSpacing: 2,
                         color: '#C9A84C', textTransform: 'uppercase', marginBottom: 16,
                         opacity: isFeaturesVisible ? 1 : 0,
                         animation: isFeaturesVisible ? 'fadeUp 0.6s ease forwards' : 'none',
                     }}>
-                        EVERY FACTOR COVERED
+                        {t('marketing.features_label')}
                     </p>
                     <h2 style={{
                         fontSize: 'clamp(28px, 3.5vw, 44px)',
                         fontWeight: 800, color: '#F5EFE0', letterSpacing: '-1px',
-                        fontFamily: "'Libre Baskerville', serif", marginBottom: 16, maxWidth: 600,
+                        fontFamily: 'var(--app-font-serif)', marginBottom: 16, maxWidth: 600,
                         opacity: isFeaturesVisible ? 1 : 0,
                         animation: isFeaturesVisible ? 'fadeUp 0.6s ease 0.1s forwards' : 'none',
                     }}>
-                        Every factor that matters for your move
+                        {t('marketing.features_title')}
                     </h2>
                     <p style={{
                         fontSize: 16, color: 'rgba(245,239,224,0.65)', lineHeight: 1.7,
@@ -216,10 +165,9 @@ export default function HowItWorks() {
                         opacity: isFeaturesVisible ? 1 : 0,
                         animation: isFeaturesVisible ? 'fadeUp 0.6s ease 0.2s forwards' : 'none',
                     }}>
-                        We go beyond just rent — every necessity, compared across cities in one place.
+                        {t('marketing.features_description')}
                     </p>
 
-                    {/* Features grid */}
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(3, 1fr)',
@@ -258,7 +206,6 @@ export default function HowItWorks() {
                 </div>
             </section>
 
-            {/* ────── CTA SECTION ────── */}
             <section
                 ref={ctaSectionRef}
                 style={{
@@ -277,20 +224,19 @@ export default function HowItWorks() {
                         <h2 style={{
                             fontSize: 'clamp(32px, 4vw, 52px)',
                             fontWeight: 800, color: '#1A1208', letterSpacing: '-1.5px',
-                            fontFamily: "'Libre Baskerville', serif", lineHeight: 1.1, marginBottom: 20,
+                            fontFamily: 'var(--app-font-serif)', lineHeight: 1.1, marginBottom: 20,
                         }}>
-                            Ready to find<br />
-                            where you{' '}
-                            <em style={{ color: '#8B6914', fontStyle: 'italic' }}>belong?</em>
+                            {t('marketing.cta_title_line1')}<br />
+                            where you <em style={{ color: '#8B6914', fontStyle: 'italic' }}>belong?</em>
                         </h2>
                         <p style={{ fontSize: 16, color: '#6B5B3A', lineHeight: 1.7, marginBottom: 36 }}>
-                            Join thousands of Indians moving smarter. Get data-driven recommendations with full data and AI-powered guidance.
+                            {t('marketing.cta_description')}
                         </p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 380 }}>
                             <input
                                 type="text"
-                                placeholder="Your current city"
+                                placeholder={t('marketing.cta_current_city')}
                                 className="cta-input"
                                 style={{
                                     padding: '14px 18px', borderRadius: 10, fontSize: 15,
@@ -302,7 +248,7 @@ export default function HowItWorks() {
                             />
                             <input
                                 type="text"
-                                placeholder="Your profession"
+                                placeholder={t('marketing.cta_profession')}
                                 className="cta-input"
                                 style={{
                                     padding: '14px 18px', borderRadius: 10, fontSize: 15,
@@ -321,7 +267,7 @@ export default function HowItWorks() {
                                 boxShadow: '0 4px 16px rgba(92,74,42,0.3)',
                                 transition: 'all 0.2s',
                             }}>
-                                Find my city →
+                                {t('marketing.cta_button')}
                             </Link>
                         </div>
                     </div>

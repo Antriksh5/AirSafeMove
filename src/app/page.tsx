@@ -1,15 +1,19 @@
+'use client';
+
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import HowItWorks from '../components/HowItWorks';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function Home() {
+  const { t } = useTranslation();
+
   return (
     <main style={{ background: '#F5EFE0' }}>
       <Navbar />
       <Hero />
       <HowItWorks />
 
-      {/* Footer */}
       <footer style={{
         background: '#2D2010',
         color: 'rgba(245,239,224,0.6)',
@@ -23,7 +27,7 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <img
             src="/Logo.png"
-            alt="शहरें AI"
+            alt={t('app.logo_alt')}
             style={{
               height: 28,
               width: 'auto',
@@ -32,9 +36,11 @@ export default function Home() {
           />
         </div>
         <p style={{ fontSize: 13, margin: 0 }}>
-          AI-powered migration advisory for healthier living
+          {t('footer.advisory')}
         </p>
-        <p style={{ fontSize: 12, margin: 0 }}>© {new Date().getFullYear()} AirSafe Move</p>
+        <p style={{ fontSize: 12, margin: 0 }}>
+          {t('footer.copyright', { year: new Date().getFullYear() })}
+        </p>
       </footer>
     </main>
   );

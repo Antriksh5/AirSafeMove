@@ -53,8 +53,34 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Libre Franklin', sans-serif;
-  --font-serif: 'Libre Baskerville', serif;
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+}
+
+:root {
+  --app-font-sans: var(--font-libre-franklin), sans-serif;
+  --app-font-serif: var(--font-libre-baskerville), serif;
+}
+
+html[data-language="hi"],
+html[data-language="mr"] {
+  --app-font-sans: var(--font-noto-devanagari), var(--font-libre-franklin), sans-serif;
+  --app-font-serif: var(--font-noto-devanagari), var(--font-libre-baskerville), serif;
+}
+
+html[data-language="gu"] {
+  --app-font-sans: var(--font-noto-gujarati), var(--font-libre-franklin), sans-serif;
+  --app-font-serif: var(--font-noto-gujarati), var(--font-libre-baskerville), serif;
+}
+
+html[data-language="te"] {
+  --app-font-sans: var(--font-noto-telugu), var(--font-libre-franklin), sans-serif;
+  --app-font-serif: var(--font-noto-telugu), var(--font-libre-baskerville), serif;
+}
+
+html[data-language="ta"] {
+  --app-font-sans: var(--font-noto-tamil), var(--font-libre-franklin), sans-serif;
+  --app-font-serif: var(--font-noto-tamil), var(--font-libre-baskerville), serif;
 }
 
 * {
@@ -64,13 +90,13 @@
 body {
   background: transparent;
   color: var(--text-primary);
-  font-family: 'Libre Franklin', sans-serif;
+  font-family: var(--app-font-sans);
   margin: 0;
   padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-serif);
+  font-family: var(--app-font-serif);
 }
 
 /* Gradient Backgrounds - now transparent for video */

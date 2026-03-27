@@ -15,6 +15,14 @@ import google.generativeai as genai
 logger = logging.getLogger(__name__)
 
 _explore_cooldown_until: float = 0.0
+LANGUAGE_NAMES = {
+    "en": "English",
+    "hi": "Hindi",
+    "mr": "Marathi",
+    "gu": "Gujarati",
+    "te": "Telugu",
+    "ta": "Tamil",
+}
 
 
 def _get_model():
@@ -174,10 +182,12 @@ def _get_mock_basic_necessities(city_name: str) -> Dict[str, Any]:
     }
 
 
-def generate_basic_necessities(city_name: str) -> Dict[str, Any]:
+def generate_basic_necessities(city_name: str, language: str = "en") -> Dict[str, Any]:
     model = _get_model()
     if not model:
         return _get_mock_basic_necessities(city_name)
+
+    language_name = LANGUAGE_NAMES.get(language, "English")
 
     prompt = f"""You are a city data expert for Indian cities. For the city "{city_name}", return detailed
 information about basic daily necessities for someone who has recently migrated there.
@@ -220,7 +230,10 @@ Use this exact shape:
     "5g_status": "Available / Rolling out / Not available",
     "avg_monthly_cost": "approximate monthly broadband cost in INR"
   }}
-}}"""
+}}
+Respond entirely in {language_name} language.
+If the language is English, respond in English.
+City names, brand names, and proper nouns should remain in their standard English/local form regardless of language."""
 
     global _explore_cooldown_until
     try:
@@ -254,7 +267,7 @@ Use this exact shape:
         return _get_mock_basic_necessities(city_name)
 
 
-def generate_city_explore(city_name: str, state: str) -> Dict[str, Any]:
+def generate_city_explore(city_name: str, state: str, language: str = "en") -> Dict[str, Any]:
     """
     Generate a detailed city exploration guide for the given city.
     Returns a dict with sections: best_areas, education, healthcare, hotels_restaurants, urban_life.
@@ -262,6 +275,8 @@ def generate_city_explore(city_name: str, state: str) -> Dict[str, Any]:
     model = _get_model()
     if not model:
         return _get_mock_explore_data(city_name)
+
+    language_name = LANGUAGE_NAMES.get(language, "English")
 
     prompt = f"""You are an expert city guide for India. Provide a comprehensive and accurate city exploration guide for {city_name}, {state}.
 
@@ -381,7 +396,10 @@ RULES:
 - urban_life.nightlife: exactly 3 bars/clubs/lounges (if a family-friendly city, use cafes/cultural venues)
 - urban_life.adventures: exactly 3 adventurous or fun activities/places
 - Use REAL, accurate place names for {city_name}
-- Response must be pure JSON only, no markdown code blocks"""
+- Response must be pure JSON only, no markdown code blocks
+Respond entirely in {language_name} language.
+If the language is English, respond in English.
+City names, brand names, and proper nouns should remain in their standard English/local form regardless of language."""
 
     global _explore_cooldown_until
     try:

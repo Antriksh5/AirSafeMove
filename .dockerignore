@@ -1,0 +1,22 @@
+.git
+.gitignore
+.next
+.vscode
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.env
+.env.*
+!.env.example
+coverage
+build
+dist
+out
+backend
+src/.next-local
+frontend background.mp4
+README.md
+test_supabase.js
+*.tsbuildinfo

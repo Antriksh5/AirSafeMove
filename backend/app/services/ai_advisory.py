@@ -6,17 +6,25 @@ Uses gemini-2.5-flash model for human-readable insights.
 import logging
 import os
 import time
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 import google.generativeai as genai
 
 logger = logging.getLogger(__name__)
 
 _advisory_cooldown_until: float = 0.0
+LANGUAGE_NAMES = {
+    "en": "English",
+    "hi": "Hindi",
+    "mr": "Marathi",
+    "gu": "Gujarati",
+    "te": "Telugu",
+    "ta": "Tamil",
+}
 
 
 def get_gemini_model(system_instruction: str = None, temperature: float = 0.7, max_output_tokens: int = 800):
-    """Get Gemini model with API key from environment"""
+    """Get Gemini model with API key from environment."""
     if time.time() < _advisory_cooldown_until:
         raise ValueError("Gemini quota cooldown active, try again later")
 
@@ -48,7 +56,8 @@ def generate_migration_advisory(
     health_conditions: List[str],
     top_recommendations: List[Dict[str, Any]],
     readiness_score: float,
-    health_urgency: float
+    health_urgency: float,
+    language: str = "en",
 ) -> str:
     """
     Generate personalized AI migration advisory using Google Gemini.
@@ -58,31 +67,31 @@ def generate_migration_advisory(
         temperature=0.7,
         max_output_tokens=800,
     )
-    
-    # Build context for the AI
+
     recommendations_context = ""
     for i, rec in enumerate(top_recommendations[:3], 1):
         recommendations_context += f"""
 City {i}: {rec['city_name']}, {rec['state']}
 - Suitability Score: {rec['suitability_score']}/100
 - AQI Improvement: {rec['aqi_improvement_percent']:.1f}%
-- Current AQI: {rec['current_aqi']} → Target AQI: {rec['target_aqi']}
+- Current AQI: {rec['current_aqi']} -> Target AQI: {rec['target_aqi']}
 - Respiratory Risk Reduction: {rec['respiratory_risk_reduction']:.1f}%
 - Life Expectancy Gain: {rec['life_expectancy_gain_years']} years
 - Distance: {rec['distance_km']:.0f} km
-- Average Rent: ₹{rec['avg_rent']:,}/month
+- Average Rent: Rs {rec['avg_rent']:,}/month
 - Job Match Score: {rec['job_match_score']}/100
 """
-    
+
     professions_str = ", ".join(professions) if professions else "General"
     health_context = ", ".join([c for c in health_conditions if c != "None"]) or "No specific conditions"
-    
+
     family_context = f"{family_type} with {total_members} member(s)"
     if children > 0:
         family_context += f", including {children} child(ren)"
     if elderly > 0:
         family_context += f" and {elderly} elderly member(s)"
-    
+
+    language_name = LANGUAGE_NAMES.get(language, "English")
     prompt = f"""You are an expert migration advisor helping Indian families relocate for better quality of life, jobs, and health.
 
 USER PROFILE:
@@ -104,7 +113,7 @@ TASK:
 Generate a personalized, empathetic migration advisory (250-400 words) that:
 
 1. Opens with a warm, personalized greeting using the user's name
-2. Explains why the top city was recommended — focus on the OVERALL balanced score, NOT just air quality (mention job market strength, living cost affordability, healthcare quality, and connectivity)
+2. Explains why the top city was recommended - focus on the OVERALL balanced score, NOT just air quality (mention job market strength, living cost affordability, healthcare quality, and connectivity)
 3. For each of the {earning_members} earning member(s) in professions ({professions_str}), mention specific job market compatibility in the top city
 4. Discuss living cost affordability: highlight how far the city's average salary stretches compared to living expenses
 5. Specifically addresses health and education benefits for any children or elderly family members if applicable
@@ -117,7 +126,10 @@ IMPORTANT:
 - Be warm but professional
 - Do NOT use markdown formatting (no ##, **, etc.)
 - Write in clear paragraphs
-- Cities are ranked by a BALANCED score across multiple factors — acknowledge this holistic approach
+- Cities are ranked by a BALANCED score across multiple factors - acknowledge this holistic approach
+Respond entirely in {language_name} language.
+If the language is English, respond in English.
+City names, brand names, and proper nouns should remain in their standard English/local form regardless of language.
 """
 
     global _advisory_cooldown_until
@@ -145,13 +157,15 @@ def generate_city_explanation(
     aqi_improvement: float,
     health_benefits: Dict[str, float],
     job_match: float,
-    cost_comparison: str
+    cost_comparison: str,
+    language: str = "en",
 ) -> str:
     """
     Generate a brief explanation for why a specific city is recommended.
     """
     model = get_gemini_model(temperature=0.6, max_output_tokens=150)
-    
+    language_name = LANGUAGE_NAMES.get(language, "English")
+
     prompt = f"""Generate a 2-3 sentence explanation for recommending {city_name} for migration:
 - AQI will improve by {aqi_improvement:.1f}%
 - Respiratory risk reduction: {health_benefits.get('respiratory_reduction', 0):.1f}%
@@ -159,7 +173,10 @@ def generate_city_explanation(
 - Job match score: {job_match}/100
 - Cost comparison: {cost_comparison}
 
-Be concise and focus on the biggest benefit. No markdown formatting."""
+Be concise and focus on the biggest benefit. No markdown formatting.
+Respond entirely in {language_name} language.
+If the language is English, respond in English.
+City names, brand names, and proper nouns should remain in their standard English/local form regardless of language."""
 
     global _advisory_cooldown_until
     try:
@@ -177,16 +194,17 @@ def generate_health_insight(
     has_children: bool,
     has_elderly: bool,
     health_conditions: List[str],
-    aqi_delta: int
+    aqi_delta: int,
+    language: str = "en",
 ) -> str:
     """
     Generate specific health insights for family members.
     """
     if not has_children and not has_elderly and (not health_conditions or health_conditions == ["None"]):
         return ""
-    
+
     model = get_gemini_model(temperature=0.6, max_output_tokens=150)
-    
+
     context_parts = []
     if has_children:
         context_parts.append("young children")
@@ -194,11 +212,15 @@ def generate_health_insight(
         context_parts.append("elderly family members")
     if health_conditions and health_conditions != ["None"]:
         context_parts.append(f"family members with {', '.join(health_conditions)}")
-    
-    prompt = f"""Generate a 2-3 sentence health insight for a family with {' and '.join(context_parts)} 
+
+    language_name = LANGUAGE_NAMES.get(language, "English")
+    prompt = f"""Generate a 2-3 sentence health insight for a family with {' and '.join(context_parts)}
 who will experience a {aqi_delta} point reduction in AQI exposure.
 
-Focus on specific health benefits backed by research. Be encouraging but factual. No markdown."""
+Focus on specific health benefits backed by research. Be encouraging but factual. No markdown.
+Respond entirely in {language_name} language.
+If the language is English, respond in English.
+City names, brand names, and proper nouns should remain in their standard English/local form regardless of language."""
 
     global _advisory_cooldown_until
     try:

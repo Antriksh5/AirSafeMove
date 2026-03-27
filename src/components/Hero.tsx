@@ -1,8 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function Hero() {
+    const { t } = useTranslation();
+    const stats = [
+        { value: t('landing.stats.cities_analyzed_value'), label: t('landing.stats.cities_analyzed_label') },
+        { value: t('landing.stats.aqi_data_value'), label: t('landing.stats.aqi_data_label') },
+        { value: t('landing.stats.free_to_use_value'), label: t('landing.stats.free_to_use_label') },
+    ];
+    const mockCities = [
+        { name: t('landing.mock_card.cities.bangalore_name'), aqi: t('landing.mock_card.cities.bangalore_status'), cost: t('landing.mock_card.cities.bangalore_cost'), badge: '#22C55E', rating: t('landing.mock_card.cities.bangalore_rating') },
+        { name: t('landing.mock_card.cities.pune_name'), aqi: t('landing.mock_card.cities.pune_status'), cost: t('landing.mock_card.cities.pune_cost'), badge: '#EAB308', rating: t('landing.mock_card.cities.pune_rating') },
+        { name: t('landing.mock_card.cities.hyderabad_name'), aqi: t('landing.mock_card.cities.hyderabad_status'), cost: t('landing.mock_card.cities.hyderabad_cost'), badge: '#94A3B8', rating: t('landing.mock_card.cities.hyderabad_rating') },
+    ];
+
     return (
         <section style={{
             background: '#F5EFE0',
@@ -10,7 +23,6 @@ export default function Hero() {
             position: 'relative',
             overflow: 'hidden',
         }}>
-            {/* Subtle background texture */}
             <div style={{
                 position: 'absolute',
                 inset: 0,
@@ -20,10 +32,7 @@ export default function Hero() {
 
             <div style={{ maxWidth: 1160, margin: '0 55px', position: 'relative' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}>
-
-                    {/* ── Left Content ── */}
                     <div>
-                        {/* Badge */}
                         <div style={{
                             display: 'inline-flex', alignItems: 'center', gap: 8,
                             background: 'rgba(92,74,42,0.1)', border: '1px solid rgba(92,74,42,0.2)',
@@ -31,10 +40,9 @@ export default function Hero() {
                             fontSize: 13, fontWeight: 500, color: '#5C4A2A',
                         }}>
                             <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#8B6914', display: 'inline-block' }} />
-                            AI-Powered Migration Advisor
+                            {t('landing.hero_badge')}
                         </div>
 
-                        {/* Headline */}
                         <h1 style={{
                             fontSize: 'clamp(40px, 5vw, 58px)',
                             fontWeight: 800,
@@ -42,18 +50,17 @@ export default function Hero() {
                             color: '#1A1208',
                             margin: '0 0 24px',
                             letterSpacing: '-1.5px',
-                            fontFamily: "'Libre Baskerville', serif",
+                            fontFamily: 'var(--app-font-serif)',
                         }}>
-                            Find your next{' '}
+                            {t('landing.hero_title_prefix')}{' '}
                             <em style={{
                                 fontStyle: 'italic',
                                 color: '#8B6914',
-                                fontFamily: "'Libre Baskerville', serif",
-                            }}>clean-air{' '}
-                            city</em>{' '}— with{' '}confidence.
+                                fontFamily: 'var(--app-font-serif)',
+                            }}>{t('landing.hero_title_highlight')}</em>{' '}
+                            {t('landing.hero_title_suffix')}
                         </h1>
 
-                        {/* Subtext */}
                         <p style={{
                             fontSize: 16,
                             color: '#6B5B3A',
@@ -61,11 +68,9 @@ export default function Hero() {
                             marginBottom: 36,
                             maxWidth: 440,
                         }}>
-                            Tell us about your family, career, and lifestyle. We match you with cities
-                            where you'll truly thrive — covering housing, utilities, healthcare, schools and more.
+                            {t('landing.hero_description')}
                         </p>
 
-                        {/* CTA */}
                         <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
                             <Link href="/wizard" style={{
                                 background: '#5C4A2A',
@@ -81,7 +86,7 @@ export default function Hero() {
                                 boxShadow: '0 4px 16px rgba(92,74,42,0.25)',
                                 transition: 'all 0.2s',
                             }}>
-                                Find Your City →
+                                {t('landing.hero_cta')}
                             </Link>
                             <a href="#how-it-works" style={{
                                 color: '#5C4A2A',
@@ -90,11 +95,10 @@ export default function Hero() {
                                 fontWeight: 500,
                                 opacity: 0.8,
                             }}>
-                                See how it works
+                                {t('landing.see_how_it_works')}
                             </a>
                         </div>
 
-                        {/* Stats Row */}
                         <div style={{
                             display: 'flex',
                             gap: 40,
@@ -102,13 +106,9 @@ export default function Hero() {
                             paddingTop: 40,
                             borderTop: '1px solid rgba(92,74,42,0.15)',
                         }}>
-                            {[
-                                { value: '25+', label: 'Cities Analyzed' },
-                                { value: '5 yr', label: 'AQI Data' },
-                                { value: '100%', label: 'Free to Use' },
-                            ].map((stat) => (
+                            {stats.map((stat) => (
                                 <div key={stat.label}>
-                                    <div style={{ fontSize: 26, fontWeight: 800, color: '#1A1208', letterSpacing: '-0.5px', fontFamily: "'Libre Baskerville', serif" }}>
+                                    <div style={{ fontSize: 26, fontWeight: 800, color: '#1A1208', letterSpacing: '-0.5px', fontFamily: 'var(--app-font-serif)' }}>
                                         {stat.value}
                                     </div>
                                     <div style={{ fontSize: 13, color: '#8B7355', marginTop: 4, fontWeight: 500 }}>
@@ -119,7 +119,6 @@ export default function Hero() {
                         </div>
                     </div>
 
-                    {/* ── Right: Card Mockup ── */}
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <div style={{
                             background: '#FFFBF2',
@@ -130,35 +129,28 @@ export default function Hero() {
                             maxWidth: 360,
                             border: '1px solid rgba(92,74,42,0.1)',
                         }}>
-                            {/* Card header */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                                <span style={{ fontSize: 13, fontWeight: 600, color: '#5C4A2A' }}>Plan</span>
-                                <span style={{ fontSize: 12, color: '#8B7355' }}>AQI Matching</span>
+                                <span style={{ fontSize: 13, fontWeight: 600, color: '#5C4A2A' }}>{t('landing.mock_card.plan')}</span>
+                                <span style={{ fontSize: 12, color: '#8B7355' }}>{t('landing.mock_card.aqi_matching')}</span>
                             </div>
 
-                            {/* Filter row */}
                             <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
                                 <div style={{
                                     flex: 1, background: '#F5EFE0', borderRadius: 8,
                                     padding: '10px 14px', fontSize: 13, color: '#5C4A2A', fontWeight: 500,
                                 }}>
-                                    ₹10,000
+                                    {t('landing.mock_card.budget')}
                                 </div>
                                 <div style={{
                                     background: '#F5EFE0', borderRadius: 8,
                                     padding: '10px 14px', fontSize: 13, color: '#5C4A2A', fontWeight: 500,
                                     minWidth: 70, display: 'flex', alignItems: 'center', gap: 6,
                                 }}>
-                                    <span style={{ fontSize: 16 }}>🔆</span> 14
+                                    <span style={{ fontSize: 16 }}>🔆</span> {t('landing.mock_card.count')}
                                 </div>
                             </div>
 
-                            {/* City cards */}
-                            {[
-                                { name: 'Bangalore', aqi: 'Unlimited', cost: '₹6,231', badge: '#22C55E', rating: '94.2pt' },
-                                { name: 'Pune', aqi: 'Limited', cost: '₹5,012', badge: '#EAB308', rating: '88.1' },
-                                { name: 'Hyderabad', aqi: 'Standard', cost: '₹4,872', badge: '#94A3B8', rating: '81.4' },
-                            ].map((city, i) => (
+                            {mockCities.map((city, i) => (
                                 <div key={city.name} style={{
                                     background: i === 0 ? '#5C4A2A' : '#F5EFE0',
                                     borderRadius: 12,
@@ -191,15 +183,14 @@ export default function Hero() {
                                 </div>
                             ))}
 
-                            {/* Bottom summary */}
                             <div style={{
                                 marginTop: 16, paddingTop: 16,
                                 borderTop: '1px solid rgba(92,74,42,0.12)',
                                 display: 'flex', justifyContent: 'space-between',
                                 fontSize: 12, color: '#8B7355', fontWeight: 500,
                             }}>
-                                <span>AQI Score</span>
-                                <span style={{ color: '#22C55E', fontWeight: 700 }}>↑ 32% better</span>
+                                <span>{t('landing.mock_card.aqi_score')}</span>
+                                <span style={{ color: '#22C55E', fontWeight: 700 }}>{t('landing.mock_card.better')}</span>
                             </div>
                         </div>
                     </div>

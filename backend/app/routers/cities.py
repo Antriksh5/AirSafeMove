@@ -131,7 +131,8 @@ async def list_professions() -> List[str]:
 def get_city_description(
     city_name: str,
     has_children: bool = False,
-    has_elderly: bool = False
+    has_elderly: bool = False,
+    language: str = "en",
 ) -> CityDescriptionResponse:
     """
     Get comprehensive AI-generated description for a city.
@@ -157,7 +158,8 @@ def get_city_description(
         city_name=city["city_name"],
         state=city["state"],
         has_children=has_children,
-        has_elderly=has_elderly
+        has_elderly=has_elderly,
+        language=language,
     )
     
     return CityDescriptionResponse(**description_data)

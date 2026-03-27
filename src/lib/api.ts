@@ -218,12 +218,14 @@ export async function fetchProfessions(): Promise<string[]> {
 export async function fetchCityDescription(
     cityName: string,
     hasChildren: boolean = false,
-    hasElderly: boolean = false
+    hasElderly: boolean = false,
+    language: string = 'en'
 ): Promise<CityDescription> {
     try {
         const params = new URLSearchParams({
             has_children: hasChildren.toString(),
-            has_elderly: hasElderly.toString()
+            has_elderly: hasElderly.toString(),
+            language
         });
         const url = `${API_BASE_URL}/api/cities/description/${encodeURIComponent(cityName)}?${params}`;
         console.log(`Fetching city description from: ${url}`);
@@ -305,7 +307,8 @@ export async function getAdvisory(
     healthConditions: string[],
     recommendations: CityRecommendation[],
     readinessScore: number,
-    healthUrgency: number
+    healthUrgency: number,
+    language: string = 'en'
 ): Promise<AdvisoryResponse> {
     try {
         const response = await fetch(`${API_BASE_URL}/api/advisory/`, {
@@ -326,6 +329,7 @@ export async function getAdvisory(
                 top_recommendations: recommendations,
                 readiness_score: readinessScore,
                 health_urgency: healthUrgency,
+                language,
             }),
         });
         if (!response.ok) throw new Error('Failed to get advisory');

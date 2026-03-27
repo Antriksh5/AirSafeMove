@@ -4,19 +4,29 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslation } from '../hooks/useTranslation';
+import { resetPlanningSession } from '../lib/session';
 
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { user, profile, signOut, loading } = useAuth();
     const router = useRouter();
+    const { t } = useTranslation();
 
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
     const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
     const handleSignOut = async () => {
+        resetPlanningSession();
         await signOut();
         closeMobileMenu();
         router.push('/');
+    };
+
+    const handleStartPlanning = () => {
+        resetPlanningSession();
+        closeMobileMenu();
     };
 
     return (
@@ -32,27 +42,26 @@ export default function Navbar() {
             zIndex: 50,
             borderBottom: '1px solid rgba(0,0,0,0.06)',
         }}>
-            {/* Logo */}
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-                <img 
-                    src="/Logo.png" 
-                    alt="AI शहरें" 
-                    style={{ 
-                        height: 165, 
+                <img
+                    src="/Logo.png"
+                    alt={t('app.logo_alt')}
+                    style={{
+                        height: 165,
                         width: 'auto',
                         objectFit: 'contain'
-                    }} 
+                    }}
                 />
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav style={{ display: 'flex', alignItems: 'center', gap: 36 }}>
+            <nav style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
                 <a href="#how-it-works" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15, fontWeight: 500 }}>
-                    How it Works
+                    {t('nav.how_it_works')}
                 </a>
                 <a href="#features" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15, fontWeight: 500 }}>
-                    Features
+                    {t('nav.features')}
                 </a>
+                <LanguageSwitcher />
                 {loading ? null : user ? (
                     <>
                         <div style={{
@@ -72,73 +81,74 @@ export default function Navbar() {
                                 {profile?.name || user.email?.split('@')[0]}
                             </span>
                         </div>
-                        <Link href="/wizard" style={{
+                        <Link href="/wizard" onClick={handleStartPlanning} style={{
                             background: '#5C4A2A', color: '#F5EFE0',
                             padding: '10px 22px', borderRadius: 8,
                             fontSize: 14, fontWeight: 600, textDecoration: 'none',
                             transition: 'all 0.2s',
                         }}>
-                            Start Planning
+                            {t('nav.start_planning')}
                         </Link>
                         <button onClick={handleSignOut} style={{
                             background: 'none', border: '1px solid rgba(92,74,42,0.3)',
                             padding: '8px 16px', borderRadius: 8, fontSize: 14,
                             color: '#5C4A2A', cursor: 'pointer', fontWeight: 500,
                         }}>
-                            Sign Out
+                            {t('nav.sign_out')}
                         </button>
                     </>
                 ) : (
                     <>
                         <Link href="/auth" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15, fontWeight: 500 }}>
-                            Login
+                            {t('nav.login')}
                         </Link>
-                        <Link href="/wizard" style={{
+                        <Link href="/wizard" onClick={handleStartPlanning} style={{
                             background: '#5C4A2A', color: '#F5EFE0',
                             padding: '10px 22px', borderRadius: 8,
                             fontSize: 14, fontWeight: 600, textDecoration: 'none',
                         }}>
-                            Start Planning
+                            {t('nav.start_planning')}
                         </Link>
                     </>
                 )}
             </nav>
 
-            {/* Mobile Menu Button */}
             <button
                 className="mobile-menu-btn"
                 onClick={toggleMobileMenu}
-                aria-label="Toggle navigation menu"
+                aria-label={t('nav.toggle_menu')}
                 style={{ color: '#2C1F0E' }}
             >
                 {isMobileMenuOpen ? '✕' : '☰'}
             </button>
 
-            {/* Mobile Navigation */}
             <nav className={`nav-links-mobile ${isMobileMenuOpen ? 'open' : ''}`} style={{
                 background: '#F5EFE0',
                 borderTop: '1px solid rgba(0,0,0,0.08)',
             }}>
-                <a href="#how-it-works" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15 }} onClick={closeMobileMenu}>How it Works</a>
-                <a href="#features" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15 }} onClick={closeMobileMenu}>Features</a>
+                <a href="#how-it-works" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15 }} onClick={closeMobileMenu}>{t('nav.how_it_works')}</a>
+                <a href="#features" style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15 }} onClick={closeMobileMenu}>{t('nav.features')}</a>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <LanguageSwitcher />
+                </div>
                 {!loading && (user ? (
                     <>
-                        <Link href="/wizard" onClick={closeMobileMenu} style={{
+                        <Link href="/wizard" onClick={handleStartPlanning} style={{
                             background: '#5C4A2A', color: '#F5EFE0', padding: '12px 20px',
                             borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center'
-                        }}>Start Planning</Link>
+                        }}>{t('nav.start_planning')}</Link>
                         <button onClick={handleSignOut} style={{
                             background: 'none', border: '1px solid rgba(92,74,42,0.3)',
                             padding: '10px 16px', borderRadius: 8, fontSize: 14, color: '#8B1A1A', cursor: 'pointer',
-                        }}>Sign Out</button>
+                        }}>{t('nav.sign_out')}</button>
                     </>
                 ) : (
                     <>
-                        <Link href="/auth" onClick={closeMobileMenu} style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15 }}>Login</Link>
-                        <Link href="/wizard" onClick={closeMobileMenu} style={{
+                        <Link href="/auth" onClick={closeMobileMenu} style={{ color: '#5C4A2A', textDecoration: 'none', fontSize: 15 }}>{t('nav.login')}</Link>
+                        <Link href="/wizard" onClick={handleStartPlanning} style={{
                             background: '#5C4A2A', color: '#F5EFE0', padding: '12px 20px',
                             borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center'
-                        }}>Start Planning</Link>
+                        }}>{t('nav.start_planning')}</Link>
                     </>
                 ))}
             </nav>
