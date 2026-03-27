@@ -1,7 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/auth/page": "app/auth/page.js",
-  "/wizard/page": "app/wizard/page.js",
-  "/results/page": "app/results/page.js",
-  "/city/[city_name]/page": "app/city/[city_name]/page.js"
-}

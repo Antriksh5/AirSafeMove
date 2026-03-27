@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(name)s  %(messa
 _env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=_env_path)
 
-from app.routers import cities, predictions, recommendations, advisory, report, user, city_explore, places
+from app.routers import cities, predictions, recommendations, advisory, report, user, city_explore, places, translations
 
 app = FastAPI(
     title="AirSafe Move API",
@@ -44,6 +44,7 @@ app.include_router(report.router, prefix="/api/report", tags=["Report"])
 app.include_router(user.router, prefix="/api/user", tags=["User"])
 app.include_router(city_explore.router, prefix="/api/city-explore", tags=["City Explore"])
 app.include_router(places.router, prefix="/api", tags=["Places"])
+app.include_router(translations.router, prefix="/api/translations", tags=["Translations"])
 
 
 logger = logging.getLogger(__name__)

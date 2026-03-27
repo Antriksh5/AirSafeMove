@@ -1,9 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-// import { GoogleAIBackend, getAI, getGenerativeModel } from 'firebase/ai';
 import enTranslations from '../translations/en.json';
-// import { app } from '../lib/firebase';
 import { type LanguageCode, useLanguage } from '../context/LanguageContext';
 
 type TranslationValue = string | TranslationDictionary;
@@ -13,6 +11,8 @@ interface TranslationDictionary {
 }
 
 const STORAGE_PREFIX = 'translations_';
+const TRANSLATION_API_URL = `${(process.env.NEXT_PUBLIC_API_URL || 'https://fastapi-backend-44079236102.asia-south1.run.app').replace(/\/$/, '')}/api/translations`;
+
 export const languageNames: Record<LanguageCode, string> = {
   en: 'English',
   hi: 'Hindi',
@@ -21,6 +21,7 @@ export const languageNames: Record<LanguageCode, string> = {
   te: 'Telugu',
   ta: 'Tamil',
 };
+
 const translationRequests = new Map<LanguageCode, Promise<TranslationDictionary>>();
 const sourceTranslations = enTranslations as TranslationDictionary;
 
@@ -126,51 +127,34 @@ async function getOrCreateTranslation(language: Exclude<LanguageCode, 'en'>): Pr
     return pending;
   }
 
-  const request = translateDictionary(language)
-    .finally(() => {
-      translationRequests.delete(language);
-    });
+  const request = translateDictionary(language).finally(() => {
+    translationRequests.delete(language);
+  });
 
   translationRequests.set(language, request);
   return request;
 }
 
 async function translateDictionary(language: Exclude<LanguageCode, 'en'>): Promise<TranslationDictionary> {
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-
-  const prompt = [
-    'You are a professional translator.',
-    `Translate the following JSON object's values into ${languageNames[language]}.`,
-    'Rules:',
-    '- Keep ALL JSON keys exactly as-is',
-    '- Do NOT translate proper nouns, city names, or brand names',
-    '- Do NOT translate the app name "शहर AI"',
-    '- Do NOT translate values that are currency symbols (₹) or units (km, km/h)',
-    '- Preserve all {placeholder} tokens exactly as they appear e.g. {name}, {city}',
-    '- Return ONLY valid JSON. No markdown, no backticks, no explanation.',
-    JSON.stringify(sourceTranslations, null, 2),
-  ].join('\n');
-
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
-    }
-  );
+  const response = await fetch(TRANSLATION_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      language,
+      source_translations: sourceTranslations,
+    }),
+  });
 
   if (!response.ok) {
-    throw new Error(`Gemini API error: ${response.status}`);
+    throw new Error(`Translation API error: ${response.status}`);
   }
 
-  const data = await response.json();
-  const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-  const parsed = JSON.parse(stripCodeFences(responseText)) as TranslationDictionary;
+  const data = await response.json() as { translations?: TranslationDictionary };
+  if (!data.translations) {
+    throw new Error('Translation API returned no translations');
+  }
 
-  return parsed;
+  return data.translations;
 }
 
 function resolveKey(dictionary: TranslationDictionary, key: string): TranslationValue | undefined {
@@ -181,13 +165,4 @@ function resolveKey(dictionary: TranslationDictionary, key: string): Translation
 
     return current[segment];
   }, dictionary);
-}
-
-function stripCodeFences(value: string): string {
-  return value
-    .trim()
-    .replace(/^```json\s*/i, '')
-    .replace(/^```\s*/i, '')
-    .replace(/\s*```$/, '')
-    .trim();
 }
