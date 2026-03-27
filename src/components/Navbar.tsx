@@ -47,9 +47,10 @@ export default function Navbar() {
                     src="/Logo.png"
                     alt={t('app.logo_alt')}
                     style={{
-                        height: 165,
+                        height: 155,
                         width: 'auto',
-                        objectFit: 'contain'
+                        objectFit: 'contain',
+                        display: 'block',
                     }}
                 />
             </Link>

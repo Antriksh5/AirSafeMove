@@ -22,7 +22,7 @@ export default function AuthPage() {
     useEffect(() => {
         if (!loading && user) {
             resetPlanningSession();
-            router.push('/wizard');
+            router.push('/');
         }
     }, [loading, router, user]);
 
@@ -54,7 +54,7 @@ export default function AuthPage() {
                     setError(signInError);
                 } else {
                     resetPlanningSession();
-                    router.push('/wizard');
+                    router.push('/');
                 }
             }
         } catch {

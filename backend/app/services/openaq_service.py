@@ -1,5 +1,5 @@
 """
-OpenAQ Real-Time AQI Service for AirSafe Move.
+OpenAQ Real-Time AQI Service for शहर AI.
 
 Fetches live PM2.5 measurements from the OpenAQ v3 API for Indian cities
 and converts them to AQI using US EPA breakpoints.

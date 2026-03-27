@@ -1,13 +1,13 @@
 {
   "app": {
     "name": "शहर AI",
-    "tagline": "Find your perfect city to call home",
-    "description": "AI-powered relocation intelligence for a smarter move",
+    "tagline": "Helping families relocate with confidence through personalized AI insights.",
+    "description": "Move Smarter, Live Better",
     "logo_alt": "शहर AI logo"
   },
   "metadata": {
-    "title": "शहर AI - AI-Powered Migration Advisor",
-    "description": "Make data-driven relocation decisions with AI. Find cities with better air quality, affordable living, and career opportunities tailored to your profile."
+    "title": "शहर AI - Move Smarter, Live Better",
+    "description": "Helping families relocate with confidence through personalized AI insights."
   },
   "nav": {
     "home": "Home",
@@ -25,8 +25,8 @@
     "translating": "Translating..."
   },
   "footer": {
-    "advisory": "AI-powered migration advisory for healthier living",
-    "copyright": "© {year} AirSafe Move"
+    "advisory": "Helping families relocate with confidence through personalized AI insights.",
+    "copyright": "© {year} शहर AI"
   },
   "landing": {
     "hero_cta": "Find Your City",
@@ -37,40 +37,40 @@
     "step2_desc": "Our AI matches you with cities based on 50+ parameters",
     "step3_title": "Explore your matches",
     "step3_desc": "Deep-dive into each recommended city before you decide",
-    "hero_badge": "AI-Powered Migration Advisor",
-    "hero_title_prefix": "Find your next",
-    "hero_title_highlight": "clean-air city",
-    "hero_title_suffix": "with confidence.",
-    "hero_description": "Tell us about your family, career, and lifestyle. We match you with cities where you'll truly thrive - covering housing, utilities, healthcare, schools and more.",
+    "hero_badge": "शहर AI",
+    "hero_title_prefix": "Move Smarter,",
+    "hero_title_highlight": "Live Better",
+    "hero_title_suffix": "",
+    "hero_description": "Helping families relocate with confidence through personalized AI insights.",
     "see_how_it_works": "See how it works",
     "stats": {
       "cities_analyzed_value": "25+",
       "cities_analyzed_label": "Cities Analyzed",
-      "aqi_data_value": "5 yr",
-      "aqi_data_label": "AQI Data",
+      "aqi_data_value": "4x",
+      "aqi_data_label": "Key Life Factors",
       "free_to_use_value": "100%",
       "free_to_use_label": "Free to Use"
     },
     "mock_card": {
-      "plan": "Plan",
-      "aqi_matching": "AQI Matching",
-      "budget": "₹10,000",
+      "plan": "Family Profile",
+      "aqi_matching": "Cities Scored",
+      "budget": "Family of 4",
       "count": "14",
-      "aqi_score": "AQI Score",
-      "better": "↑ 32% better",
+      "aqi_score": "Air quality gain",
+      "better": "↑ up to 32% cleaner",
       "cities": {
-        "bangalore_status": "Unlimited",
+        "bangalore_status": "Best for IT families",
         "bangalore_name": "Bangalore",
-        "bangalore_cost": "₹6,231",
-        "bangalore_rating": "94.2pt",
-        "pune_status": "Limited",
+        "bangalore_cost": "AQI -32%",
+        "bangalore_rating": "94.2 match",
+        "pune_status": "Balanced cost + jobs",
         "pune_name": "Pune",
-        "pune_cost": "₹5,012",
-        "pune_rating": "88.1",
-        "hyderabad_status": "Standard",
+        "pune_cost": "Rent ₹23k",
+        "pune_rating": "88.1 match",
+        "hyderabad_status": "Strong healthcare access",
         "hyderabad_name": "Hyderabad",
-        "hyderabad_cost": "₹4,872",
-        "hyderabad_rating": "81.4"
+        "hyderabad_cost": "AQI -18%",
+        "hyderabad_rating": "81.4 match"
       }
     }
   },
@@ -105,12 +105,18 @@
       "advice_title": "AI migration advice",
       "advice_desc": "Personalised recommendations with plain-language explanations for each condition."
     },
-    "cta_title_line1": "Ready to find",
-    "cta_title_line2": "where you belong?",
-    "cta_description": "Join thousands of Indians moving smarter. Get data-driven recommendations with full data and AI-powered guidance.",
+    "cta_title_line1": "Ready to explore",
+    "cta_title_line2": "your next city?",
+    "cta_description": "Sign in to jump from the home page straight into city exploration with tailored job links and saved recommendations waiting for you.",
+    "cta_description_logged_in": "Enter the city you want to move to and your current profession. We'll take you straight to that city's explore page with job resources matched to your work.",
     "cta_current_city": "Your current city",
+    "cta_destination_city": "City you want to move to",
     "cta_profession": "Your profession",
-    "cta_button": "Find my city →"
+    "cta_button": "Explore this city →",
+    "cta_button_signed_out": "Sign in to explore →",
+    "cta_validation": "Enter both the destination city and your current profession.",
+    "saved_title": "Your saved recommendations",
+    "saved_view_results": "Open full results"
   },
   "auth": {
     "create_account": "Create Account",
@@ -263,6 +269,7 @@
     "saved_recommendations_caption": "Your personalized picks",
     "no_saved_recommendations": "No saved recommendations yet. Click \"Save to profile\" on a city to see it here.",
     "remove_saved": "Remove",
+    "removing_saved": "Removing...",
     "aqi_short": "AQI",
     "air_quality_suffix": "air quality",
     "years_short": "yrs",
@@ -334,7 +341,7 @@
     "explore_city": "Explore City",
     "ai_city_guide": "AI CITY GUIDE",
     "about_fallback": "Discover the unique lifestyle, communities, and opportunities waiting for you in {city}. Let our AI-driven insights guide your relocation.",
-    "loading_title": "AIrSafe AI is exploring {city}...",
+    "loading_title": "शहर AI is exploring {city}...",
     "loading_description": "Gathering city details & areas...",
     "go_back": "← Go Back",
     "ready_to_discover_more": "Ready to discover more?",

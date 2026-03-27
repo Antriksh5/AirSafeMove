@@ -11,7 +11,6 @@ import {
     type CityDescription,
     type CityRecommendation,
     type SavedRecommendation,
-    deleteSavedRecommendation,
     fetchCityDescription,
     fetchSavedRecommendations,
     saveRecommendation,
@@ -128,7 +127,7 @@ export default function ResultsPage() {
     const [activeTab, setActiveTab] = useState<(typeof modalTabs)[number]['id']>('security');
     const [savingCity, setSavingCity] = useState<string | null>(null);
     const [savedCities, setSavedCities] = useState<Set<string>>(new Set());
-    const [savedRecommendations, setSavedRecommendations] = useState<SavedRecommendation[]>([]);
+    const [, setSavedRecommendations] = useState<SavedRecommendation[]>([]);
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -247,26 +246,6 @@ export default function ResultsPage() {
         }
     };
 
-    const handleRemoveSaved = async (savedId: string, targetCity: string) => {
-        if (!user || !token) return;
-
-        try {
-            const success = await deleteSavedRecommendation(savedId, user.uid, token);
-            if (!success) {
-                return;
-            }
-
-            setSavedRecommendations((previous) => previous.filter((item) => item.id !== savedId));
-            setSavedCities((previous) => {
-                const next = new Set(previous);
-                next.delete(targetCity);
-                return next;
-            });
-        } catch (error) {
-            console.error('Error removing saved recommendation:', error);
-        }
-    };
-
     if (authLoading || !data) {
         return (
             <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5EFE0' }}>
@@ -279,7 +258,7 @@ export default function ResultsPage() {
         <div style={{ minHeight: '100vh', backgroundColor: '#FDFBF7', color: '#4A3B2A', fontFamily: 'var(--app-font-sans)' }}>
             <header style={{ padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                 <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, color: '#4A3B2A', fontWeight: 600 }}>
-                    <img src="/Logo.png" alt="AirSafe Move logo" style={{ height: 32, width: 'auto', objectFit: 'contain' }} />
+                    <img src="/Logo.png" alt={t('app.logo_alt')} style={{ height: 155, width: 'auto', objectFit: 'contain', display: 'block' }} />
                 </Link>
                 <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                     <Link
@@ -438,54 +417,6 @@ export default function ResultsPage() {
                     })}
                 </div>
 
-                <SectionHeader title={t('report.saved_recommendations')} caption={t('report.saved_recommendations_caption')} />
-                {savedRecommendations.length === 0 ? (
-                    <div style={{ background: 'white', border: '1px dashed #EAE6DF', borderRadius: 16, padding: '40px 24px', textAlign: 'center', color: '#8B7355', fontSize: 14 }}>
-                        {t('report.no_saved_recommendations')}
-                    </div>
-                ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
-                        {savedRecommendations.map((saved) => (
-                            <div
-                                key={saved.id}
-                                onClick={() => handleCityClick(saved)}
-                                style={{ background: 'white', border: '1px solid #EAE6DF', borderRadius: 16, padding: 20, boxShadow: '0 4px 12px rgba(0,0,0,0.02)', cursor: 'pointer' }}
-                            >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                                    <div>
-                                        <h3 style={{ margin: 0, fontSize: 16, color: '#4A3B2A', fontWeight: 600, fontFamily: 'var(--app-font-serif)' }}>{saved.target_city}</h3>
-                                        <div style={{ fontSize: 12, color: '#8B7355', marginTop: 2 }}>{saved.target_state}</div>
-                                    </div>
-                                    <div style={{ background: '#F2EDE4', color: '#8B7355', padding: '4px 8px', borderRadius: 8, fontSize: 12, fontWeight: 600 }}>
-                                        {saved.suitability_score?.toFixed(0) || '0'}%
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                    <button
-                                        type="button"
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-                                            handleCityClick(saved);
-                                        }}
-                                        style={secondaryButtonStyle}
-                                    >
-                                        {t('city_detail_modal.explore_city')}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-                                            handleRemoveSaved(saved.id, saved.target_city);
-                                        }}
-                                        style={{ ...secondaryButtonStyle, borderColor: '#FEE2E2', color: '#EF4444' }}
-                                    >
-                                        {t('report.remove_saved')}
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
             </main>
 
             {selectedCity && (

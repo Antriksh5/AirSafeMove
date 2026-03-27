@@ -1,5 +1,5 @@
 """
-Living Cost Service for AirSafe Move.
+Living Cost Service for शहर AI.
 Loads LivingCostDataset/livingcost_india_all_inr.csv at startup and exposes
 per-city affordability metrics used in city scoring.
 """

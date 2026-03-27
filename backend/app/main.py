@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -14,7 +15,7 @@ load_dotenv(dotenv_path=_env_path)
 from app.routers import cities, predictions, recommendations, advisory, report, user, city_explore, places, translations
 
 app = FastAPI(
-    title="AirSafe Move API",
+    title="शहर AI API",
     description="AI-powered migration advisory system for Indian cities",
     version="1.0.0"
 )
@@ -52,6 +53,11 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 def _warm_dataset_caches() -> None:
+    should_warm = os.getenv("WARM_STARTUP_CACHE", "").strip().lower() in {"1", "true", "yes"}
+    if not should_warm:
+        logger.info("Skipping startup cache warming; set WARM_STARTUP_CACHE=true to enable.")
+        return
+
     try:
         from app.services.pdf_evidence_service import warm_pdf_evidence_cache
 
@@ -73,7 +79,7 @@ def _warm_dataset_caches() -> None:
 
 @app.get("/")
 async def root():
-    return {"message": "AirSafe Move API", "status": "healthy"}
+    return {"message": "शहर AI API", "status": "healthy"}
 
 @app.get("/health")
 async def health_check():

@@ -13,5 +13,4 @@ serviceAccount*.json
 *.pyo
 *.pyd
 *.log
-dataset/
 dataset_cache/

@@ -592,12 +592,12 @@ export default function CityExplorePage() {
 
     return (
         <div style={{ minHeight: '100vh', paddingBottom: 100, background: '#FDFBF7', fontFamily: 'var(--app-font-sans)', color: '#4A3B2A' }}>
-            <header style={{ padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #EAE6DF' }}>
-                <Link href="/" style={{ textDecoration: 'none' }}>
+            <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 48px', height: 64, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                     <img
                         src="/Logo.png"
-                        alt="AirSafe Move logo"
-                        style={{ height: 32, width: 'auto', objectFit: 'contain' }}
+                        alt={t('app.logo_alt')}
+                        style={{ height: 155, width: 'auto', objectFit: 'contain', display: 'block' }}
                     />
                 </Link>
                 <button onClick={() => router.back()} style={{ background: 'transparent', padding: '10px 20px', border: '1px solid rgba(139,115,85,0.2)', borderRadius: 8, color: '#4A3B2A', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--app-font-sans)' }}>

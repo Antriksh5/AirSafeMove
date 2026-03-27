@@ -1,5 +1,5 @@
 """
-ML Prediction Service for AirSafe Move.
+ML Prediction Service for शहर AI.
 Implements trained ML models for city recommendations.
 
 Updated to integrate real-time AQI from OpenAQ alongside historical data,
